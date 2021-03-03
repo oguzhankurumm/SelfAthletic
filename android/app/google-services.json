@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1053407049319",
+    "firebase_url": "https://selfathletic-d8b9a-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "selfathletic-d8b9a",
+    "storage_bucket": "selfathletic-d8b9a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1053407049319:android:59c962483de601739f86c2",
+        "android_client_info": {
+          "package_name": "com.selfathletic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1053407049319-tapah6a7jmpk8v5cjk0trlsl6jg65lth.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhpACazhJwdia1ugiBbE7frzklQt1TDe8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1053407049319-tapah6a7jmpk8v5cjk0trlsl6jg65lth.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1053407049319-k11jefg1lnsv332fih2977hk99s2v4gh.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.selfathletic.selfathleticapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
