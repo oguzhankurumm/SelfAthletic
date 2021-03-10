@@ -4,10 +4,11 @@ import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, Dimensions, Scr
 import LinearGradient from 'react-native-linear-gradient';
 import { database2 } from '../../config/config';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import SpinnerLoading from '../../components/SpinnerLoading';
 
 const { height, width } = Dimensions.get("window");
 
-const Home = () => {
+const Home = ({ props, navigation }) => {
 
     const [Loading, setLoading] = useState(false);
     const [Campaigns, setCampaigns] = useState([]);
@@ -60,6 +61,7 @@ const Home = () => {
         <ImageBackground style={{ height: height, width: width }} resizeMode="cover" source={require('../../img/bg.jpg')}>
 
             <SafeAreaView style={styles.container}>
+                <SpinnerLoading Loading={Loading} />
 
                 <View style={styles.header} >
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
@@ -70,7 +72,7 @@ const Home = () => {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
-                        <TouchableHighlight onPress={() => alert('feed')}>
+                        <TouchableHighlight onPress={() => navigation.navigate('FeedList')}>
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
@@ -120,7 +122,7 @@ const Home = () => {
                             <Text style={styles.titleStyle}>Antrenmanlar</Text>
 
                             <TouchableOpacity
-                                onPress={() => alert('go to tüm')}
+                                onPress={() => navigation.navigate('WorkoutList', { Workouts: Workouts })}
                                 style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Text style={styles.subTitleStyle}>Tümünü Gör</Text>
                                 <Icon name="keyboard-arrow-right" size={18} color="#FFF" />
@@ -136,7 +138,7 @@ const Home = () => {
                         >
                             {!Loading && Workouts.map((item, index) => {
                                 return (
-                                    <TouchableOpacity onPress={() => Alert.alert(String(item.id))}
+                                    <TouchableOpacity onPress={() => navigation.navigate('WorkoutDetails', { item: item })}
                                         style={{
                                             height: 'auto',
                                             width: width / 1.17,
@@ -162,14 +164,14 @@ const Home = () => {
                                                 height: 150
                                             }}
                                         />
-                                        <View style={{ position: 'absolute', left: 20, top: 15 }}>
+                                        <View style={{ position: 'absolute', top: 15, paddingHorizontal: 20 }}>
                                             <Text style={{
                                                 fontFamily: 'SFProDisplay-Bold',
                                                 fontSize: 20,
                                                 color: '#FFF',
                                                 marginBottom: 8
                                             }}>{item.title}</Text>
-                                            <Text style={{
+                                            <Text numberOfLines={1} style={{
                                                 fontFamily: 'SFProDisplay-Medium',
                                                 fontSize: 13,
                                                 color: '#FFF'
@@ -178,8 +180,10 @@ const Home = () => {
 
                                         <View style={{
                                             flexDirection: 'row',
+                                            width: '100%',
                                             position: 'absolute',
-                                            left: 20,
+                                            paddingHorizontal: 20,
+                                            justifyContent: 'space-between',
                                             bottom: 15
                                         }}>
 
@@ -190,12 +194,12 @@ const Home = () => {
                                                 marginRight: 10
                                             }}>
                                                 <Icon name="timer" color="#FFF" size={20} />
-                                                <Text style={{
+                                                <Text numberOfLines={2} style={{
                                                     fontFamily: 'SFProDisplay-Medium',
                                                     fontSize: 13,
                                                     color: '#FFF',
                                                     marginLeft: 5
-                                                }}>{item.totalhours}</Text>
+                                                }}>{String(parseFloat(item.totalhours).toFixed(2)).replace('.', ':')}</Text>
                                             </View>
 
                                             {item.level === 0 &&
@@ -263,9 +267,18 @@ const Home = () => {
                             })}
                         </ScrollView>
                     </View>
+
+                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30, width: '100%', height: 150, borderRadius: 18, marginTop: 20, }}>
+                        <Image
+                            resizeMode="cover"
+                            source={{ uri: "https://cdn1.sportngin.com/attachments/news_article/81ea-130780442/1604_7longruns.jpg" }}
+                            style={{ width: '100%', height: 150, borderRadius: 18 }}
+                        />
+                    </View>
+
                 </ScrollView>
             </SafeAreaView>
-        </ImageBackground>
+        </ImageBackground >
     )
 }
 

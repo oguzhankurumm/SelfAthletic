@@ -10,7 +10,7 @@ const SpinnerLoading = (props) => {
             <Spinner
                 visible={Loading}
                 size="large"
-                color='#5F29CE'
+                color='#FFF'
             />
     )
 }

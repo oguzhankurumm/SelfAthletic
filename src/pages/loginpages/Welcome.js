@@ -108,13 +108,13 @@ const Welcome = ({ navigation }) => {
                             <Button onPress={() => {
                                 setselectedType(0);
                             }} full style={{ flexDirection: 'row', backgroundColor: selectedType === 0 ? "#FFF" : "#000", height: 40, width: '50%', justifyContent: 'center', alignItems: 'center', borderTopLeftRadius: 12, borderBottomLeftRadius: 12 }}>
-                                <Text allowFontScaling={false} style={{ fontSize: 15, color: selectedType === 0 ? "#000" : "#FFF", textAlign: 'center' }}>Giriş Yap</Text>
+                                <Text allowFontScaling={false} style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 15, color: selectedType === 0 ? "#000" : "#FFF", textAlign: 'center' }}>Giriş Yap</Text>
                             </Button>
 
                             <Button onPress={() => {
                                 setselectedType(1);
                             }} full style={{ flexDirection: 'row', backgroundColor: selectedType === 1 ? "#FFF" : "#000", height: 40, width: '50%', justifyContent: 'center', alignItems: 'center', borderTopRightRadius: 12, borderBottomRightRadius: 12 }}>
-                                <Text allowFontScaling={false} style={{ fontSize: 15, color: selectedType === 1 ? "#000" : "#FFF", textAlign: 'center' }}>Kayıt Ol</Text>
+                                <Text allowFontScaling={false} style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 15, color: selectedType === 1 ? "#000" : "#FFF", textAlign: 'center' }}>Kayıt Ol</Text>
                             </Button>
                         </View>
                     </View>

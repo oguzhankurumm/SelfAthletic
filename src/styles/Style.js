@@ -95,7 +95,7 @@ const Style = StyleSheet.create({
     },
     WelcomeSignIn: {
         color: 'white',
-        // fontFamily: "SFProDisplay-Medium",
+        fontFamily: "SFProDisplay-Medium",
         fontSize: 15,
         fontWeight: '400',
         // lineHeight: 22
