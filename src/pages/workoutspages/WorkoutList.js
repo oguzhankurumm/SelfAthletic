@@ -37,7 +37,7 @@ const WorkoutList = props => {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
-                        <TouchableHighlight onPress={() => alert('feed')}>
+                        <TouchableHighlight onPress={() => props.navigation.navigate('FeedList')}>
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
@@ -67,7 +67,7 @@ const WorkoutList = props => {
                                         source={{ uri: workouts.item.image }}
                                         style={{
                                             width: '100%',
-                                            height: 150,
+                                            height: 200,
                                             borderRadius: 18
                                         }}
                                     />
@@ -79,7 +79,7 @@ const WorkoutList = props => {
                                             position: 'absolute',
                                             borderRadius: 18,
                                             width: '100%',
-                                            height: 150
+                                            height: 200
                                         }}
                                     />
                                     <View style={{ position: 'absolute', top: 15, paddingHorizontal: 15 }}>
@@ -119,66 +119,6 @@ const WorkoutList = props => {
                                                 marginLeft: 5
                                             }}>{String(parseFloat(workouts.item.totalhours).toFixed(2)).replace('.', ':')}</Text>
                                         </View>
-
-                                        {workouts.item.level === 0 &&
-                                            <View style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}>
-                                                <Icon name="bar-chart" color="#FFF" size={20} />
-                                                <Text style={{
-                                                    fontFamily: 'SFProDisplay-Medium',
-                                                    fontSize: 14,
-                                                    color: '#FFF',
-                                                    marginLeft: 5
-                                                }}>Başlangıç</Text>
-                                            </View>
-                                        }
-
-                                        {workouts.item.level === 1 &&
-                                            <View style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}>
-                                                <Icon name="bar-chart" color="#FFF" size={20} />
-                                                <Text style={{
-                                                    fontFamily: 'SFProDisplay-Medium',
-                                                    fontSize: 14,
-                                                    color: '#FFF',
-                                                    marginLeft: 5
-                                                }}>Orta</Text>
-                                            </View>
-                                        }
-
-                                        {workouts.item.level === 2 &&
-                                            <View style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}>
-                                                <Icon name="bar-chart" color="#FFF" size={20} />
-                                                <Text style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 14, color: '#FFF', marginLeft: 5 }}>Zor</Text>
-                                            </View>
-                                        }
-
-                                        {workouts.item.level === 3 &&
-                                            <View style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}>
-                                                <Icon name="bar-chart" color="#FFF" size={20} />
-                                                <Text style={{
-                                                    fontFamily: 'SFProDisplay-Medium',
-                                                    fontSize: 14,
-                                                    color: '#FFF',
-                                                    marginLeft: 5
-                                                }}>Uzman</Text>
-                                            </View>
-                                        }
-
                                     </View>
                                 </TouchableOpacity>
                             )
@@ -186,33 +126,7 @@ const WorkoutList = props => {
                     />
                 }
             </SafeAreaView>
-
-            <TouchableOpacity style={{
-                flexDirection: 'row',
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: 60,
-                backgroundColor: '#000',
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}>
-                <Text style={{
-                    fontFamily: 'SFProDisplay-Bold',
-                    justifyContent: 'flex-start',
-                    fontSize: 16,
-                    color: '#FFF',
-                    marginRight: 5
-                }}>Başla</Text>
-                <Icon
-                    name="keyboard-arrow-right"
-                    size={28}
-                    color="#FFF"
-                />
-            </TouchableOpacity>
-
-        </ImageBackground>
+        </ImageBackground >
     )
 }
 

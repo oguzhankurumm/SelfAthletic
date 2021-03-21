@@ -1,22 +1,68 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, ScrollView, Alert, TouchableOpacity, ImageBackground, TouchableHighlight, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, ScrollView, Alert, TouchableOpacity, ImageBackground, TouchableHighlight, Dimensions, FlatList } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
+import axios from 'axios';
+import moment from 'moment';
 
 const { height, width } = Dimensions.get("window");
 
 
 const WorkoutDetails = props => {
 
-    const [Loading, setLoading] = useState(false);
+    const [Loading, setLoading] = useState(true);
     const [Workouts, setWorkouts] = useState(props.route.params.item);
+    const [Movements, setMovements] = useState(props.route.params.item.movements !== null && props.route.params.item.movements !== undefined ? Object.values(props.route.params.item.movements) : [])
+    const [VideoList, setVideoList] = useState([]);
+    const [TotalHours, setTotalHours] = useState(0);
+
+
+    const getVideo = () => {
+        let videoList = [];
+
+        Movements.forEach((move) => {
+            axios.get(`https://player.vimeo.com/video/${move.video}/config`)
+                .then((res) => {
+                    if (res.status === 200) {
+                        videoList.push({
+                            size: res.data.request.files.progressive[4].width,
+                            url: res.data.request.files.progressive[4].url,
+                            thumb: res.data.video.thumbs[640],
+                            title: res.data.video.title,
+                            duration: res.data.video.duration,
+                            id: res.data.video.id,
+                            ...move
+                        })
+
+                        setVideoList(videoList);
+
+                        let drt = videoList.reduce(function (prev, current) {
+                            return prev + +parseFloat(current.duration)
+                        }, 0);
+
+                        setTotalHours(moment.utc(drt * 1000).format('HH:mm:ss'));
+                        setLoading(false);
+                    } else {
+                        setLoading(false);
+                    }
+                })
+                .catch((err) => {
+                    setLoading(false);
+                    Alert.alert('Hata', 'Videolar yüklenemedi, lütfen internet bağlantınızı kontrol edin.')
+                })
+        })
+    }
 
     useEffect(() => {
-        if (Workouts.length !== 0) {
-            setLoading(false);
+
+        if (Workouts.length !== 0 && Movements.length !== 0) {
+            getVideo()
         } else {
-            setLoading(true);
+            setLoading(false);
+            setTimeout(() => {
+                Alert.alert('Hata', 'Bu antrenmandan hiç video yok.')
+            }, 400);
         }
     }, [])
 
@@ -35,7 +81,7 @@ const WorkoutDetails = props => {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
-                        <TouchableHighlight onPress={() => alert('feed')}>
+                        <TouchableHighlight onPress={() => props.navigation.navigate('FeedList')}>
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
@@ -64,7 +110,7 @@ const WorkoutDetails = props => {
                                         source={{ uri: Workouts.image }}
                                         style={{
                                             width: '100%',
-                                            height: 250,
+                                            height: 200,
                                             borderRadius: 18
                                         }}
                                     />
@@ -76,7 +122,7 @@ const WorkoutDetails = props => {
                                             position: 'absolute',
                                             borderRadius: 18,
                                             width: '100%',
-                                            height: 250
+                                            height: 200
                                         }}
                                     />
                                     <View style={{ position: 'absolute', top: 15, paddingHorizontal: 20 }}>
@@ -86,11 +132,6 @@ const WorkoutDetails = props => {
                                             color: '#FFF',
                                             marginBottom: 8
                                         }}>{Workouts.title}</Text>
-                                        <Text numberOfLines={2} style={{
-                                            fontFamily: 'SFProDisplay-Medium',
-                                            fontSize: 13,
-                                            color: '#FFF'
-                                        }}>{Workouts.description}</Text>
                                     </View>
 
 
@@ -115,10 +156,40 @@ const WorkoutDetails = props => {
                                                 fontSize: 13,
                                                 color: '#FFF',
                                                 marginLeft: 5
-                                            }}>{String(parseFloat(Workouts.totalhours).toFixed(2)).replace('.', ':')}</Text>
+                                            }}>{String(TotalHours)}</Text>
                                         </View>
 
-                                        {Workouts.level === 0 &&
+                                        <View style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginRight: 10
+                                        }}>
+                                            <Icon name="directions-run" color="#FFF" size={20} />
+                                            <Text style={{
+                                                fontFamily: 'SFProDisplay-Medium',
+                                                fontSize: 13,
+                                                color: '#FFF',
+                                                marginLeft: 5
+                                            }}>{String(parseFloat(Workouts.calories).toFixed(0))} kcal</Text>
+                                        </View>
+
+                                        <View style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginRight: 10
+                                        }}>
+                                            <Icon name="star" color="#FFF" size={20} />
+                                            <Text style={{
+                                                fontFamily: 'SFProDisplay-Medium',
+                                                fontSize: 13,
+                                                color: '#FFF',
+                                                marginLeft: 5
+                                            }}>{String(parseFloat(Workouts.point).toFixed(0))}</Text>
+                                        </View>
+
+                                        {/* {Workouts.level === 0 &&
                                             <View style={{
                                                 flexDirection: 'row',
                                                 justifyContent: 'center',
@@ -175,44 +246,93 @@ const WorkoutDetails = props => {
                                                     marginLeft: 5
                                                 }}>Uzman</Text>
                                             </View>
-                                        }
+                                        } */}
 
 
                                     </View>
 
-
-
                                 </View>
-                                <View style={{ marginTop: 20 }}>
+
+                                <View style={{ marginTop: 20, width: '100%' }}>
                                     <Text style={{
                                         fontFamily: 'SFProDisplay-Medium',
                                         fontSize: 13,
-                                        color: '#D9D9D9'
+                                        color: '#D9D9D9',
+                                        textAlign: 'justify'
                                     }}>{Workouts.description}
                                     </Text>
+
+                                    <TouchableOpacity onPress={() => {
+                                        if (Workouts.length !== 0 && Movements.length !== 0) {
+                                            props.navigation.navigate('WorkoutVideo', { VideoList: VideoList, Workouts: Workouts })
+                                        } else {
+                                            Alert.alert('Hata', 'Bu antrenmanda hiç video yok.');
+                                        }
+                                    }}
+                                        style={{ marginTop: 20, flexDirection: 'row', width: '100%', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                        <Text style={{
+                                            fontFamily: 'SFProDisplay-Medium',
+                                            fontSize: 15,
+                                            color: 'yellow',
+                                            marginRight: 10
+                                        }}
+                                        >Hemen Başla</Text>
+                                        <Icon name="keyboard-arrow-right" color="yellow" size={26} />
+                                    </TouchableOpacity>
+                                </View>
+
+                                <View style={{ width: '100%', marginTop: 20 }}>
+                                    {!Loading && VideoList.length !== 0 && Movements.length !== 0 &&
+                                        <FlatList
+                                            style={{ paddingBottom: 20, width: '100%' }}
+                                            scrollEnabled={true}
+                                            showsHorizontalScrollIndicator={false}
+                                            showsVerticalScrollIndicator={false}
+                                            data={VideoList}
+                                            keyExtractor={(item, index) => index.toString()}
+                                            renderItem={({ item, index }) => (
+                                                <TouchableOpacity
+                                                    onPress={() => Alert.alert('Bilgi', String(item.info))}
+                                                    style={{
+                                                        paddingVertical: 8,
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        height: 'auto',
+                                                        width: '100%',
+                                                        borderRadius: 18
+                                                    }}>
+                                                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                        <Image
+                                                            resizeMode="cover"
+                                                            source={{ uri: item.thumb }}
+                                                            style={{
+                                                                width: 60,
+                                                                height: 60,
+                                                                borderRadius: 8
+                                                            }}
+                                                        />
+                                                        <View style={{ marginLeft: 20 }}>
+
+                                                            <Text style={{
+                                                                fontFamily: 'SFProDisplay-Bold',
+                                                                fontSize: 16,
+                                                                color: '#FFF'
+                                                            }}>{item.title}</Text>
+                                                        </View>
+                                                    </View>
+
+                                                </TouchableOpacity>
+                                            )}
+
+                                        />
+                                    }
                                 </View>
                             </>
                         }
                     </View>
                 </ScrollView>
             </SafeAreaView>
-
-            <TouchableOpacity style={{
-                width: '100%',
-                height: 60,
-                backgroundColor: '#000',
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}>
-                <Text style={{
-                    fontFamily: 'SFProDisplay-Bold',
-                    justifyContent: 'flex-start',
-                    fontSize: 16,
-                    color: '#FFF',
-                    marginRight: 5
-                }}>Antrenmana Başla</Text>
-            </TouchableOpacity>
-
         </ImageBackground >
     )
 }
@@ -246,7 +366,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 30
+        paddingHorizontal: 20
     },
     headerText: {
         fontFamily: 'SFProDisplay-Medium',

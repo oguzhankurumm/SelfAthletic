@@ -3,40 +3,19 @@ import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, TouchableOpacit
 import { database2 } from '../../config/config';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
-import FeedPost from '../../components/FeedPost';
+import GetComment from '../../components/GetComment';
 
 const { height, width } = Dimensions.get("window");
 
-const FeedList = ({ props, navigation }) => {
+const FeedDetails = props => {
 
-    const [Loading, setLoading] = useState(false);
-    const [Feed, setFeed] = useState([]);
+    const [Loading, setLoading] = useState(true);
+    const [Comments, setComments] = useState(props.route.params.item)
 
     useEffect(() => {
-        setLoading(true);
+        setLoading(false);
 
-        database2.ref('feed').once('value')
-            .then((data) => {
-                let PostList = [];
-
-                data.forEach((item) => {
-                    item.forEach((newitem) => {
-                        PostList.push({
-                            ...newitem.val(),
-                            id: newitem.key
-                        })
-                    })
-                })
-
-                setFeed(PostList);
-
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.log('err: ', err);
-                Alert.alert('Hata', 'Feed listesi çekilemedi.');
-                setLoading(false);
-            })
+        console.log('propsss:', props.route.params.item)
     }, [])
 
     return (
@@ -48,14 +27,14 @@ const FeedList = ({ props, navigation }) => {
 
 
                 <View style={styles.header} >
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+                    <TouchableOpacity onPress={() => props.navigation.goBack()} style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                         <Icon name="keyboard-arrow-left" color="#FFF" size={42} style={{ marginRight: 15 }} />
-                        <Text style={styles.headerText}>SelfAthletic Takımı</Text>
+                        <Text style={styles.headerText}>Yorumlar</Text>
                     </TouchableOpacity>
 
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
-                        <TouchableHighlight disabled={true} onPress={() => navigation.navigate('FeedList')}>
+                        <TouchableHighlight disabled={true} onPress={() => props.navigation.navigate('FeedList')}>
                             <Icon name="comment" color="#C7CB4B" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
@@ -66,18 +45,19 @@ const FeedList = ({ props, navigation }) => {
                     </View>
                 </View>
 
-                {!Loading &&
-                    <FlatList style={{ height: 'auto', paddingHorizontal: 30 }}
-                        scrollEnabled={true}
-                        data={Feed}
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={(feed) => {
-                            return (feed.item &&
-                                <FeedPost item={feed.item} navigation={navigation} />
-                            )
-                        }}
-                    />
-                }
+                {/* {[Comments].forEach((item) => {
+                    <GetComment comment={item.comment} name={item.name} />
+                    console.log('itemm: ', item)
+                })} */}
+
+                <FlatList style={{ height: 300, paddingHorizontal: 30, width: '100%' }}
+                    scrollEnabled={true}
+                    data={Comments}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={(comment) => (
+                        <Text>SElamammsdfdsf</Text>
+                    )}
+                />
             </SafeAreaView>
 
         </ImageBackground >
@@ -104,4 +84,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default FeedList;
+export default FeedDetails;

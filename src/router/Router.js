@@ -3,6 +3,7 @@ import { TouchableOpacity, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import Welcome from '../pages/loginpages/Welcome';
 import ForgotPassword from '../pages/loginpages/ForgotPassword';
 import Home from '../pages/mainpages/Home';
@@ -10,8 +11,14 @@ import Antrenman from '../pages/mainpages/Antrenman';
 import SendPost from '../pages/mainpages/SendPost';
 import Profile from '../pages/profilepages/Profile';
 import WorkoutDetails from '../pages/workoutspages/WorkoutDetails';
+import SliderDetails from '../pages/workoutspages/SliderDetails';
+import WorkoutVideo from '../pages/workoutspages/WorkoutVideo';
 import WorkoutList from '../pages/workoutspages/WorkoutList';
 import FeedList from '../pages/mainpages/FeedList';
+import FeedDetails from '../pages/mainpages/FeedDetails';
+import Calories from '../pages/caloriespages/Calories';
+import StepCounter from '../pages/steppages/StepCounter';
+import Premium from '../pages/profilepages/Premium';
 
 
 const Tab = createBottomTabNavigator();
@@ -90,7 +97,6 @@ export function Auth() {
     )
 }
 
-
 export function Root() {
     return (
         <RootStack.Navigator initialRouteName="Home">
@@ -100,6 +106,11 @@ export function Root() {
                 })}
             />
             <RootStack.Screen name="FeedList" component={FeedList}
+                options={{
+                    headerShown: false
+                }}
+            />
+            <RootStack.Screen name="FeedDetails" component={FeedDetails}
                 options={{
                     headerShown: false
                 }}
@@ -119,7 +130,42 @@ export function Root() {
                     headerTintColor: '#000'
                 }}
             />
+            <RootStack.Screen name="WorkoutVideo" component={WorkoutVideo}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
             <RootStack.Screen name="WorkoutList" component={WorkoutList}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="SliderDetails" component={SliderDetails}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="Calories" component={Calories}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="StepCounter" component={StepCounter}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="Premium" component={Premium}
                 options={{
                     headerShown: false,
                     headerBackTitleVisible: false,
