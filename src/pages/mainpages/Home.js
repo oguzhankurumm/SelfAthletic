@@ -6,14 +6,21 @@ import { database2 } from '../../config/config';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import Sidebar from '../../components/Sidebar';
 
 const { height, width } = Dimensions.get("window");
 
 const Home = ({ props, navigation }) => {
 
+    const [ShowSideModal, setShowSideModal] = useState(false);
+
     const [Loading, setLoading] = useState(false);
     const [Campaigns, setCampaigns] = useState([]);
     const [Workouts, setWorkouts] = useState([])
+
+    const closeModal = () => {
+        setShowSideModal(!ShowSideModal);
+    }
 
     useEffect(() => {
         getWorkouts();
@@ -41,7 +48,7 @@ const Home = ({ props, navigation }) => {
     }
 
     const getWorkouts = () => {
-        database2.ref('workouts').once("value")
+        database2.ref('workouts_wod').once("value")
             .then((item) => {
                 let workoutList = []
                 item.forEach((item) => {
@@ -65,9 +72,13 @@ const Home = ({ props, navigation }) => {
             <SafeAreaView style={styles.container}>
                 <SpinnerLoading Loading={Loading} />
 
+                <Sidebar selected="Home" navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
+
                 <View style={styles.header} >
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-                        <Icon name="grid-view" color="#FFF" size={28} style={{ marginRight: 15 }} />
+                        <TouchableOpacity onPress={() => setShowSideModal(!ShowSideModal)}>
+                            <Icon name="menu" color="#FFF" size={32} style={{ marginRight: 15 }} />
+                        </TouchableOpacity>
                         <Text style={styles.headerText}>Ana Sayfa</Text>
 
                     </View>
@@ -78,7 +89,7 @@ const Home = ({ props, navigation }) => {
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={() => alert('bildirimler')}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Notifications')}>
                             <Icon name="notifications" color="#FFF" size={28} />
                         </TouchableHighlight>
 
@@ -91,7 +102,7 @@ const Home = ({ props, navigation }) => {
                     <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
                         {!Loading && Campaigns.map((item, index) => {
                             return (
-                                <TouchableOpacity onPress={() => navigation.navigate('SliderDetails', { item: item })} style={{ width: '100%', height: 200, borderRadius: 18, marginTop: 10, justifyContent: 'center', alignItems: 'center' }}>
+                                <TouchableOpacity key={item.id} onPress={() => navigation.navigate('SliderDetails', { item: item })} style={{ width: '100%', height: 200, borderRadius: 18, marginTop: 10, justifyContent: 'center', alignItems: 'center' }}>
 
                                     <Image
                                         resizeMode="cover"
@@ -277,9 +288,6 @@ const Home = ({ props, navigation }) => {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 30, width: '100%', height: 150, marginTop: 50 }}>
 
-
-
-
                         <TouchableOpacity
                             onPress={() => navigation.navigate('StepCounter')}
                             style={{ justifyContent: 'center', alignItems: 'center', width: '45%' }}>
@@ -293,7 +301,7 @@ const Home = ({ props, navigation }) => {
                                 {(fill) => (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                         <Text style={[styles.headerText, { fontSize: 24, marginBottom: 5 }]}>{fill}</Text>
-                                        <Text style={styles.headerText}>Adım Sayar</Text>
+                                        <Text style={styles.headerText}>Adım</Text>
                                         <Text style={styles.headerSubText}>Hedef: 15.000</Text>
                                     </View>
                                 )}
@@ -313,7 +321,7 @@ const Home = ({ props, navigation }) => {
                                 {(fill) => (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                         <Text style={[styles.headerText, { fontSize: 24, marginBottom: 5 }]}>{fill}</Text>
-                                        <Text style={styles.headerText}>Kalori Sayar</Text>
+                                        <Text style={styles.headerText}>Kalori</Text>
                                         <Text style={styles.headerSubText}>Hedef: 15.000</Text>
                                     </View>
                                 )}

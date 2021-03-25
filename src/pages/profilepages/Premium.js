@@ -23,17 +23,17 @@ const Premium = ({ props, navigation }) => {
 
                 <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon name="check" color="#FFF" size={20} />
-                    <Text style={styles.textHeaderSub}>Eşleşmeden Sınırsız Arama</Text>
+                    <Text style={styles.textHeaderSub}>Size özel antrenmanlar</Text>
                 </View>
 
                 <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon name="check" color="#FFF" size={20} />
-                    <Text style={styles.textHeaderSub}>Eşleşmeden Mesaj Gönderebilme</Text>
+                    <Text style={styles.textHeaderSub}>Size özel besinler</Text>
                 </View>
 
                 <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon name="check" color="#FFF" size={20} />
-                    <Text style={styles.textHeaderSub}>5 Adet Super Like</Text>
+                    <Text style={styles.textHeaderSub}>Diğer özellikler</Text>
                 </View>
             </View>
 
@@ -60,7 +60,7 @@ const Premium = ({ props, navigation }) => {
             </View>
 
             <TouchableOpacity onPress={() => Alert.alert('Yes', String(selectedType))} style={styles.bottomButton}>
-                <Text style={styles.textBottomButton}>ÜYELİĞİMİ BAŞLAT</Text>
+                <Text style={styles.textBottomButton}>Üyeliğimi Başlat</Text>
             </TouchableOpacity>
         </View >
     )
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         width: '100%',
         flexDirection: 'row',
         height: 60,
-        backgroundColor: '#FFF',
+        backgroundColor: 'white',
         borderRadius: 12,
         paddingHorizontal: 30,
         paddingVertical: 12,
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
         width: '100%',
         flexDirection: 'row',
         height: 60,
-        backgroundColor: '#5F29CE',
+        backgroundColor: 'yellow',
         borderRadius: 12,
         paddingHorizontal: 30,
         paddingVertical: 12,
@@ -122,12 +122,12 @@ const styles = StyleSheet.create({
     textSubSelected: {
         fontFamily: 'SFProDisplay-Bold',
         fontSize: 16,
-        color: '#FFF'
+        color: '#000'
     },
     textSub2Selected: {
         fontFamily: 'SFProDisplay-Medium',
         fontSize: 16,
-        color: '#FFF'
+        color: '#000'
     },
     closeView: {
         position: 'absolute',
@@ -142,13 +142,13 @@ const styles = StyleSheet.create({
     textBottomButton: {
         fontFamily: 'SFProDisplay-Bold',
         fontSize: 16,
-        color: '#FFF'
+        color: '#000'
     },
     bottomButton: {
         marginTop: 10,
         width: '100%',
         height: 60,
-        backgroundColor: '#5F29CE',
+        backgroundColor: 'yellow',
         borderRadius: 12,
         paddingHorizontal: 30,
         paddingVertical: 12,

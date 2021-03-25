@@ -25,7 +25,7 @@ const StepCounter = ({ props, navigation }) => {
                             allSteps.push({
                                 ...newitem.val(),
                                 id: newitem.key,
-                                name: String(userData.val().firstname + ' ' + userData.val().lastname),
+                                name: String(userData.val().name),
                                 userid: item.key
                             })
 
@@ -73,7 +73,7 @@ const StepCounter = ({ props, navigation }) => {
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={() => alert('bildirimler')}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Notifications')}>
                             <Icon name="notifications" color="#FFF" size={28} />
                         </TouchableHighlight>
 

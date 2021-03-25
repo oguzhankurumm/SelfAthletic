@@ -1,13 +1,12 @@
 import React from 'react'
-import { TouchableOpacity, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createDrawerNavigator } from '@react-navigation/drawer';
 import Welcome from '../pages/loginpages/Welcome';
 import ForgotPassword from '../pages/loginpages/ForgotPassword';
 import Home from '../pages/mainpages/Home';
 import Antrenman from '../pages/mainpages/Antrenman';
+import Food from '../pages/mainpages/Food';
 import SendPost from '../pages/mainpages/SendPost';
 import Profile from '../pages/profilepages/Profile';
 import WorkoutDetails from '../pages/workoutspages/WorkoutDetails';
@@ -19,12 +18,13 @@ import FeedDetails from '../pages/mainpages/FeedDetails';
 import Calories from '../pages/caloriespages/Calories';
 import StepCounter from '../pages/steppages/StepCounter';
 import Premium from '../pages/profilepages/Premium';
-
+import Notifications from '../pages/profilepages/Notifications';
+import Settings from '../pages/profilepages/Settings';
+import FavoritedWorkouts from '../pages/profilepages/FavoritedWorkouts';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
 const RootStack = createStackNavigator();
-
 
 function HomeTabBar() {
     return (
@@ -41,9 +41,9 @@ function HomeTabBar() {
                         iconName = 'dumbbell';
                     }
 
-                    if (route.name === 'SENDPOST') {
-                        iconName = 'plus';
-                    }
+                    // if (route.name === 'SENDPOST') {
+                    //     iconName = 'plus';
+                    // }
 
                     if (route.name === 'BESLENME') {
                         iconName = 'utensils';
@@ -67,8 +67,8 @@ function HomeTabBar() {
         >
             <Tab.Screen name="ANA SAYFA" component={Home} />
             <Tab.Screen name="ANTRENMAN" component={Antrenman} />
-            <Tab.Screen name="SENDPOST" component={SendPost} />
-            <Tab.Screen name="BESLENME" component={Home} />
+            {/* <Tab.Screen name="SENDPOST" component={SendPost} /> */}
+            <Tab.Screen name="BESLENME" component={Food} />
             <Tab.Screen name="PROFİLİM" component={Profile} />
         </Tab.Navigator>
     );
@@ -123,6 +123,29 @@ export function Root() {
                     headerTintColor: '#000'
                 }}
             />
+            <RootStack.Screen name="Notifications" component={Notifications}
+                options={{
+                    title: 'Bildirimler',
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="Settings" component={Settings}
+                options={{
+                    title: 'Ayarlar',
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="Workouts" component={Antrenman}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
             <RootStack.Screen name="WorkoutDetails" component={WorkoutDetails}
                 options={{
                     headerShown: false,
@@ -166,6 +189,13 @@ export function Root() {
                 }}
             />
             <RootStack.Screen name="Premium" component={Premium}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="FavoritedWorkouts" component={FavoritedWorkouts}
                 options={{
                     headerShown: false,
                     headerBackTitleVisible: false,

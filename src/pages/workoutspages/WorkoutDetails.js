@@ -5,11 +5,14 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import axios from 'axios';
 import moment from 'moment';
+import { database2, auth2 } from '../../config/config';
+import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get("window");
 
 
 const WorkoutDetails = props => {
+    const userData = useSelector(state => state.user.users)
 
     const [Loading, setLoading] = useState(true);
     const [Workouts, setWorkouts] = useState(props.route.params.item);
@@ -17,6 +20,36 @@ const WorkoutDetails = props => {
     const [VideoList, setVideoList] = useState([]);
     const [TotalHours, setTotalHours] = useState(0);
 
+    const [isFavorited, setisFavorited] = useState(false);
+
+    const addFavorites = () => {
+        database2.ref('users').child(auth2.currentUser.uid + '/favorites/workouts').child(Workouts.id).set({
+            date: moment().format("DD/MM/YYYYTHH:mm:ss"),
+            id: Workouts.id,
+            type: 'wod'
+        })
+            .then(() => setisFavorited(true))
+            .catch((err) => setisFavorited(false))
+    }
+    const removeFavorites = () => {
+        database2.ref('users').child(auth2.currentUser.uid + '/favorites/workouts').child(Workouts.id).remove()
+            .then(() => setisFavorited(false))
+            .catch((err) => setisFavorited(true))
+    }
+
+    const getFavorites = () => {
+        if (userData.favorites !== undefined && userData.favorites !== null) {
+            Object.values(userData.favorites).forEach((item) => {
+                if (Object.keys(item) === Workouts.id) {
+                    setisFavorited(true);
+                } else {
+                    setisFavorited(true);
+                }
+            })
+        } else {
+            setisFavorited(false);
+        }
+    }
 
     const getVideo = () => {
         let videoList = [];
@@ -57,7 +90,8 @@ const WorkoutDetails = props => {
     useEffect(() => {
 
         if (Workouts.length !== 0 && Movements.length !== 0) {
-            getVideo()
+            getVideo();
+            getFavorites();
         } else {
             setLoading(false);
             setTimeout(() => {
@@ -85,7 +119,7 @@ const WorkoutDetails = props => {
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={() => alert('ayarlar')}>
+                        <TouchableHighlight onPress={() => props.navigation.navigate('Settings')}>
                             <Icon name="settings" color="#FFF" size={28} />
                         </TouchableHighlight>
 
@@ -261,24 +295,37 @@ const WorkoutDetails = props => {
                                         textAlign: 'justify'
                                     }}>{Workouts.description}
                                     </Text>
+                                    <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                                        <TouchableOpacity onPress={() => isFavorited === true ? removeFavorites() : addFavorites()}
+                                            style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                            <Icon name={isFavorited === true ? "favorite" : "favorite-outline"} color="yellow" size={26} />
+                                            <Text style={{
+                                                fontFamily: 'SFProDisplay-Medium',
+                                                fontSize: 15,
+                                                color: 'yellow',
+                                                marginLeft: 10
+                                            }}
+                                            >Favori</Text>
+                                        </TouchableOpacity>
 
-                                    <TouchableOpacity onPress={() => {
-                                        if (Workouts.length !== 0 && Movements.length !== 0) {
-                                            props.navigation.navigate('WorkoutVideo', { VideoList: VideoList, Workouts: Workouts })
-                                        } else {
-                                            Alert.alert('Hata', 'Bu antrenmanda hiç video yok.');
-                                        }
-                                    }}
-                                        style={{ marginTop: 20, flexDirection: 'row', width: '100%', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                        <Text style={{
-                                            fontFamily: 'SFProDisplay-Medium',
-                                            fontSize: 15,
-                                            color: 'yellow',
-                                            marginRight: 10
+                                        <TouchableOpacity onPress={() => {
+                                            if (Workouts.length !== 0 && Movements.length !== 0) {
+                                                props.navigation.navigate('WorkoutVideo', { VideoList: VideoList, Workouts: Workouts })
+                                            } else {
+                                                Alert.alert('Hata', 'Bu antrenmanda hiç video yok.');
+                                            }
                                         }}
-                                        >Hemen Başla</Text>
-                                        <Icon name="keyboard-arrow-right" color="yellow" size={26} />
-                                    </TouchableOpacity>
+                                            style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                            <Text style={{
+                                                fontFamily: 'SFProDisplay-Medium',
+                                                fontSize: 15,
+                                                color: 'yellow',
+                                                marginRight: 10
+                                            }}
+                                            >Hemen Başla</Text>
+                                            <Icon name="keyboard-arrow-right" color="yellow" size={26} />
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
 
                                 <View style={{ width: '100%', marginTop: 20 }}>
@@ -313,12 +360,18 @@ const WorkoutDetails = props => {
                                                             }}
                                                         />
                                                         <View style={{ marginLeft: 20 }}>
-
                                                             <Text style={{
                                                                 fontFamily: 'SFProDisplay-Bold',
                                                                 fontSize: 16,
                                                                 color: '#FFF'
                                                             }}>{item.title}</Text>
+                                                            <Text style={{
+                                                                marginTop: 5,
+                                                                fontFamily: 'SFProDisplay-Medium',
+                                                                fontSize: 12,
+                                                                color: '#FFF'
+                                                            }}>{moment.utc(item.duration * 1000).format('mm:ss')} dk.</Text>
+
                                                         </View>
                                                     </View>
 

@@ -347,6 +347,14 @@ const WorkoutVideo = props => {
                                                                 fontSize: 16,
                                                                 color: '#FFF'
                                                             }}>{item.title}</Text>
+
+                                                            <Text style={{
+                                                                marginTop: 5,
+                                                                fontFamily: 'SFProDisplay-Medium',
+                                                                fontSize: 12,
+                                                                color: '#FFF'
+                                                            }}>{moment.utc(item.duration * 1000).format('mm:ss')} dk.</Text>
+
                                                         </View>
                                                     </View>
                                                 </TouchableOpacity>

@@ -11,7 +11,7 @@ const GetComment = props => {
                 <Image
                     source={{ uri: 'https://st3.depositphotos.com/4111759/13425/v/600/depositphotos_134255710-stock-illustration-avatar-vector-male-profile-gray.jpg' }}
                     style={{ width: 40, height: 40, borderRadius: 50 }} />
-                <Text numberOfLines={1} style={styles.textStyle}>{props.item.name}</Text>
+                <Text numberOfLines={1} style={styles.textStyle}>{props.name}</Text>
             </View>
 
             <View style={{ width: '100%', paddingHorizontal: 20, backgroundColor: '#FFF', height: 150, borderRadius: 18, padding: 20 }}>
@@ -20,7 +20,7 @@ const GetComment = props => {
                     fontSize: 16,
                     color: '#000',
                     marginBottom: 8
-                }}>{props.item.comment}</Text>
+                }}>{props.comment}</Text>
             </View>
 
         </View >

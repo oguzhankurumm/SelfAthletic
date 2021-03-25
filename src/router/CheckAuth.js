@@ -4,6 +4,7 @@ import Loading from './Loading';
 import { Root, Auth } from './Router';
 import { NavigationContainer } from '@react-navigation/native';
 import * as actions from '../redux/actions/profile';
+import * as bildirimActions from '../redux/actions/bildirim';
 import { useDispatch } from 'react-redux';
 
 
@@ -19,6 +20,7 @@ const CheckAuth = () => {
       if (user) {
         const loadUsers = async () => {
           await dispatch(actions.fetchUserData(user.uid));
+          await dispatch(bildirimActions.fetchBildirimList(user.uid));
         }
 
         await loadUsers().then(() => {

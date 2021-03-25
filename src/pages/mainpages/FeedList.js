@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, TouchableOpacity, ImageBackground, TouchableHighlight, Dimensions, RefreshControl, FlatList } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, TouchableOpacity, ImageBackground, Dimensions, FlatList } from 'react-native';
 import { database2 } from '../../config/config';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon2 from 'react-native-vector-icons/FontAwesome5';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import FeedPost from '../../components/FeedPost';
 
@@ -11,6 +12,7 @@ const FeedList = ({ props, navigation }) => {
 
     const [Loading, setLoading] = useState(false);
     const [Feed, setFeed] = useState([]);
+    const [ShowPostModal, setShowPostModal] = useState(false);
 
     useEffect(() => {
         setLoading(true);
@@ -21,20 +23,34 @@ const FeedList = ({ props, navigation }) => {
 
                 data.forEach((item) => {
                     item.forEach((newitem) => {
-                        PostList.push({
-                            ...newitem.val(),
-                            id: newitem.key
-                        })
+                        database2.ref('users').child(item.key).once('value')
+                            .then((userData) => {
+                                PostList.push({
+                                    ...newitem.val(),
+                                    name: userData.val().name !== '' ? userData.val().name : 'Kullanıcı Silindi',
+                                    avatar: userData.val().avatar !== '' ? userData.val().avatar : '',
+                                    id: newitem.key
+                                })
+                                console.log('postList: ', PostList)
+                                setFeed(PostList);
+                                setLoading(false);
+                            })
+                            .catch((err) => {
+                                PostList.push({
+                                    ...newitem.val(),
+                                    name: userData.val().name !== '' ? userData.val().name : 'İsim Gizli',
+                                    avatar: '',
+                                    id: newitem.key
+                                })
+                                setFeed(PostList);
+                                setLoading(false);
+                            })
                     })
                 })
-
-                setFeed(PostList);
-
-                setLoading(false);
             })
             .catch((err) => {
-                console.log('err: ', err);
                 Alert.alert('Hata', 'Feed listesi çekilemedi.');
+                setFeed([]);
                 setLoading(false);
             })
     }, [])
@@ -50,20 +66,12 @@ const FeedList = ({ props, navigation }) => {
                 <View style={styles.header} >
                     <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                         <Icon name="keyboard-arrow-left" color="#FFF" size={42} style={{ marginRight: 15 }} />
-                        <Text style={styles.headerText}>SelfAthletic Takımı</Text>
+                        <Text style={styles.headerText}>SelfAthletic Team</Text>
                     </TouchableOpacity>
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-
-                        <TouchableHighlight disabled={true} onPress={() => navigation.navigate('FeedList')}>
-                            <Icon name="comment" color="#C7CB4B" size={28} style={{ marginRight: 20 }} />
-                        </TouchableHighlight>
-
-                        <TouchableHighlight onPress={() => alert('ayarlar')}>
-                            <Icon name="settings" color="#FFF" size={28} />
-                        </TouchableHighlight>
-
-                    </View>
+                    <TouchableOpacity onPress={() => setShowPostModal(!ShowPostModal)}>
+                        <Icon2 name="plus" color="#FFF" size={24} style={{ marginRight: 20 }} />
+                    </TouchableOpacity>
                 </View>
 
                 {!Loading &&
@@ -95,10 +103,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 30
+        paddingHorizontal: 20
     },
     headerText: {
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: 'SFProDisplay-Bold',
         fontSize: 18,
         color: '#FFF'
     }

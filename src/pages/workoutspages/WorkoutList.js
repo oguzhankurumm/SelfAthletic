@@ -8,7 +8,6 @@ const { height, width } = Dimensions.get("window");
 
 
 const WorkoutList = props => {
-    console.log('props: ', props)
 
     const [Loading, setLoading] = useState(false);
     const [Workouts, setWorkouts] = useState(props.route.params.Workouts);
@@ -41,7 +40,7 @@ const WorkoutList = props => {
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={() => alert('ayarlar')}>
+                        <TouchableHighlight onPress={() => props.navigation.navigate('Settings')}>
                             <Icon name="settings" color="#FFF" size={28} />
                         </TouchableHighlight>
 

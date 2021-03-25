@@ -1,35 +1,162 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAreaView, Image, ImageBackground, TouchableHighlight } from 'react-native';
-import { auth2 } from '../../config/config';
-import { ProgressChart } from 'react-native-chart-kit';
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAreaView, Image, ImageBackground, TouchableHighlight, ScrollView } from 'react-native';
+import { database2, auth2 } from '../../config/config';
 import SpinnerLoading from '../../components/SpinnerLoading';
-import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
+import moment from 'moment';
+import { Bar } from 'react-native-progress';
+import Sidebar from '../../components/Sidebar';
+
+LocaleConfig.locales['tr'] = {
+    monthNames: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
+    monthNamesShort: ['Oca.', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'],
+    dayNames: ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'],
+    dayNamesShort: ['Paz.', 'Pzt.', 'Sal.', 'Çrş.', 'Per.', 'Cum.', 'Cts.'],
+    today: 'Bugün'
+};
+LocaleConfig.defaultLocale = 'tr';
 
 const { height, width } = Dimensions.get("window");
 
 
 const Profile = ({ props, navigation }) => {
 
+    const [ShowSideModal, setShowSideModal] = useState(false);
 
     const [Loading, setLoading] = useState(false);
     const profileData = useSelector(state => state.user.users);
     const [SelectedPage, setSelectedPage] = useState(0)
 
-    const data = {
-        labels: ["Kalori", "Adım Sayısı", "Egzersiz"],
-        data: [0.4, 0.6, 0.8]
-    };
+    const food = { key: 'food', color: 'green' };
+    const workout = { key: 'workout', color: 'yellow' };
 
-    const chartConfig = {
-        backgroundGradientToOpacity: 0.5,
-        color: (opacity = 1) => `#FFF`,
-        strokeWidth: 1,
-        barPercentage: 0.5,
-        useShadowColorFromDataset: false
-    };
+    const closeModal = () => {
+        setShowSideModal(!ShowSideModal);
+    }
 
+    const onDayPressed = (day) => {
+        console.log('day: ', moment(day.dateString).format('DD/MM/YYYY'))
+    }
+
+    const renderLevel = () => {
+        var level1 = parseFloat(profileData.point) / parseFloat(10000)
+        var level2 = parseFloat(profileData.point) / parseFloat(15000)
+        var level3 = parseFloat(profileData.point) / parseFloat(25000)
+
+        if (profileData.point < 10000) {
+            return (
+                <>
+                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 30 }}>
+                        <View style={{ width: '100%', marginBottom: 8 }}>
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 11,
+                                color: 'yellow'
+                            }}>Seviye {String(1)}</Text>
+                        </View>
+
+                        <Bar height={4} style={{ width: '100%' }} width={null} color="yellow" progress={level1} unfilledColor="#9999" borderWidth={0} />
+
+                        <View style={{ flexDirection: 'row', width: '100%', marginTop: 8, justifyContent: 'space-between', alignItems: 'center' }}>
+
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 11,
+                                color: 'yellow'
+                            }}>{profileData.point ? profileData.point : 0} puan</Text>
+
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 11,
+                                color: '#9D9D9D'
+                            }}>2. seviye için {String(parseFloat(10000) - parseFloat(profileData.point))} puan kaldı</Text>
+                        </View>
+                    </View>
+                </>
+            )
+        }
+
+        if (profileData.point >= 10000 && profileData.point !== 15000) {
+            return (
+                <>
+                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 30 }}>
+                        <View style={{ width: '100%', marginBottom: 8 }}>
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 11,
+                                color: 'yellow'
+                            }}>Seviye {String(2)}</Text>
+                        </View>
+
+                        <Bar height={4} style={{ width: '100%' }} width={null} color="yellow" progress={level2} unfilledColor="#9999" borderWidth={0} />
+
+                        <View style={{ flexDirection: 'row', width: '100%', marginTop: 8, justifyContent: 'space-between', alignItems: 'center' }}>
+
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 11,
+                                color: 'yellow'
+                            }}>{profileData.point ? profileData.point : 0} puan</Text>
+
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 11,
+                                color: '#9D9D9D'
+                            }}>3. seviye için {String(parseFloat(25000) - parseFloat(profileData.point))} puan kaldı</Text>
+                        </View>
+                    </View>
+                </>
+            )
+        }
+
+
+        if (profileData.point >= 25000) {
+            return (
+                <>
+                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 30 }}>
+                        <View style={{ width: '100%', marginBottom: 8 }}>
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 11,
+                                color: 'yellow'
+                            }}>Seviye {String(2)}</Text>
+                        </View>
+
+                        <Bar height={4} style={{ width: '100%' }} width={null} color="yellow" progress={level3} unfilledColor="#9999" borderWidth={0} />
+
+                        <View style={{ flexDirection: 'row', width: '100%', marginTop: 8, justifyContent: 'space-between', alignItems: 'center' }}>
+
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 11,
+                                color: 'yellow'
+                            }}>{profileData.point ? profileData.point : 0} puan</Text>
+
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 11,
+                                color: '#9D9D9D'
+                            }}>Seviyeyi tamamlamak için {String(parseFloat(40000) - parseFloat(profileData.point))} puan kaldı</Text>
+                        </View>
+                    </View>
+                </>
+            )
+        }
+    }
+
+    useEffect(() => {
+        setLoading(true);
+        database2.ref('users_workouts').child(auth2.currentUser.uid).once('value')
+            .then((snapshot) => {
+                console.log('snapshot: ', snapshot.val())
+                setLoading(false);
+            })
+            .catch((err) => {
+                setLoading(false);
+            })
+    }, [])
 
     return (
         <ImageBackground style={{ height: height, width: width }} resizeMode="cover" source={require('../../img/bg.jpg')}>
@@ -37,12 +164,14 @@ const Profile = ({ props, navigation }) => {
                 <StatusBar barStyle="light-content" />
                 <SpinnerLoading Loading={Loading} />
 
+                <Sidebar selected="Home" navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
 
                 <View style={styles.header} >
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-                        <Icon name="grid-view" color="#FFF" size={28} style={{ marginRight: 15 }} />
+                        <TouchableOpacity onPress={() => setShowSideModal(!ShowSideModal)}>
+                            <Icon name="menu" color="#FFF" size={32} style={{ marginRight: 15 }} />
+                        </TouchableOpacity>
                         <Text style={styles.headerText}>Profil</Text>
-
                     </View>
 
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
@@ -51,121 +180,169 @@ const Profile = ({ props, navigation }) => {
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={() => alert('ayarlar')}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Settings')}>
                             <Icon name="settings" color="#FFF" size={28} />
                         </TouchableHighlight>
 
                     </View>
                 </View>
 
-                <View style={styles.profileView}>
-                    <Image style={styles.imageView} source={{ uri: profileData.avatar }} />
-                    <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                        <Text style={styles.nameText}>{profileData.firstname + ' ' + profileData.lastname}</Text>
-                    </View>
-                </View>
-
-
-                <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-evenly', marginTop: 30 }}>
-
-                    <TouchableOpacity onPress={() => setSelectedPage(0)} style={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-                        <Text style={SelectedPage === 0 ? styles.TabsTextActive : styles.TabsTextDisabled}>Seviye</Text>
-                        {SelectedPage === 0 ?
-                            <View style={{ marginTop: 5, backgroundColor: 'yellow', borderRadius: 50, height: 5, width: 5 }} />
-                            :
-                            <View style={{ marginTop: 5, borderRadius: 50, height: 5, width: 5 }} />
-                        }
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => setSelectedPage(1)} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <Text style={styles.TabsTextActive}>Geçmiş</Text>
-                        {SelectedPage === 1 ?
-                            <View style={{ marginTop: 5, backgroundColor: 'yellow', borderRadius: 50, height: 5, width: 5 }} />
-                            :
-                            <View style={{ marginTop: 5, borderRadius: 50, height: 5, width: 5 }} />
-                        }
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => setSelectedPage(2)} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <Text style={styles.TabsTextActive}>Ölçümler</Text>
-                        {SelectedPage === 2 ?
-                            <View style={{ marginTop: 5, backgroundColor: 'yellow', borderRadius: 50, height: 5, width: 5 }} />
-                            :
-                            <View style={{ marginTop: 5, borderRadius: 50, height: 5, width: 5 }} />
-                        }
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.iconsContainer}>
-                    <View style={styles.iconsView}>
-                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                            <Icon name="directions-run" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                            <Text style={styles.iconsText}>Aktif</Text>
-                            <Text style={styles.iconsText}>Gün</Text>
-                            <Text style={styles.iconsText}>Sayısı</Text>
-                            <Text style={styles.iconsNumber}>40</Text>
-                        </View>
-
-                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                            <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                            <Text style={styles.iconsText}>Hedef</Text>
-                            <Text style={styles.iconsText}>Tutturma</Text>
-                            <Text style={styles.iconsText}>Yüzdesi</Text>
-                            <Text style={styles.iconsNumber}>%30</Text>
-                        </View>
-
-                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                            <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                            <Text style={styles.iconsText}>Tamamlanan</Text>
-                            <Text style={styles.iconsText}>Egzersiz</Text>
-                            <Text style={styles.iconsText}>Sayısı</Text>
-                            <Text style={styles.iconsNumber}>27</Text>
+                <ScrollView style={{ width: '100%' }}>
+                    <View style={styles.profileView}>
+                        <Image style={styles.imageView} source={{ uri: profileData.avatar !== '' ? profileData.avatar : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }} />
+                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                            <Text style={styles.nameText}>{profileData.name}</Text>
                         </View>
                     </View>
 
 
-                    <View style={styles.iconsView}>
-                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                            <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                            <Text style={[styles.iconsText, { textDecorationLine: "underline" }]}>En İyi Gün</Text>
-                            <Text style={styles.iconsNumber}>16</Text>
-                            <Text style={styles.iconsDate}>Mart 2021</Text>
-                        </View>
+                    <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-evenly', marginTop: 30 }}>
 
-                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                            <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                            <Text style={[styles.iconsText, { textDecorationLine: "underline" }]}>En İyi Hafta</Text>
-                            <Text style={styles.iconsNumber}>16</Text>
-                            <Text style={styles.iconsDate}>Mart 2021</Text>
-                        </View>
+                        <TouchableOpacity onPress={() => setSelectedPage(0)} style={{ justifyContent: 'flex-start', alignItems: 'center' }}>
+                            <Text style={SelectedPage === 0 ? styles.TabsTextActive : styles.TabsTextDisabled}>Seviye</Text>
+                        </TouchableOpacity>
 
-                        <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                            <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                            <Text style={[styles.iconsText, { textDecorationLine: "underline" }]}>En İyi Ay</Text>
-                            <Text style={styles.iconsNumber}>16</Text>
-                            <Text style={styles.iconsDate}>Mart 2021</Text>
-                        </View>
+                        <TouchableOpacity onPress={() => setSelectedPage(1)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={SelectedPage === 1 ? styles.TabsTextActive : styles.TabsTextDisabled}>Geçmiş</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => setSelectedPage(2)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <Text style={SelectedPage === 2 ? styles.TabsTextActive : styles.TabsTextDisabled}>Ölçümler</Text>
+                        </TouchableOpacity>
                     </View>
-                </View>
 
-                {/* 
-                <View style={{ alignItems: 'center', width: '100%', marginRight: 70 }}>
-                    <ProgressChart
-                        data={data}
-                        width={width}
-                        height={220}
-                        strokeWidth={16}
-                        radius={32}
-                        chartConfig={chartConfig}
-                        hideLegend={false}
-                    />
-                </View> */}
+                    {SelectedPage === 0 &&
+                        <>
+                            {renderLevel()}
+
+                            <View style={styles.iconsContainer}>
+                                <View style={styles.iconsView}>
+                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                        <Icon name="directions-run" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Text style={styles.iconsText}>Aktif</Text>
+                                        <Text style={styles.iconsText}>Gün</Text>
+                                        <Text style={styles.iconsText}>Sayısı</Text>
+                                        <Text style={styles.iconsNumber}>40</Text>
+                                    </View>
+
+                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                        <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Text style={styles.iconsText}>Hedef</Text>
+                                        <Text style={styles.iconsText}>Tutturma</Text>
+                                        <Text style={styles.iconsText}>Yüzdesi</Text>
+                                        <Text style={styles.iconsNumber}>%30</Text>
+                                    </View>
+
+                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                        <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Text style={styles.iconsText}>Tamamlanan</Text>
+                                        <Text style={styles.iconsText}>Egzersiz</Text>
+                                        <Text style={styles.iconsText}>Sayısı</Text>
+                                        <Text style={styles.iconsNumber}>27</Text>
+                                    </View>
+                                </View>
 
 
-                {/* <TouchableOpacity onPress={() => auth2.signOut()}>
-                <Text style={{ color: '#FFF' }}>Çıkış Yap</Text>
-            </TouchableOpacity> */}
+                                <View style={styles.iconsView}>
+                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                        <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Text style={[styles.iconsText, { textDecorationLine: "underline" }]}>En İyi Gün</Text>
+                                        <Text style={styles.iconsNumber}>16</Text>
+                                        <Text style={styles.iconsDate}>Mart 2021</Text>
+                                    </View>
 
+                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                        <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Text style={[styles.iconsText, { textDecorationLine: "underline" }]}>En İyi Hafta</Text>
+                                        <Text style={styles.iconsNumber}>16</Text>
+                                        <Text style={styles.iconsDate}>Mart 2021</Text>
+                                    </View>
+
+                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                        <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Text style={[styles.iconsText, { textDecorationLine: "underline" }]}>En İyi Ay</Text>
+                                        <Text style={styles.iconsNumber}>16</Text>
+                                        <Text style={styles.iconsDate}>Mart 2021</Text>
+                                    </View>
+                                </View>
+                            </View>
+                        </>
+                    }
+
+                    {SelectedPage === 1 &&
+                        <View style={styles.gecmisContainer}>
+
+
+                            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
+
+                                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 15 }}>
+                                    <View style={{ backgroundColor: 'green', borderRadius: 50, height: 4, width: 4 }} />
+                                    <Text style={{
+                                        fontFamily: 'SFProDisplay-Medium',
+                                        fontSize: 13,
+                                        color: 'green',
+                                        marginLeft: 8
+                                    }}>Beslenme</Text>
+                                </View>
+
+                                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 15 }}>
+                                    <View style={{ backgroundColor: 'yellow', borderRadius: 50, height: 4, width: 4 }} />
+                                    <Text style={{
+                                        fontFamily: 'SFProDisplay-Medium',
+                                        fontSize: 13,
+                                        color: 'yellow',
+                                        marginLeft: 8
+                                    }}>Antrenman</Text>
+                                </View>
+
+                            </View>
+
+                            <Calendar
+                                style={{
+                                    width: width / 1.2
+                                }}
+                                markedDates={{
+                                    ['2021-03-18']: { dots: [workout, food], disabled: false },
+                                    ['2021-03-15']: { dots: [workout, food], disabled: false }
+                                }}
+                                enableSwipeMonths={true}
+                                maxDate={moment().format('YYYY-MM-DD')}
+                                scrollEnabled={true}
+                                hideDayNames={true}
+                                markingType={'multi-dot'}
+                                onDayPress={(day) => onDayPressed(day)}
+                                hideExtraDays={true}
+                                theme={{
+                                    backgroundColor: 'rgba(0,0,0,0)',
+                                    calendarBackground: 'rgba(0,0,0,0)',
+                                    textSectionTitleColor: '#b6c1cd',
+                                    textSectionTitleDisabledColor: '#d9e1e8',
+                                    selectedDayBackgroundColor: '#00adf5',
+                                    selectedDayTextColor: '#ffffff',
+                                    todayTextColor: 'yellow',
+                                    dayTextColor: 'white',
+                                    textDisabledColor: '#d9e1e8',
+                                    dotColor: '#00adf5',
+                                    selectedDotColor: '#ffffff',
+                                    arrowColor: 'white',
+                                    disabledArrowColor: '#d9e1e8',
+                                    monthTextColor: 'white',
+                                    indicatorColor: 'white',
+                                    textDayFontFamily: 'SFProDisplay-Medium',
+                                    textMonthFontFamily: 'SFProDisplay-Medium',
+                                    textDayHeaderFontFamily: 'SFProDisplay-Medium',
+                                    textDayFontWeight: '300',
+                                    textMonthFontWeight: 'bold',
+                                    textDayHeaderFontWeight: '300',
+                                    textDayFontSize: 16,
+                                    textMonthFontSize: 16,
+                                    textDayHeaderFontSize: 16
+                                }}
+                            />
+                        </View>
+                    }
+
+                </ScrollView>
             </SafeAreaView>
         </ImageBackground >
     )
@@ -250,6 +427,14 @@ const styles = StyleSheet.create({
         fontFamily: 'SFProDisplay-Medium',
         fontSize: 18,
         color: '#FFF'
+    },
+    //gecmis
+    gecmisContainer: {
+        flexDirection: 'column',
+        paddingVertical: 20,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%'
     }
 })
 export default Profile;
