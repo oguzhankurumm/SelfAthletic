@@ -58,7 +58,7 @@ const FavoritedWorkouts = ({ navigation }) => {
             <SafeAreaView style={styles.container}>
                 <StatusBar barStyle="light-content" />
                 <SpinnerLoading Loading={Loading} />
-                <Sidebar selected="FavoritedWorkouts" navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
+                <Sidebar navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
 
                 <View style={styles.header} >
                     <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>

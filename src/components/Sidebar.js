@@ -1,15 +1,19 @@
 import React, { useState } from 'react'
-import { View, SafeAreaView, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native'
+import { View, SafeAreaView, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Alert } from 'react-native'
 import { useSelector } from 'react-redux';
 import Modal from 'react-native-modal';
 import { auth2 } from '../config/config';
+import SpinnerLoading from '../components/SpinnerLoading';
 
 const { height, width } = Dimensions.get("window");
 
-const Sidebar = ({ navigation, opened, onClose, selected }) => {
+const Sidebar = ({ navigation, opened, onClose }) => {
     const profileData = useSelector(state => state.user.users);
-    const [Selected, setSelected] = useState(selected);
     const [ShowSideModal, setShowSideModal] = useState(opened)
+    const [Loading, setLoading] = useState(false);
+
+    const { index, routes } = navigation.dangerouslyGetState();
+    const currentRoute = routes[index].name;
 
     return (
         <Modal
@@ -33,38 +37,37 @@ const Sidebar = ({ navigation, opened, onClose, selected }) => {
                 width: width * 0.75
             }}
         >
-
             <SafeAreaView style={styles.safeAreaView}>
                 <View style={styles.container}>
+                    <SpinnerLoading Loading={Loading} />
+
                     <View style={styles.itemStyle}>
                         <Image style={styles.imageView} source={{ uri: profileData.avatar !== '' ? profileData.avatar : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }} />
                         <Text style={styles.textName}>{profileData.name}</Text>
                     </View>
 
                     <TouchableOpacity onPress={() => {
-                        setSelected('');
                         onClose();
                         setShowSideModal(!ShowSideModal);
                         setTimeout(() => {
-                            navigation.navigate('Home');
+                            navigation.navigate('ANASAYFA');
                         }, 100);
                     }} style={styles.itemStyle}>
                         <Text style={styles.text}>Ana Sayfa</Text>
-                        {Selected === "Home" &&
+                        {currentRoute === "ANASAYFA" &&
                             <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
                         }
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => {
-                        setSelected('')
                         onClose();
                         setShowSideModal(!ShowSideModal);
                         setTimeout(() => {
-                            navigation.navigate('Workouts');
+                            navigation.navigate('ANTRENMAN');
                         }, 100);
                     }} style={styles.itemStyle}>
                         <Text style={styles.text}>Antrenman</Text>
-                        {Selected === "Workouts" &&
+                        {currentRoute === "ANTRENMAN" &&
                             <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
                         }
                     </TouchableOpacity>
@@ -73,20 +76,26 @@ const Sidebar = ({ navigation, opened, onClose, selected }) => {
                         onClose();
                         setShowSideModal(!ShowSideModal);
                         setTimeout(() => {
-                            navigation.navigate('Beslenme');
+                            navigation.navigate('BESLENME');
                         }, 100);
                     }} style={styles.itemStyle}>
                         <Text style={styles.text}>Beslenme</Text>
+                        {currentRoute === "BESLENME" &&
+                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                        }
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => {
                         onClose();
                         setShowSideModal(!ShowSideModal);
                         setTimeout(() => {
-                            navigation.navigate('Profile');
+                            navigation.navigate('PROFİLİM');
                         }, 100);
                     }} style={styles.itemStyle}>
                         <Text style={styles.text}>Profil</Text>
+                        {currentRoute === "PROFİLİM" &&
+                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                        }
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => {
@@ -97,7 +106,7 @@ const Sidebar = ({ navigation, opened, onClose, selected }) => {
                         }, 100);
                     }} style={styles.itemStyle}>
                         <Text style={styles.text2}>Favori Antrenmanlarım</Text>
-                        {Selected === "FavoritedWorkouts" &&
+                        {currentRoute === "FavoritedWorkouts" &&
                             <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
                         }
                     </TouchableOpacity>
@@ -106,40 +115,49 @@ const Sidebar = ({ navigation, opened, onClose, selected }) => {
                         onClose();
                         setShowSideModal(!ShowSideModal);
                         setTimeout(() => {
-                            navigation.navigate('Profile');
+                            navigation.navigate('FavoritedFoods');
                         }, 100);
                     }} style={styles.itemStyle}>
                         <Text style={styles.text2}>Favori Öğünlerim</Text>
+                        {currentRoute === "FavoritedFoods" &&
+                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                        }
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => {
+                    {/* <TouchableOpacity onPress={() => {
                         onClose();
                         setShowSideModal(!ShowSideModal);
                         setTimeout(() => {
-                            navigation.navigate('Profile');
+                            navigation.navigate('ArkadasinaOner');
                         }, 100);
                     }} style={styles.itemStyle}>
                         <Text style={styles.text2}>Arkadaşına Öner</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     <TouchableOpacity onPress={() => {
                         onClose();
                         setShowSideModal(!ShowSideModal);
                         setTimeout(() => {
-                            navigation.navigate('Profile');
+                            navigation.navigate('EgzersizKutuphanesi');
                         }, 100);
                     }} style={styles.itemStyle}>
                         <Text style={styles.text2}>Egzersiz Kütüphanesi</Text>
+                        {currentRoute === "EgzersizKutuphanesi" &&
+                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                        }
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => {
                         onClose();
                         setShowSideModal(!ShowSideModal);
                         setTimeout(() => {
-                            navigation.navigate('Profile');
+                            navigation.navigate('BesinKutuphanesi');
                         }, 100);
                     }} style={styles.itemStyle}>
                         <Text style={styles.text2}>Besin Kütüphanesi</Text>
+                        {currentRoute === "BesinKutuphanesi" &&
+                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                        }
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => {
@@ -149,7 +167,10 @@ const Sidebar = ({ navigation, opened, onClose, selected }) => {
                             navigation.navigate('Premium');
                         }, 100);
                     }} style={styles.itemStyle}>
-                        <Text style={styles.text2}>Üyelik</Text>
+                        <Text style={[styles.text2, { fontWeight: 'bold' }]}>Üyelik (Premium)</Text>
+                        {currentRoute === "Premium" &&
+                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                        }
                     </TouchableOpacity>
 
                     <TouchableOpacity onPress={() => {
@@ -160,10 +181,29 @@ const Sidebar = ({ navigation, opened, onClose, selected }) => {
                         }, 100);
                     }} style={styles.itemStyle}>
                         <Text style={styles.text2}>Ayarlar</Text>
+                        {currentRoute === "Settings" &&
+                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                        }
                     </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity onPress={() => auth2.currentUser.uid !== null ? auth2.signOut() : null} style={styles.itemStyle}>
+                <TouchableOpacity onPress={() => {
+                    Alert.alert('Çıkış Yap', 'Hesabınızdan çıkılsın mı?', [
+                        {
+                            text: 'Evet', onPress: () => {
+                                setLoading(true);
+                                auth2.signOut()
+                                    .then(() => {
+                                        setLoading(false);
+                                    })
+                                    .catch((err) => {
+                                        console.log('Hata: ', err)
+                                    })
+                            }, style: 'default'
+                        },
+                        { text: 'Vazgeç', onPress: () => null, style: 'cancel' }
+                    ])
+                }} style={styles.itemStyle}>
                     <Text style={styles.text2}>Çıkış Yap</Text>
                 </TouchableOpacity>
             </SafeAreaView>

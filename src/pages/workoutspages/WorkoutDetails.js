@@ -26,7 +26,7 @@ const WorkoutDetails = props => {
         database2.ref('users').child(auth2.currentUser.uid + '/favorites/workouts').child(Workouts.id).set({
             date: moment().format("DD/MM/YYYYTHH:mm:ss"),
             id: Workouts.id,
-            type: 'wod'
+            workouttype: 'wod'
         })
             .then(() => setisFavorited(true))
             .catch((err) => setisFavorited(false))

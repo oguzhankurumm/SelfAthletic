@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAreaView, Image, ImageBackground, TouchableHighlight, ScrollView } from 'react-native';
-import { database2, auth2 } from '../../config/config';
+import { database2 } from '../../config/config';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
@@ -20,24 +20,27 @@ LocaleConfig.defaultLocale = 'tr';
 
 const { height, width } = Dimensions.get("window");
 
-
 const Profile = ({ props, navigation }) => {
 
     const [ShowSideModal, setShowSideModal] = useState(false);
 
     const [Loading, setLoading] = useState(false);
     const profileData = useSelector(state => state.user.users);
-    const [SelectedPage, setSelectedPage] = useState(0)
-
-    const food = { key: 'food', color: 'green' };
-    const workout = { key: 'workout', color: 'yellow' };
+    const [SelectedPage, setSelectedPage] = useState(0);
+    const [AktifGun, setAktifGun] = useState(0);
+    const [EgzersizList, setEgzersizList] = useState([]);
+    const [TamamlananCount, setTamamlananCount] = useState(0);
+    const [markedDatesArray, setmarkedDatesArray] = useState([]);
 
     const closeModal = () => {
         setShowSideModal(!ShowSideModal);
     }
 
     const onDayPressed = (day) => {
-        console.log('day: ', moment(day.dateString).format('DD/MM/YYYY'))
+        var date = moment(day.dateString).format("DD/MM/YYYY");
+        var newWorkoutObj = EgzersizList.filter(q => q.date === date);
+
+        navigation.navigate('Gecmis', { workout: newWorkoutObj })
     }
 
     const renderLevel = () => {
@@ -146,16 +149,46 @@ const Profile = ({ props, navigation }) => {
         }
     }
 
+    const getMyWorkouts = async () => {
+        let egzList = [];
+        let completedList = [];
+
+        database2.ref('users/' + profileData.userId + '/workouts').on('value', snapshot => {
+            var arr = [];
+            if (snapshot.val() !== null) {
+                snapshot.forEach((item) => {
+                    egzList.push({
+                        ...item.val(),
+                        id: item.key
+                    });
+                    if (item.val().completed === true) {
+                        completedList.push(item)
+                    }
+
+                    let food = { key: 'food', color: item.val().completed === true ? 'green' : '#d3d3d3' };
+                    let workout = { key: 'workout', color: item.val().completed === true ? 'yellow' : '#d3d3d3' };
+
+                    arr[moment(item.val().date, "DD/MM/YYYY").format("YYYY-MM-DD")] = { dots: [workout], disabled: false }
+                })
+
+                setmarkedDatesArray(arr);
+                setTamamlananCount(completedList.length)
+                setEgzersizList(egzList);
+                setLoading(false);
+            } else {
+                setLoading(false);
+            }
+        })
+    }
+
     useEffect(() => {
         setLoading(true);
-        database2.ref('users_workouts').child(auth2.currentUser.uid).once('value')
-            .then((snapshot) => {
-                console.log('snapshot: ', snapshot.val())
-                setLoading(false);
-            })
-            .catch((err) => {
-                setLoading(false);
-            })
+        var start = moment(profileData.registerDate, "DD/MM/YYYY");
+        var end = moment(moment(), "DD/MM/YYYY");
+
+        setAktifGun(parseFloat(moment.duration(end.diff(start)).asDays()).toFixed(0));
+
+        getMyWorkouts();
     }, [])
 
     return (
@@ -164,7 +197,7 @@ const Profile = ({ props, navigation }) => {
                 <StatusBar barStyle="light-content" />
                 <SpinnerLoading Loading={Loading} />
 
-                <Sidebar selected="Home" navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
+                <Sidebar navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
 
                 <View style={styles.header} >
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
@@ -222,7 +255,7 @@ const Profile = ({ props, navigation }) => {
                                         <Text style={styles.iconsText}>Aktif</Text>
                                         <Text style={styles.iconsText}>Gün</Text>
                                         <Text style={styles.iconsText}>Sayısı</Text>
-                                        <Text style={styles.iconsNumber}>40</Text>
+                                        <Text style={styles.iconsNumber}>{AktifGun}</Text>
                                     </View>
 
                                     <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
@@ -230,7 +263,7 @@ const Profile = ({ props, navigation }) => {
                                         <Text style={styles.iconsText}>Hedef</Text>
                                         <Text style={styles.iconsText}>Tutturma</Text>
                                         <Text style={styles.iconsText}>Yüzdesi</Text>
-                                        <Text style={styles.iconsNumber}>%30</Text>
+                                        <Text style={styles.iconsNumber}>%0</Text>
                                     </View>
 
                                     <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
@@ -238,7 +271,7 @@ const Profile = ({ props, navigation }) => {
                                         <Text style={styles.iconsText}>Tamamlanan</Text>
                                         <Text style={styles.iconsText}>Egzersiz</Text>
                                         <Text style={styles.iconsText}>Sayısı</Text>
-                                        <Text style={styles.iconsNumber}>27</Text>
+                                        <Text style={styles.iconsNumber}>{TamamlananCount}</Text>
                                     </View>
                                 </View>
 
@@ -301,10 +334,7 @@ const Profile = ({ props, navigation }) => {
                                 style={{
                                     width: width / 1.2
                                 }}
-                                markedDates={{
-                                    ['2021-03-18']: { dots: [workout, food], disabled: false },
-                                    ['2021-03-15']: { dots: [workout, food], disabled: false }
-                                }}
+                                markedDates={markedDatesArray}
                                 enableSwipeMonths={true}
                                 maxDate={moment().format('YYYY-MM-DD')}
                                 scrollEnabled={true}

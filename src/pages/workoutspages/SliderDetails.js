@@ -4,11 +4,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
+import { useSelector } from 'react-redux';
+import { database2 } from '../../config/config';
+import moment from 'moment';
 
 const { height, width } = Dimensions.get("window");
 
-
 const SliderDetails = props => {
+    const profileData = useSelector(state => state.user.users);
 
     const [Loading, setLoading] = useState(false);
     const [Details, setDetails] = useState(props.route.params.item);
@@ -20,6 +23,52 @@ const SliderDetails = props => {
             setLoading(true);
         }
     }, [])
+
+    const onButtonClicked = () => {
+
+        setLoading(true);
+
+        if (profileData.usedFreePremium === false) {
+            var nextWeek = moment(moment().add(7, 'd').format('DD/MM/YYYY')).unix();
+
+            database2.ref('users').child(profileData.userId).update({ usedFreePremium: true })
+                .then(() => {
+                    database2.ref('userSubscriptions').child(profileData.userId).set({ expireDate: nextWeek })
+                        .then(() => {
+                            setLoading(false);
+                            setTimeout(() => {
+                                Alert.alert('Tebrikler', '7 günlük üyelik kazandınız.', [{
+                                    text: 'Ana Sayfaya Dön', onPress: () => props.navigation.goBack(), style: 'default'
+                                }]);
+                            }, 200);
+                        })
+                        .catch((err) => {
+                            database2.ref('users').child(profileData.userId).update({ usedFreePremium: false })
+                            setLoading(false);
+                            setTimeout(() => {
+                                Alert.alert('Hata', 'Bir hata oluştu, lütfen daha sonra tekrar deneyin.', [{
+                                    text: 'Ana Sayfaya Dön', onPress: () => props.navigation.goBack(), style: 'default'
+                                }]);
+                            }, 200);
+                        })
+                })
+                .catch((err) => {
+                    setLoading(false);
+                    setTimeout(() => {
+                        Alert.alert('Hata', 'Bir hata oluştu, lütfen daha sonra tekrar deneyin.', [{
+                            text: 'Ana Sayfaya Dön', onPress: () => props.navigation.goBack(), style: 'default'
+                        }]);
+                    }, 200);
+                })
+        } else {
+            setLoading(false);
+            setTimeout(() => {
+                Alert.alert('Hata', '7 günlük denemeden daha önce faydalandınız.', [{
+                    text: 'Ana Sayfaya Dön', onPress: () => props.navigation.goBack(), style: 'default'
+                }]);
+            }, 200);
+        }
+    }
 
     return (
         <ImageBackground style={{ height: '100%', width: '100%' }} resizeMode="cover" source={require('../../img/bg.jpg')}>
@@ -152,22 +201,24 @@ const SliderDetails = props => {
                 </ScrollView>
             </SafeAreaView>
 
-            <TouchableOpacity onPress={() => Alert.alert('type', String(Details.type))} style={{
-                width: '100%',
-                height: 60,
-                backgroundColor: '#CCCC00',
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}>
-                <Text style={{
-                    fontFamily: 'SFProDisplay-Bold',
-                    justifyContent: 'flex-start',
-                    fontSize: 16,
-                    color: '#000',
-                    marginRight: 5
-                }}>Kampanyayı Kullan</Text>
+            {Details.type === 'coupon' &&
+                <TouchableOpacity onPress={onButtonClicked} style={{
+                    width: '100%',
+                    height: 60,
+                    backgroundColor: '#CCCC00',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <Text style={{
+                        fontFamily: 'SFProDisplay-Bold',
+                        justifyContent: 'flex-start',
+                        fontSize: 16,
+                        color: '#000',
+                        marginRight: 5
+                    }}>Kampanyayı Kullan</Text>
 
-            </TouchableOpacity>
+                </TouchableOpacity>
+            }
 
         </ImageBackground >
     )

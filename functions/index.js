@@ -75,4 +75,14 @@ app.post("/addWorkout", async (req, res) => {
         .catch((error) => res.status(201).send(error));
 });
 
+app.post("/addFood", async (req, res) => {
+    await admin
+        .database().ref("foods").push(req.body)
+        .then(() => {
+            res.status(200).send(true);
+        })
+        .catch((error) => res.status(201).send(error));
+});
+
+
 exports.app = functions.https.onRequest(app);

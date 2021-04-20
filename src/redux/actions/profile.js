@@ -7,7 +7,6 @@ export const fetchUserData = userid => {
     return async dispatch => {
         let pointList = [];
         let totalPoint = 0;
-
         database2.ref('users_points').child(userid).on("value", point => {
             if (point.exists) {
                 point.forEach((pt) => {

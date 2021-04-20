@@ -405,6 +405,8 @@ PODS:
     - React
   - RNCMaskedView (0.1.10):
     - React
+  - RNDateTimePicker (3.4.3):
+    - React-Core
   - RNFBAnalytics (10.8.1):
     - Firebase/Analytics (= 7.0.0)
     - React-Core
@@ -492,6 +494,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "ReactNativeART (from `../node_modules/@react-native-community/art`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
+  - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - "RNFBAnalytics (from `../node_modules/@react-native-firebase/analytics`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
@@ -598,6 +601,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/art"
   RNCMaskedView:
     :path: "../node_modules/@react-native-community/masked-view"
+  RNDateTimePicker:
+    :path: "../node_modules/@react-native-community/datetimepicker"
   RNFBAnalytics:
     :path: "../node_modules/@react-native-firebase/analytics"
   RNFBApp:
@@ -680,6 +685,7 @@ SPEC CHECKSUMS:
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
   ReactNativeART: f003b07dfa7098aa419ed95b69560923440b1eee
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
+  RNDateTimePicker: e1c24487ab8aa0850403bd90dba75eff8a4e9b84
   RNFBAnalytics: df67e02cc79482ab63a5652d5b3eb6e8bdd640a8
   RNFBApp: e979a237a43b86e3d9b7ecab156ad2c4ff54db73
   RNFBAuth: 1df6ac4278bdafe5ecc8b7c087894d7e9b708c23

@@ -68,6 +68,10 @@ const WorkoutVideo = props => {
         changeMove(SelectedIndex + 1)
     }
 
+    const showThumb = (index) => {
+        console.log('selectedMove: ', VideoList[index])
+    }
+
     const completeTraining = async () => {
         setStartTimer(false);
         setLoadingSave(true);
@@ -127,7 +131,7 @@ const WorkoutVideo = props => {
 
     useLayoutEffect(() => {
         if (VideoList.length !== 0) {
-            // console.log('Workouts: ', Workouts)
+            console.log('Workouts: ', props.route.params.VideoList[0])
             setLoading(false);
         } else {
             setTimeout(() => {
@@ -270,7 +274,7 @@ const WorkoutVideo = props => {
 
                                                             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
-                                                                {SelectedMove.type === "time" ?
+                                                                {SelectedMove.type === "reps" ?
                                                                     <>
                                                                         <Icon name="replay" color="#FFF" size={28} />
                                                                         <Text style={{
@@ -318,7 +322,7 @@ const WorkoutVideo = props => {
                                             }}
                                             renderItem={({ item, index }) => (
                                                 <TouchableOpacity
-                                                    onPress={() => changeMove(index)}
+                                                    onPress={() => showThumb(index)}
                                                     style={{
                                                         padding: 10,
                                                         backgroundColor: item.id === SelectedMove.id ? '#2D2D2D' : null,
@@ -377,30 +381,14 @@ const WorkoutVideo = props => {
                 justifyContent: 'space-between',
                 alignItems: 'center'
             }}>
-                <TouchableOpacity disabled={SelectedIndex === 0 ? true : false} onPress={() => changeMove(SelectedIndex - 1)} style={{
-                    width: '50%',
-                    height: 60,
-                    backgroundColor: '#000',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    <Text style={{
-                        fontFamily: 'SFProDisplay-Bold',
-                        justifyContent: 'flex-start',
-                        fontSize: 16,
-                        color: '#FFF',
-                        marginRight: 5
-                    }}>Önceki</Text>
-                </TouchableOpacity>
-
                 <TouchableOpacity disabled={finishDisabled} onPress={() => {
                     if (SelectedIndex === VideoList.length) {
                         completeTraining();
                     } else {
-                        changeMove(SelectedIndex + 1);
+                        completeMove();
                     }
                 }} style={{
-                    width: '50%',
+                    width: '100%',
                     height: 60,
                     backgroundColor: 'yellow',
                     justifyContent: 'center',
@@ -412,7 +400,7 @@ const WorkoutVideo = props => {
                         fontSize: 16,
                         color: '#000',
                         marginRight: 5
-                    }}>{SelectedIndex === VideoList.length - 1 ? 'Antrenmanı Bitir' : 'Sonraki'}</Text>
+                    }}>{SelectedIndex === VideoList.length - 1 ? 'Antrenmanı Bitir' : 'Hareketi Tamamla'}</Text>
                 </TouchableOpacity>
             </View>
 

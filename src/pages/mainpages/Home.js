@@ -7,26 +7,73 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Sidebar from '../../components/Sidebar';
+import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get("window");
 
 const Home = ({ props, navigation }) => {
-
+    const profileData = useSelector(state => state.user.users);
     const [ShowSideModal, setShowSideModal] = useState(false);
 
     const [Loading, setLoading] = useState(false);
     const [Campaigns, setCampaigns] = useState([]);
-    const [Workouts, setWorkouts] = useState([])
+    const [Workouts, setWorkouts] = useState([]);
+    const [Calories, setCalories] = useState(0);
+    const [CaloriesChart, setCaloriesChart] = useState(0)
+    const [Steps, setSteps] = useState(0);
+    const [StepChart, setStepChart] = useState(0);
 
     const closeModal = () => {
         setShowSideModal(!ShowSideModal);
     }
 
     useEffect(() => {
+        getMyCalories();
+        getMySteps();
         getWorkouts();
         getCampaings();
-        // navigation.navigate('Premium')
     }, [])
+
+    const getMyCalories = () => {
+        let CalorieList = [];
+        database2.ref('users_points/' + profileData.userId).on('value', snapshot => {
+            console.log('snapshot: ', snapshot.val())
+            if (snapshot.val() !== null && snapshot.val() !== undefined) {
+                snapshot.forEach((item) => {
+                    CalorieList.push(item.val());
+                })
+                console.log('calorie: ', CalorieList)
+
+                let sum = CalorieList.reduce(function (prev, current) {
+                    return prev + +parseFloat(current.calories)
+                }, 0);
+
+                setCalories(sum);
+                setCaloriesChart(parseFloat(profileData.targets?.calorie !== undefined && parseFloat(profileData.targets.calorie) / parseFloat(sum)).toFixed(2))
+            } else {
+                setCalories(0);
+            }
+        })
+    }
+
+    const getMySteps = () => {
+        let StepList = [];
+        database2.ref('steps' + profileData.userId).on('value', snapshot => {
+            if (snapshot.val() !== null && snapshot.val() !== undefined) {
+                snapshot.forEach((item) => {
+                    StepList.push(item.val());
+                })
+
+                let sum = StepList.reduce(function (prev, current) {
+                    return prev + +parseFloat(current.steps)
+                }, 0);
+                setSteps(sum !== 'NaN' ? sum : 0);
+                setStepChart(parseFloat(profileData.targets?.step !== undefined && parseFloat(profileData.targets.step) / parseFloat(sum)).toFixed(0))
+            } else {
+                setSteps(0);
+            }
+        })
+    }
 
     const getCampaings = () => {
         database2.ref('campaigns').once("value")
@@ -72,7 +119,7 @@ const Home = ({ props, navigation }) => {
             <SafeAreaView style={styles.container}>
                 <SpinnerLoading Loading={Loading} />
 
-                <Sidebar selected="Home" navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
+                <Sidebar navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
 
                 <View style={styles.header} >
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
@@ -155,7 +202,7 @@ const Home = ({ props, navigation }) => {
                         >
                             {!Loading && Workouts.map((item, index) => {
                                 return (
-                                    <TouchableOpacity onPress={() => navigation.navigate('WorkoutDetails', { item: item })}
+                                    <TouchableOpacity key={item.id} onPress={() => navigation.navigate('WorkoutDetails', { item: item })}
                                         style={{
                                             height: 'auto',
                                             width: width / 1.6,
@@ -295,18 +342,19 @@ const Home = ({ props, navigation }) => {
                                 size={150}
                                 width={6}
                                 rotation={90}
-                                fill={40}
+                                fill={StepChart}
                                 tintColor="#CCCC00"
                                 backgroundColor="#2d2d2d">
                                 {(fill) => (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={[styles.headerText, { fontSize: 24, marginBottom: 5 }]}>{fill}</Text>
+                                        <Text style={[styles.headerText, { fontSize: 24, marginBottom: 5 }]}>{Steps}</Text>
                                         <Text style={styles.headerText}>Adım</Text>
-                                        <Text style={styles.headerSubText}>Hedef: 15.000</Text>
+                                        <Text style={styles.headerSubText}>Hedef: {profileData.targets?.step !== undefined ? parseFloat(profileData.targets?.step) : 0}</Text>
                                     </View>
                                 )}
                             </AnimatedCircularProgress>
                         </TouchableOpacity>
+
 
                         <TouchableOpacity
                             onPress={() => navigation.navigate('Calories')}
@@ -315,14 +363,14 @@ const Home = ({ props, navigation }) => {
                                 size={150}
                                 width={6}
                                 rotation={90}
-                                fill={80}
+                                fill={CaloriesChart}
                                 tintColor="green"
                                 backgroundColor="#2d2d2d">
                                 {(fill) => (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={[styles.headerText, { fontSize: 24, marginBottom: 5 }]}>{fill}</Text>
+                                        <Text style={[styles.headerText, { fontSize: 24, marginBottom: 5 }]}>{Calories}</Text>
                                         <Text style={styles.headerText}>Kalori</Text>
-                                        <Text style={styles.headerSubText}>Hedef: 15.000</Text>
+                                        <Text style={styles.headerSubText}>Hedef: {profileData.targets?.calorie !== undefined ? parseFloat(profileData.targets?.calorie) : 0}</Text>
                                     </View>
                                 )}
                             </AnimatedCircularProgress>

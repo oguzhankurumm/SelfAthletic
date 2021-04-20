@@ -12,6 +12,7 @@ import Profile from '../pages/profilepages/Profile';
 import WorkoutDetails from '../pages/workoutspages/WorkoutDetails';
 import SliderDetails from '../pages/workoutspages/SliderDetails';
 import WorkoutVideo from '../pages/workoutspages/WorkoutVideo';
+import WorkoutSpecial from '../pages/workoutspages/WorkoutSpecial';
 import WorkoutList from '../pages/workoutspages/WorkoutList';
 import FeedList from '../pages/mainpages/FeedList';
 import FeedDetails from '../pages/mainpages/FeedDetails';
@@ -20,7 +21,16 @@ import StepCounter from '../pages/steppages/StepCounter';
 import Premium from '../pages/profilepages/Premium';
 import Notifications from '../pages/profilepages/Notifications';
 import Settings from '../pages/profilepages/Settings';
+import BildirimAyarlari from '../pages/settings/BildirimAyarlari';
+import KisiselBilgiler from '../pages/settings/KisiselBilgiler';
 import FavoritedWorkouts from '../pages/profilepages/FavoritedWorkouts';
+import Steps from '../pages/registerpages/Steps';
+import Info from '../pages/registerpages/Info';
+import Gecmis from '../pages/profilepages/Gecmis';
+import SaglikSorunlari from '../pages/settings/SaglikSorunlari';
+import HedefAyarlari from '../pages/settings/HedefAyarlari';
+import AntrenmanGunleri from '../pages/settings/AntrenmanGunleri';
+import MoveThumb from '../pages/workoutspages/MoveThumb';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -33,7 +43,7 @@ function HomeTabBar() {
                 tabBarIcon: ({ color, size }) => {
                     let iconName;
 
-                    if (route.name === 'ANA SAYFA') {
+                    if (route.name === 'ANASAYFA') {
                         iconName = 'home';
                     }
 
@@ -65,7 +75,7 @@ function HomeTabBar() {
                 showLabel: false
             }}
         >
-            <Tab.Screen name="ANA SAYFA" component={Home} />
+            <Tab.Screen name="ANASAYFA" component={Home} />
             <Tab.Screen name="ANTRENMAN" component={Antrenman} />
             {/* <Tab.Screen name="SENDPOST" component={SendPost} /> */}
             <Tab.Screen name="BESLENME" component={Food} />
@@ -102,8 +112,21 @@ export function Root() {
         <RootStack.Navigator initialRouteName="Home">
             <RootStack.Screen name="Home" component={HomeTabBar}
                 options={({ route, navigation }) => ({
-                    headerShown: false
+                    headerShown: false,
+                    gestureEnabled: false
                 })}
+            />
+            <RootStack.Screen name="Info" component={Info}
+                options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }}
+            />
+            <RootStack.Screen name="Steps" component={Steps}
+                options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }}
             />
             <RootStack.Screen name="FeedList" component={FeedList}
                 options={{
@@ -139,8 +162,41 @@ export function Root() {
                     headerTintColor: '#000'
                 }}
             />
-            <RootStack.Screen name="Workouts" component={Antrenman}
+            <RootStack.Screen name="BildirimAyarlari" component={BildirimAyarlari}
                 options={{
+                    title: 'Bildirim Ayarları',
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="KisiselBilgiler" component={KisiselBilgiler}
+                options={{
+                    title: 'Kişisel Bilgiler',
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="SaglikSorunlari" component={SaglikSorunlari}
+                options={{
+                    title: 'Sağlık Sorunları',
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="HedefAyarlari" component={HedefAyarlari}
+                options={{
+                    title: 'Hedef Ayarları',
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="AntrenmanGunleri" component={AntrenmanGunleri}
+                options={{
+                    title: 'Antrenman Günleri',
                     headerShown: false,
                     headerBackTitleVisible: false,
                     headerTintColor: '#000'
@@ -153,7 +209,21 @@ export function Root() {
                     headerTintColor: '#000'
                 }}
             />
+            <RootStack.Screen name="MoveThumb" component={MoveThumb}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
             <RootStack.Screen name="WorkoutVideo" component={WorkoutVideo}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="WorkoutSpecial" component={WorkoutSpecial}
                 options={{
                     headerShown: false,
                     headerBackTitleVisible: false,
@@ -196,6 +266,13 @@ export function Root() {
                 }}
             />
             <RootStack.Screen name="FavoritedWorkouts" component={FavoritedWorkouts}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="Gecmis" component={Gecmis}
                 options={{
                     headerShown: false,
                     headerBackTitleVisible: false,

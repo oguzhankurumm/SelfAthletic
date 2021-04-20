@@ -10,19 +10,22 @@ import Button2 from '../../components/Button';
 import Input from '../../components/Input';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
-import { auth2 } from '../../config/config';
+import { auth2, database2 } from '../../config/config';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import { Button } from 'native-base';
+import moment from 'moment';
 
 const { width, height } = Dimensions.get("window");
 
 const Welcome = ({ navigation }) => {
 
     const [selectedType, setselectedType] = useState(0);
+
     const [Name, setName] = useState("");
     const [Email, setEmail] = useState("");
     const [Password, setPassword] = useState("");
     const [ShowPassword, setShowPassword] = useState(true);
+
     const [Loading, setLoading] = useState(false);
 
     const OnButtonClicked = () => {
@@ -34,6 +37,7 @@ const Welcome = ({ navigation }) => {
                 .catch((err) => LoginFailed(err))
         }, 200);
     }
+
 
     const LoginSuccess = (res) => {
         console.log('ress: ', res)
@@ -57,16 +61,53 @@ const Welcome = ({ navigation }) => {
         }
     }
 
+    const RegisterFailed = (err) => {
+        if (String(err.code) === "auth/invalid-email") {
+            setTimeout(() => {
+                Alert.alert("Hata", "E-Posta adresi doğru görünmüyor.");
+            }, 200);
+        }
+
+        if (String(err.code) === "auth/weak-password") {
+            setTimeout(() => {
+                Alert.alert("Hata", "Parola en az 6 karakterli olmalıdır.");
+            }, 200);
+        }
+
+        if (String(err.code) === "auth/email-already-exists") {
+            setTimeout(() => {
+                Alert.alert("Hata", "Bu e-posta adresi daha önce kullanılmış.");
+            }, 200);
+        }
+
+        if (String(err.code) === "auth/invalid-password") {
+            setTimeout(() => {
+                Alert.alert("Hata", "Parolanız en az 6 haneli olmalıdır.");
+            }, 200);
+        }
+    }
+
     const onRegisterButtonClicked = async () => {
         Keyboard.dismiss()
         setLoading(true);
 
         await auth2.createUserWithEmailAndPassword(Email, Password)
             .then((response) => {
-                console.log('REGISTER: ', response)
+                database2.ref('users').child(response.user.uid).set({
+                    avatar: '',
+                    name: Name,
+                    height: 170,
+                    weight: 60,
+                    usedFreePremium: false,
+                    registerDate: moment().format('DD-MM-YYYYTHH:mm:ss'),
+                }).then(() => {
+                    navigation.navigate('Info');
+                }).catch(() => {
+                    navigation.navigate('Info');
+                })
             })
             .catch((err) => {
-                console.log('HATA: ', err)
+                RegisterFailed(err);
             })
 
     }
@@ -263,10 +304,10 @@ const Welcome = ({ navigation }) => {
 
                 <View style={styles.ButtonWrapper}>
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 50, marginTop: 10, marginBottom: 40 }}>
+                    {/* <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 50, marginTop: 10, marginBottom: 40 }}>
                         <SocialWrap style={[styles.Socials, { marginRight: 10, backgroundColor: '#FFF' }]} icon="facebook" iconcolor="#4267B2" />
                         <SocialWrap style={[styles.Socials, { backgroundColor: '#FFF' }]} icon="google" iconcolor="#4C8BF5" />
-                    </View>
+                    </View> */}
 
                     <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                         <Text style={Style.WelcomeSignIn}>Şifremi Unuttum</Text>
@@ -276,7 +317,7 @@ const Welcome = ({ navigation }) => {
 
             </View>
 
-        </KeyboardAwareView>
+        </KeyboardAwareView >
 
     )
 }
