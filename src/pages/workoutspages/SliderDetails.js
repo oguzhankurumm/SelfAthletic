@@ -161,7 +161,7 @@ const SliderDetails = props => {
                                                 }
                                             });
                                         }} style={styles.socialButton}>
-                                            <Icon name="social-instagram" color="#000" size={22} />
+                                            <Icon name="social-instagram" color="#FFF" size={22} />
                                             <Text style={styles.socialText}>Takip Et</Text>
                                         </TouchableOpacity>
 
@@ -175,7 +175,7 @@ const SliderDetails = props => {
                                                 }
                                             });
                                         }} style={styles.socialButton}>
-                                            <Icon name="social-twitter" color="#000" size={22} />
+                                            <Icon name="social-twitter" color="#FFF" size={22} />
                                             <Text style={styles.socialText}>Takip Et</Text>
                                         </TouchableOpacity>
 
@@ -189,7 +189,7 @@ const SliderDetails = props => {
                                                 }
                                             });
                                         }} style={styles.socialButton}>
-                                            <Icon name="social-facebook" color="#000" size={22} />
+                                            <Icon name="social-facebook" color="#FFF" size={22} />
                                             <Text style={styles.socialText}>Takip Et</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -205,7 +205,7 @@ const SliderDetails = props => {
                 <TouchableOpacity onPress={onButtonClicked} style={{
                     width: '100%',
                     height: 60,
-                    backgroundColor: '#CCCC00',
+                    backgroundColor: '#D1DC26',
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
@@ -230,23 +230,22 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         height: '100%',
-        paddingHorizontal: 30
+        paddingHorizontal: 20
     },
     socialButton: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'yellow',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: 18
+        backgroundColor: '#202026',
+        padding:10,
+        borderRadius: 12
     },
     socialText: {
         marginLeft: 10,
         fontFamily: 'SFProDisplay-Bold',
         justifyContent: 'flex-start',
         fontSize: 14,
-        color: '#000'
+        color: '#FFF'
     },
     linearGradient: {
         position: 'absolute',

@@ -3,14 +3,16 @@ import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAr
 import { Bar } from 'react-native-progress';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { database2, auth2 } from '../../config/config';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from 'moment';
 import Input from '../../components/Input';
+import axios from 'axios';
 
 const { height, width } = Dimensions.get("window");
 
-const Info = ({ props, navigation }) => {
+const Info = props => {
+    const userData = props.route.params.userData;
+    const userId = props.route.params.uid;
     const [Loading, setLoading] = useState(false);
 
     const [SelectedPage, setSelectedPage] = useState(1);
@@ -28,13 +30,15 @@ const Info = ({ props, navigation }) => {
         { value: 'Pazartesi', checked: false },
         { value: 'Salı', checked: false },
         { value: 'Çarşamba', checked: false },
+        { value: 'Perşembe', checked: false },
         { value: 'Cuma', checked: false },
         { value: 'Cumartesi', checked: false },
         { value: 'Pazar', checked: false },
     ])
 
-    const [Boy, setBoy] = useState(0);
-    const [Kilo, setKilo] = useState(0);
+    const [Boy, setBoy] = useState('0');
+    const [Kilo, setKilo] = useState('0');
+
 
     const showDatePicker = () => {
         Keyboard.dismiss();
@@ -60,13 +64,18 @@ const Info = ({ props, navigation }) => {
                 {/* HEADER BAŞLANGIÇ */}
                 <View style={styles.header} >
 
-                    <TouchableOpacity
-                        style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}
-                        disabled={SelectedPage !== 1 ? false : true}
-                        onPress={() => setSelectedPage(SelectedPage - 1)}>
-                        <Icon name="keyboard-arrow-left" color="#FFF" size={42} style={{ marginRight: 5 }} />
-                        <Text style={styles.headerText}>Önceki</Text>
-                    </TouchableOpacity>
+                    {SelectedPage !== 1 ?
+                        <TouchableOpacity
+                            style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}
+                            disabled={SelectedPage !== 1 ? false : true}
+                            onPress={() => setSelectedPage(SelectedPage - 1)}>
+                            <Icon name="keyboard-arrow-left" color="#FFF" size={42} style={{ marginRight: 5 }} />
+                            <Text style={styles.headerText}>Önceki</Text>
+                        </TouchableOpacity>
+                        : <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+                            <Icon name="keyboard-arrow-left" color="#9D9D9D" size={42} style={{ marginRight: 5 }} />
+                            <Text style={[styles.headerText, { color: "#9D9D9D" }]}>Önceki</Text>
+                        </View>}
 
                     <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                         <Text style={styles.headerText}>{SelectedPage}</Text>
@@ -82,12 +91,24 @@ const Info = ({ props, navigation }) => {
                                     if (checkedList.length === 0) {
                                         Alert.alert('Uyarı', 'Cinsiyet seçimi yapmalısınız.');
                                     } else {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/gender').set(checkedList[0].value)
-                                            .then(() => {
-                                                setSelectedPage(SelectedPage + 1);
+                                        setLoading(true);
+                                        axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/updateUserData", { uid: userId, data: { gender: checkedList[0].value } })
+                                            .then((res) => {
+                                                if (res.status === 200) {
+                                                    setLoading(false);
+                                                    setSelectedPage(SelectedPage + 1);
+                                                } else {
+                                                    setLoading(false);
+                                                    setTimeout(() => {
+                                                        Alert.alert('Hata', String(res.data))
+                                                    }, 200);
+                                                }
                                             })
-                                            .catch(() => {
-                                                setSelectedPage(SelectedPage + 1);
+                                            .catch((err) => {
+                                                setLoading(false);
+                                                setTimeout(() => {
+                                                    Alert.alert('Hata', String(err))
+                                                }, 200);
                                             })
                                     }
                                 }
@@ -102,17 +123,30 @@ const Info = ({ props, navigation }) => {
                                             { text: 'Tekrar Dene', onPress: () => null, style: 'default' }
                                         ])
                                     } else {
-                                        database2.ref('users').child(auth2.currentUser.uid).update({
-                                            birthdate: moment(BirthDate).format('DD/MM/YYYY'),
-                                            weight: parseFloat(Kilo),
-                                            height: parseFloat(Boy)
+                                        setLoading(true);
+                                        axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/updateUserData", {
+                                            uid: userId, data: {
+                                                birthdate: moment(BirthDate).format('DD/MM/YYYY'),
+                                                weight: parseFloat(Kilo),
+                                                height: parseFloat(Boy)
+                                            }
                                         })
-                                            .then(() => {
-                                                setSelectedPage(SelectedPage + 1);
+                                            .then((res) => {
+                                                if (res.status === 200) {
+                                                    setLoading(false);
+                                                    setSelectedPage(SelectedPage + 1);
+                                                } else {
+                                                    setLoading(false);
+                                                    setTimeout(() => {
+                                                        Alert.alert('Hata', String(res.data))
+                                                    }, 200);
+                                                }
                                             })
-                                            .catch((error) => {
-                                                setSelectedPage(SelectedPage + 1);
-                                                Alert.alert('Hata', String(error))
+                                            .catch((err) => {
+                                                setLoading(false);
+                                                setTimeout(() => {
+                                                    Alert.alert('Hata', String(err))
+                                                }, 200);
                                             })
                                     }
                                 }
@@ -129,12 +163,24 @@ const Info = ({ props, navigation }) => {
                                                 selectedDays.push(days.value)
                                             }
                                         })
-                                        database2.ref('users').child(auth2.currentUser.uid + '/workoutDays').set(selectedDays)
-                                            .then(() => {
-                                                navigation.navigate('Steps');
+                                        setLoading(true);
+                                        axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/updateUserData", { uid: userId, data: { workoutDays: selectedDays } })
+                                            .then((res) => {
+                                                if (res.status === 200) {
+                                                    setLoading(false);
+                                                    props.navigation.navigate('Steps', { userData: userData, password: props.route.params.password, uid: userId });
+                                                } else {
+                                                    setLoading(false);
+                                                    setTimeout(() => {
+                                                        Alert.alert('Hata', String(res.data))
+                                                    }, 200);
+                                                }
                                             })
-                                            .catch(() => {
-                                                navigation.navigate('Steps');
+                                            .catch((err) => {
+                                                setLoading(false);
+                                                setTimeout(() => {
+                                                    Alert.alert('Hata', String(err))
+                                                }, 200);
                                             })
                                     }
                                 }
@@ -146,7 +192,7 @@ const Info = ({ props, navigation }) => {
 
                 </View>
 
-                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 10, paddingHorizontal: 30 }}>
+                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 10, paddingHorizontal: 20 }}>
                     <Bar height={4} style={{ width: '100%' }} width={null} color="yellow" progress={SelectedPage / TotalPage} unfilledColor="#9999" borderWidth={0} />
                 </View>
                 {/* HEADER SON */}
@@ -236,10 +282,9 @@ const Info = ({ props, navigation }) => {
                                 allowFontScaling={false}
                                 maxLength={3}
                                 placeholderTextColor="#FFF"
-                                placeholder="Boyunuzu girin"
                                 returnKeyType={"done"}
                                 value={Boy}
-                                onChangeText={boy => setBoy(parseFloat(boy))}
+                                onChangeText={boy => setBoy(boy)}
                                 keyboardType="decimal-pad"
                             />
 
@@ -264,10 +309,9 @@ const Info = ({ props, navigation }) => {
                                 allowFontScaling={false}
                                 maxLength={3}
                                 placeholderTextColor="#FFF"
-                                placeholder="Kilonuzu girin"
                                 returnKeyType={"done"}
                                 value={Kilo}
-                                onChangeText={kilo => setKilo(parseFloat(kilo))}
+                                onChangeText={kilo => setKilo(kilo)}
                                 keyboardType="decimal-pad"
                             />
                         </>

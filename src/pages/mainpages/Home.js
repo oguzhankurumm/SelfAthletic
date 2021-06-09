@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, Dimensions, ScrollView, Alert, TouchableOpacity, ImageBackground, TouchableHighlight } from 'react-native';
+import React, { useState, useEffect, useLayoutEffect } from 'react'
+import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, Dimensions, ScrollView, Alert, TouchableOpacity, ImageBackground, TouchableHighlight, NativeEventEmitter, NativeModules } from 'react-native';
 // import Slider from '../../components/Slider';
 import LinearGradient from 'react-native-linear-gradient';
-import { database2 } from '../../config/config';
+import { database2, auth2 } from '../../config/config';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Sidebar from '../../components/Sidebar';
 import { useSelector } from 'react-redux';
+import StepcounterIosAndroid from "react-native-stepcounter-ios-android";
+
 
 const { height, width } = Dimensions.get("window");
 
@@ -27,53 +29,78 @@ const Home = ({ props, navigation }) => {
         setShowSideModal(!ShowSideModal);
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         getMyCalories();
-        getMySteps();
+        // getMySteps();
         getWorkouts();
         getCampaings();
     }, [])
 
-    const getMyCalories = () => {
+    useEffect(() => {
+        StepcounterIosAndroid.isSupported()
+            .then((result) => {
+                if (result) {
+                    console.log('Sensor TYPE_STEP_COUNTER is supported on this device');
+
+                    const myModuleEvt = new NativeEventEmitter(
+                        NativeModules.StepcounterIosAndroid
+                    );
+                    myModuleEvt.addListener('StepCounter', (data) => {
+                        console.log('STEPS', data.steps);
+                        setSteps(data.steps);
+                    });
+
+                    StepcounterIosAndroid.startStepCounter();
+                } else {
+                    console.log(
+                        'Sensor TYPE_STEP_COUNTER is not supported on this device'
+                    );
+                }
+            })
+            .catch((err) => console.log(err));
+
+        return () => StepcounterIosAndroid.stopStepCounter();
+    }, [])
+
+    const getMyCalories = async () => {
+
         let CalorieList = [];
         database2.ref('users_points/' + profileData.userId).on('value', snapshot => {
-            console.log('snapshot: ', snapshot.val())
             if (snapshot.val() !== null && snapshot.val() !== undefined) {
                 snapshot.forEach((item) => {
                     CalorieList.push(item.val());
                 })
-                console.log('calorie: ', CalorieList)
 
                 let sum = CalorieList.reduce(function (prev, current) {
                     return prev + +parseFloat(current.calories)
                 }, 0);
 
                 setCalories(sum);
-                setCaloriesChart(parseFloat(profileData.targets?.calorie !== undefined && parseFloat(profileData.targets.calorie) / parseFloat(sum)).toFixed(2))
+                setCaloriesChart(parseFloat(profileData.targets?.calorie !== undefined ? parseFloat(profileData.targets.calorie) / parseFloat(sum) : 0).toFixed(2))
             } else {
                 setCalories(0);
             }
         })
     }
 
-    const getMySteps = () => {
-        let StepList = [];
-        database2.ref('steps' + profileData.userId).on('value', snapshot => {
-            if (snapshot.val() !== null && snapshot.val() !== undefined) {
-                snapshot.forEach((item) => {
-                    StepList.push(item.val());
-                })
+    // const getMySteps = () => {
+    //     let StepList = [];
+    //     database2.ref('steps' + profileData.userId).on('value', snapshot => {
+    //         if (snapshot.val() !== null && snapshot.val() !== undefined) {
+    //             snapshot.forEach((item) => {
+    //                 StepList.push(item.val());
+    //             })
 
-                let sum = StepList.reduce(function (prev, current) {
-                    return prev + +parseFloat(current.steps)
-                }, 0);
-                setSteps(sum !== 'NaN' ? sum : 0);
-                setStepChart(parseFloat(profileData.targets?.step !== undefined && parseFloat(profileData.targets.step) / parseFloat(sum)).toFixed(0))
-            } else {
-                setSteps(0);
-            }
-        })
-    }
+    //             let sum = StepList.reduce(function (prev, current) {
+    //                 return prev + +parseFloat(current.steps)
+    //             }, 0);
+    //             setSteps(sum !== 'NaN' ? sum : 0);
+    //             setStepChart(parseFloat(profileData.targets?.step !== undefined && parseFloat(profileData.targets.step) / parseFloat(sum)).toFixed(0))
+    //         } else {
+    //             setSteps(0);
+    //         }
+    //     })
+    // }
 
     const getCampaings = () => {
         database2.ref('campaigns').once("value")
@@ -104,7 +131,7 @@ const Home = ({ props, navigation }) => {
                         id: item.key
                     })
                 })
-                setWorkouts(workoutList)
+                setWorkouts(workoutList.sort((a, b) => a.title.localeCompare(b.title)));
                 setLoading(false);
             })
             .catch((err) => {
@@ -146,7 +173,7 @@ const Home = ({ props, navigation }) => {
                 <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} style={styles.container}>
                     <StatusBar barStyle="light-content" />
 
-                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
                         {!Loading && Campaigns.map((item, index) => {
                             return (
                                 <TouchableOpacity key={item.id} onPress={() => navigation.navigate('SliderDetails', { item: item })} style={{ width: '100%', height: 200, borderRadius: 18, marginTop: 10, justifyContent: 'center', alignItems: 'center' }}>
@@ -180,7 +207,7 @@ const Home = ({ props, navigation }) => {
                         }
                     </View>
 
-                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
                         <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20 }}>
 
                             <Text style={styles.titleStyle}>Antrenmanlar</Text>
@@ -189,7 +216,7 @@ const Home = ({ props, navigation }) => {
                                 onPress={() => navigation.navigate('WorkoutList', { Workouts: Workouts })}
                                 style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <Text style={styles.subTitleStyle}>Tümünü Gör</Text>
-                                <Icon name="keyboard-arrow-right" size={18} color="#FFF" />
+                                <Icon name="keyboard-arrow-right" size={18} color="yellow" />
                             </TouchableOpacity>
 
                         </View>
@@ -236,11 +263,6 @@ const Home = ({ props, navigation }) => {
                                                 color: '#FFF',
                                                 marginBottom: 8
                                             }}>{item.title}</Text>
-                                            <Text numberOfLines={1} style={{
-                                                fontFamily: 'SFProDisplay-Medium',
-                                                fontSize: 13,
-                                                color: '#FFF'
-                                            }}>{item.description}</Text>
                                         </View>
 
                                         <View style={{
@@ -264,67 +286,22 @@ const Home = ({ props, navigation }) => {
                                                     fontSize: 13,
                                                     color: '#FFF',
                                                     marginLeft: 5
-                                                }}>{String(parseFloat(item.point))}</Text>
+                                                }}>{String(parseFloat(item.point))} Puan</Text>
                                             </View>
-                                            {/* 
-                                            {item.level === 0 &&
-                                                <View style={{
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center'
-                                                }}>
-                                                    <Icon name="bar-chart" color="#FFF" size={20} />
-                                                    <Text style={{
-                                                        fontFamily: 'SFProDisplay-Medium',
-                                                        fontSize: 14,
-                                                        color: '#FFF',
-                                                        marginLeft: 5
-                                                    }}>Başlangıç</Text>
-                                                </View>
-                                            }
 
-                                            {item.level === 1 &&
-                                                <View style={{
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center'
-                                                }}>
-                                                    <Icon name="bar-chart" color="#FFF" size={20} />
-                                                    <Text style={{
-                                                        fontFamily: 'SFProDisplay-Medium',
-                                                        fontSize: 14,
-                                                        color: '#FFF',
-                                                        marginLeft: 5
-                                                    }}>Orta</Text>
-                                                </View>
-                                            }
-
-                                            {item.level === 2 &&
-                                                <View style={{
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center'
-                                                }}>
-                                                    <Icon name="bar-chart" color="#FFF" size={20} />
-                                                    <Text style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 14, color: '#FFF', marginLeft: 5 }}>Zor</Text>
-                                                </View>
-                                            }
-
-                                            {item.level === 3 &&
-                                                <View style={{
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center'
-                                                }}>
-                                                    <Icon name="bar-chart" color="#FFF" size={20} />
-                                                    <Text style={{
-                                                        fontFamily: 'SFProDisplay-Medium',
-                                                        fontSize: 14,
-                                                        color: '#FFF',
-                                                        marginLeft: 5
-                                                    }}>Uzman</Text>
-                                                </View>
-                                            } */}
+                                            <View style={{
+                                                flexDirection: 'row',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}>
+                                                <Icon name="directions-run" color="#FFF" size={20} />
+                                                <Text style={{
+                                                    fontFamily: 'SFProDisplay-Medium',
+                                                    fontSize: 14,
+                                                    color: '#FFF',
+                                                    marginLeft: 5
+                                                }}>{String(parseFloat(item.calories))} Kalori</Text>
+                                            </View>
 
                                         </View>
                                     </TouchableOpacity>
@@ -333,23 +310,22 @@ const Home = ({ props, navigation }) => {
                         </ScrollView>
                     </View>
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 30, width: '100%', height: 150, marginTop: 50 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 20, width: '100%', height: 150, marginTop: 50 }}>
 
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('StepCounter')}
-                            style={{ justifyContent: 'center', alignItems: 'center', width: '45%' }}>
+                            onPress={() => navigation.navigate('Calories')}
+                            style={{ justifyContent: 'center', alignItems: 'center', width: '48%' }}>
                             <AnimatedCircularProgress
                                 size={150}
                                 width={6}
                                 rotation={90}
-                                fill={StepChart}
-                                tintColor="#CCCC00"
+                                fill={String(CaloriesChart) !== undefined && String(CaloriesChart) !== "NaN" && String(CaloriesChart) !== "Infinity" ? CaloriesChart : 0}
+                                tintColor="#376F19"
                                 backgroundColor="#2d2d2d">
                                 {(fill) => (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={[styles.headerText, { fontSize: 24, marginBottom: 5 }]}>{Steps}</Text>
-                                        <Text style={styles.headerText}>Adım</Text>
-                                        <Text style={styles.headerSubText}>Hedef: {profileData.targets?.step !== undefined ? parseFloat(profileData.targets?.step) : 0}</Text>
+                                        <Text style={[styles.headerText, { fontSize: 24, marginBottom: 5 }]}>{String(fill) !== "NaN" ? fill : 0}</Text>
+                                        <Text style={styles.headerText}>Kalori</Text>
                                     </View>
                                 )}
                             </AnimatedCircularProgress>
@@ -357,20 +333,19 @@ const Home = ({ props, navigation }) => {
 
 
                         <TouchableOpacity
-                            onPress={() => navigation.navigate('Calories')}
-                            style={{ justifyContent: 'center', alignItems: 'center', width: '45%' }}>
+                            onPress={() => navigation.navigate('StepCounter')}
+                            style={{ justifyContent: 'center', alignItems: 'center', width: '48%' }}>
                             <AnimatedCircularProgress
                                 size={150}
                                 width={6}
                                 rotation={90}
-                                fill={CaloriesChart}
-                                tintColor="green"
+                                fill={StepChart}
+                                tintColor="#d1dc26"
                                 backgroundColor="#2d2d2d">
                                 {(fill) => (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={[styles.headerText, { fontSize: 24, marginBottom: 5 }]}>{Calories}</Text>
-                                        <Text style={styles.headerText}>Kalori</Text>
-                                        <Text style={styles.headerSubText}>Hedef: {profileData.targets?.calorie !== undefined ? parseFloat(profileData.targets?.calorie) : 0}</Text>
+                                        <Text style={[styles.headerText, { fontSize: 24, marginBottom: 5 }]}>{Steps}</Text>
+                                        <Text style={styles.headerText}>Adım</Text>
                                     </View>
                                 )}
                             </AnimatedCircularProgress>
@@ -403,7 +378,7 @@ const styles = StyleSheet.create({
         fontFamily: 'SFProDisplay-Medium',
         justifyContent: 'flex-start',
         fontSize: 16,
-        color: '#FFF'
+        color: 'yellow'
     },
     header: {
         width: '100%',
@@ -411,7 +386,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 30
+        paddingHorizontal: 20
     },
     headerText: {
         fontFamily: 'SFProDisplay-Medium',

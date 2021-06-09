@@ -18,6 +18,7 @@ const AntrenmanGunleri = ({ navigation }) => {
         { value: 'Pazartesi', checked: false },
         { value: 'Salı', checked: false },
         { value: 'Çarşamba', checked: false },
+        { value: 'Perşembe', checked: false },
         { value: 'Cuma', checked: false },
         { value: 'Cumartesi', checked: false },
         { value: 'Pazar', checked: false },
@@ -107,7 +108,6 @@ const AntrenmanGunleri = ({ navigation }) => {
                                     tempItem.checked = !item.checked;
                                     const tempArr = [...WorkoutDays];
                                     setWorkoutDays(tempArr);
-                                    console.log('temp :a', tempArr)
                                 }}
                                 key={index}
                                 style={{ marginTop: 20, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>

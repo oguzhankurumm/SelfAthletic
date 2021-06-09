@@ -58,7 +58,7 @@ const BildirimAyarlari = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30, marginTop: 10 }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, marginTop: 10 }}>
                         <Card style={styles.textContainer}>
                             <Text style={styles.textStyleHeader}>Su Hatırlatması</Text>
                             <Switch
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     textStyleHeader: {
-        color: "#2d2d2d",
+        color: "#FFF",
         fontFamily: 'SFProDisplay-Bold',
         fontSize: 16,
     },
@@ -178,6 +178,8 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     textContainer: {
+        backgroundColor: '#202026',
+        borderColor: '#202026',
         borderRadius: 12,
         padding: 20,
         width: '100%',

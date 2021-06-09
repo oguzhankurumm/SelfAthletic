@@ -4,10 +4,12 @@ import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAr
 import { database2 } from '../../config/config';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon2 from 'react-native-vector-icons/AntDesign';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
 import { Bar } from 'react-native-progress';
 import Sidebar from '../../components/Sidebar';
+import LinearGradient from 'react-native-linear-gradient';
 
 LocaleConfig.locales['tr'] = {
     monthNames: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
@@ -31,6 +33,10 @@ const Profile = ({ props, navigation }) => {
     const [EgzersizList, setEgzersizList] = useState([]);
     const [TamamlananCount, setTamamlananCount] = useState(0);
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
+    const [HedefAvg, setHedefAvg] = useState(0);
+    const [Exams, setExams] = useState([]);
+
+    const [BestDay, setBestDay] = useState("")
 
     const closeModal = () => {
         setShowSideModal(!ShowSideModal);
@@ -51,11 +57,11 @@ const Profile = ({ props, navigation }) => {
         if (profileData.point < 10000) {
             return (
                 <>
-                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 30 }}>
+                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 20 }}>
                         <View style={{ width: '100%', marginBottom: 8 }}>
                             <Text style={{
                                 fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: 'yellow'
                             }}>Seviye {String(1)}</Text>
                         </View>
@@ -66,15 +72,15 @@ const Profile = ({ props, navigation }) => {
 
                             <Text style={{
                                 fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: 'yellow'
-                            }}>{profileData.point ? profileData.point : 0} puan</Text>
+                            }}>{profileData.point ? parseFloat(profileData.point).toFixed(1) : 0} puan</Text>
 
                             <Text style={{
                                 fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: '#9D9D9D'
-                            }}>2. seviye için {String(parseFloat(10000) - parseFloat(profileData.point))} puan kaldı</Text>
+                            }}>2. seviye için {parseFloat(String(parseFloat(10000) - parseFloat(profileData.point))).toFixed(1)} puan kaldı</Text>
                         </View>
                     </View>
                 </>
@@ -84,11 +90,11 @@ const Profile = ({ props, navigation }) => {
         if (profileData.point >= 10000 && profileData.point !== 15000) {
             return (
                 <>
-                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 30 }}>
+                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 20 }}>
                         <View style={{ width: '100%', marginBottom: 8 }}>
                             <Text style={{
                                 fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: 'yellow'
                             }}>Seviye {String(2)}</Text>
                         </View>
@@ -99,15 +105,15 @@ const Profile = ({ props, navigation }) => {
 
                             <Text style={{
                                 fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: 'yellow'
-                            }}>{profileData.point ? profileData.point : 0} puan</Text>
+                            }}>{profileData.point ? parseFloat(profileData.point).toFixed(1) : 0} puan</Text>
 
                             <Text style={{
                                 fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: '#9D9D9D'
-                            }}>3. seviye için {String(parseFloat(25000) - parseFloat(profileData.point))} puan kaldı</Text>
+                            }}>3. seviye için {String(parseFloat(25000) - parseFloat(profileData.point).toFixed(1))} puan kaldı</Text>
                         </View>
                     </View>
                 </>
@@ -118,11 +124,11 @@ const Profile = ({ props, navigation }) => {
         if (profileData.point >= 25000) {
             return (
                 <>
-                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 30 }}>
+                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 20 }}>
                         <View style={{ width: '100%', marginBottom: 8 }}>
                             <Text style={{
                                 fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: 'yellow'
                             }}>Seviye {String(2)}</Text>
                         </View>
@@ -135,11 +141,11 @@ const Profile = ({ props, navigation }) => {
                                 fontFamily: 'SFProDisplay-Medium',
                                 fontSize: 11,
                                 color: 'yellow'
-                            }}>{profileData.point ? profileData.point : 0} puan</Text>
+                            }}>{profileData.point ? parseFloat(profileData.point).toFixed(1) : 0} puan</Text>
 
                             <Text style={{
                                 fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: '#9D9D9D'
                             }}>Seviyeyi tamamlamak için {String(parseFloat(40000) - parseFloat(profileData.point))} puan kaldı</Text>
                         </View>
@@ -147,6 +153,28 @@ const Profile = ({ props, navigation }) => {
                 </>
             )
         }
+    }
+
+    const getExams = async () => {
+        let examList = [];
+
+        database2.ref('exams').once('value')
+            .then((examSnap) => {
+                if (examSnap.val().length !== 0) {
+                    examSnap.forEach((item) => {
+                        examList.push({
+                            ...item.val(),
+                            id: item.key
+                        })
+                    })
+                    setExams(examList)
+                    setLoading(false);
+                }
+            })
+            .catch((err) => {
+                console.log('hata: ', err);
+                setLoading(false);
+            })
     }
 
     const getMyWorkouts = async () => {
@@ -161,16 +189,37 @@ const Profile = ({ props, navigation }) => {
                         ...item.val(),
                         id: item.key
                     });
-                    if (item.val().completed === true) {
-                        completedList.push(item)
+
+                    let completed = null;
+                    let total = 0;
+
+                    Object.values(item.val().moves).forEach((wrk) => {
+                        if (wrk.completed === false) {
+                            completed = false
+                        } else if (wrk.completed === true) {
+                            completed = true;
+                            wrk.calorie !== undefined && wrk.calorie !== "NaN" ? total += parseFloat(wrk.calorie) : 0
+                        }
+                    })
+
+                    if (completed === true) {
+                        completedList.push({
+                            ...item.val(),
+                            date: item.key,
+                            total: parseFloat(total)
+                        })
                     }
 
-                    let food = { key: 'food', color: item.val().completed === true ? 'green' : '#d3d3d3' };
-                    let workout = { key: 'workout', color: item.val().completed === true ? 'yellow' : '#d3d3d3' };
 
-                    arr[moment(item.val().date, "DD/MM/YYYY").format("YYYY-MM-DD")] = { dots: [workout], disabled: false }
+                    let workout = { key: 'workout', color: 'green' };
+
+                    arr[moment(item.key, "DD-MM-YYYY").format("YYYY-MM-DD")] = { dots: [workout], disabled: false }
                 })
 
+                if (completedList.length >= 1) {
+                    const userBestDay = completedList.sort((a, b) => String(b.total).toLowerCase().localeCompare(String(a.total).toLowerCase()))
+                    setBestDay(moment(userBestDay[0].date, "DD/MM/YYYY").format("LL"));
+                }
                 setmarkedDatesArray(arr);
                 setTamamlananCount(completedList.length)
                 setEgzersizList(egzList);
@@ -181,6 +230,59 @@ const Profile = ({ props, navigation }) => {
         })
     }
 
+    const CalcTargets = async () => {
+        var adimTarget = profileData.targets?.step !== undefined ? profileData.targets.step : 0
+        var kaloriTarget = profileData.targets?.calories !== undefined ? profileData.targets.calories : 0
+
+
+        let CalorieList = [];
+        let AdimList = [];
+        let kaloriCount = 0;
+        let adimCount = 0;
+
+        kaloriAvg = 0;
+        adimAvg = 0;
+
+        await database2.ref('users_points/' + profileData.userId).once('value').then(snapshot => {
+            if (snapshot.val() !== null && snapshot.val() !== undefined) {
+                snapshot.forEach((item) => {
+                    CalorieList.push(item.val());
+                })
+
+                let sum = CalorieList.reduce(function (prev, current) {
+                    return prev + +parseFloat(current.calories)
+                }, 0);
+
+                kaloriCount = sum;
+                kaloriAvg = parseFloat(kaloriTarget) / parseFloat(kaloriCount);
+            }
+        })
+            .catch((err) => console.log('err:', err))
+
+        await database2.ref('steps/' + profileData.userId).once('value').then(snapshot => {
+            if (snapshot.val() !== null && snapshot.val() !== undefined) {
+                snapshot.forEach((item) => {
+                    AdimList.push(item.val());
+                })
+
+                let sum = AdimList.reduce(function (prev, current) {
+                    return prev + +parseFloat(current.value)
+                }, 0);
+
+                adimCount = sum;
+                adimAvg = parseFloat(adimTarget) / parseFloat(adimCount);
+            }
+        })
+            .catch((err) => console.log('err:', err))
+
+        setTimeout(() => {
+            var a = (parseFloat(adimAvg) + parseFloat(kaloriAvg)) / 100
+            setHedefAvg(a)
+        }, 300);
+
+
+    }
+
     useEffect(() => {
         setLoading(true);
         var start = moment(profileData.registerDate, "DD/MM/YYYY");
@@ -189,6 +291,8 @@ const Profile = ({ props, navigation }) => {
         setAktifGun(parseFloat(moment.duration(end.diff(start)).asDays()).toFixed(0));
 
         getMyWorkouts();
+        getExams();
+        CalcTargets();
     }, [])
 
     return (
@@ -222,7 +326,7 @@ const Profile = ({ props, navigation }) => {
 
                 <ScrollView style={{ width: '100%' }}>
                     <View style={styles.profileView}>
-                        <Image style={styles.imageView} source={{ uri: profileData.avatar !== '' ? profileData.avatar : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }} />
+                        <Image style={styles.imageView} resizeMode="cover" source={{ uri: profileData.avatar !== '' && profileData.avatar !== undefined ? profileData.avatar : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }} />
                         <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                             <Text style={styles.nameText}>{profileData.name}</Text>
                         </View>
@@ -251,23 +355,23 @@ const Profile = ({ props, navigation }) => {
                             <View style={styles.iconsContainer}>
                                 <View style={styles.iconsView}>
                                     <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon name="directions-run" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Icon2 name="user" color="yellow" size={32} style={{ marginBottom: 10 }} />
                                         <Text style={styles.iconsText}>Aktif</Text>
                                         <Text style={styles.iconsText}>Gün</Text>
                                         <Text style={styles.iconsText}>Sayısı</Text>
-                                        <Text style={styles.iconsNumber}>{AktifGun}</Text>
+                                        <Text style={styles.iconsNumber}>{AktifGun !== undefined && AktifGun !== "NaN" ? AktifGun : 0}</Text>
                                     </View>
 
                                     <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Icon2 name="linechart" color="yellow" size={32} style={{ marginBottom: 10 }} />
                                         <Text style={styles.iconsText}>Hedef</Text>
                                         <Text style={styles.iconsText}>Tutturma</Text>
                                         <Text style={styles.iconsText}>Yüzdesi</Text>
-                                        <Text style={styles.iconsNumber}>%0</Text>
+                                        <Text style={styles.iconsNumber}>%{parseFloat(HedefAvg !== undefined && String(HedefAvg) !== "NaN" ? HedefAvg : 0).toFixed(2)}</Text>
                                     </View>
 
                                     <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Icon2 name="Trophy" color="yellow" size={32} style={{ marginBottom: 10 }} />
                                         <Text style={styles.iconsText}>Tamamlanan</Text>
                                         <Text style={styles.iconsText}>Egzersiz</Text>
                                         <Text style={styles.iconsText}>Sayısı</Text>
@@ -278,24 +382,43 @@ const Profile = ({ props, navigation }) => {
 
                                 <View style={styles.iconsView}>
                                     <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                                        <Text style={[styles.iconsText, { textDecorationLine: "underline" }]}>En İyi Gün</Text>
-                                        <Text style={styles.iconsNumber}>16</Text>
-                                        <Text style={styles.iconsDate}>Mart 2021</Text>
+                                        <Icon2 name="checksquareo" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Text style={styles.iconsText}>En İyi Gün</Text>
+                                        {BestDay !== "" ?
+                                            <>
+                                                <Text style={styles.iconsNumber}>{String(BestDay).slice(0, 2) !== "NaN" ? String(BestDay).slice(0, 2) : 0}</Text>
+                                                <Text style={styles.iconsDate}>{String(BestDay).slice(2) !== "NaN" ? String(BestDay).slice(2) : 0}</Text>
+                                            </>
+                                            :
+                                            <Text style={styles.iconsNumber}>Yok</Text>
+                                        }
                                     </View>
 
                                     <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                                        <Text style={[styles.iconsText, { textDecorationLine: "underline" }]}>En İyi Hafta</Text>
-                                        <Text style={styles.iconsNumber}>16</Text>
-                                        <Text style={styles.iconsDate}>Mart 2021</Text>
+                                        <Icon2 name="checksquareo" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Text style={styles.iconsText}>En İyi Hafta</Text>
+                                        {BestDay !== "" ?
+                                            <>
+                                                <Text style={styles.iconsNumber}>{String(moment(BestDay).week()) !== "NaN" ? String(moment(BestDay).week()) : 0}. Hafta</Text>
+                                                <Text style={styles.iconsDate}>{String(BestDay).split(' ')[1] !== "NaN" ? String(BestDay).split(' ')[1] : '-'}</Text>
+                                            </>
+                                            :
+                                            <Text style={styles.iconsNumber}>Yok</Text>
+                                        }
+
                                     </View>
 
                                     <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon name="people" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                                        <Text style={[styles.iconsText, { textDecorationLine: "underline" }]}>En İyi Ay</Text>
-                                        <Text style={styles.iconsNumber}>16</Text>
-                                        <Text style={styles.iconsDate}>Mart 2021</Text>
+                                        <Icon2 name="checksquareo" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                        <Text style={styles.iconsText}>En İyi Ay</Text>
+                                        {BestDay !== "" ?
+                                            <>
+                                                <Text style={styles.iconsNumber}>{String(BestDay).split(' ')[1] !== "NaN" ? String(BestDay).split(' ')[1] : 0}</Text>
+                                                <Text style={styles.iconsDate}>{String(BestDay).split(' ')[2] !== "NaN" ? String(BestDay).split(' ')[2] : "-"}</Text>
+                                            </>
+                                            :
+                                            <Text style={styles.iconsNumber}>Yok</Text>
+                                        }
                                     </View>
                                 </View>
                             </View>
@@ -370,6 +493,102 @@ const Profile = ({ props, navigation }) => {
                                 }}
                             />
                         </View>
+                    }
+
+                    {SelectedPage === 2 &&
+                        <>
+                            <View style={[styles.iconsContainer, { paddingHorizontal: 20, paddingBottom: 100 }]}>
+
+                                <TouchableOpacity
+                                    onPress={() => navigation.navigate('Testler', { item: Exams })}
+                                    style={{
+                                        height: 'auto',
+                                        width: '100%',
+                                        borderRadius: 18,
+                                        marginTop: 10,
+                                        marginBottom: 10
+                                    }}>
+                                    <Image
+                                        resizeMode="cover"
+                                        source={{ uri: 'https://www.lanochefithall.com/assets/img/usenme.jpg' }}
+                                        style={{
+                                            width: '100%',
+                                            height: 200,
+                                            borderRadius: 18
+                                        }}
+                                    />
+                                    <LinearGradient
+                                        start={{ x: 1, y: 1 }}
+                                        end={{ x: 1, y: 1 }}
+                                        colors={['rgba(0,0,0,0.6)', 'transparent']}
+                                        style={{
+                                            position: 'absolute',
+                                            borderRadius: 18,
+                                            width: '100%',
+                                            height: 200
+                                        }}
+                                    />
+
+                                    <View style={{ position: 'absolute', top: 20, bottom: 20, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
+                                        <Text style={{
+                                            fontFamily: 'SFProDisplay-Bold',
+                                            fontSize: 16,
+                                            textAlign: 'center',
+                                            color: 'yellow',
+                                            marginRight: 10
+                                        }}
+                                        >Testi Başlat</Text>
+                                        <Icon2 name="arrowright" color="yellow" size={22} />
+                                    </View>
+
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    onPress={() => navigation.navigate('Olcumler')}
+                                    style={{
+                                        height: 'auto',
+                                        width: '100%',
+                                        borderRadius: 18,
+                                        marginTop: 10,
+                                        marginBottom: 10
+                                    }}>
+                                    <Image
+                                        resizeMode="cover"
+                                        source={{ uri: 'https://thumbs.dreamstime.com/b/active-young-excited-happy-woman-posing-centimeter-over-isolated-over-pastel-blue-studio-background-sport-fitness-healthy-170036983.jpg' }}
+                                        style={{
+                                            width: '100%',
+                                            height: 200,
+                                            borderRadius: 18
+                                        }}
+                                    />
+                                    <LinearGradient
+                                        start={{ x: 1, y: 1 }}
+                                        end={{ x: 1, y: 1 }}
+                                        colors={['rgba(0,0,0,0.6)', 'transparent']}
+                                        style={{
+                                            position: 'absolute',
+                                            borderRadius: 18,
+                                            width: '100%',
+                                            height: 200
+                                        }}
+                                    />
+
+                                    <View style={{ position: 'absolute', top: 20, bottom: 20, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
+                                        <Text style={{
+                                            fontFamily: 'SFProDisplay-Bold',
+                                            fontSize: 16,
+                                            textAlign: 'center',
+                                            color: 'yellow',
+                                            marginRight: 10
+                                        }}
+                                        >Mezura Ölçümleri</Text>
+                                        <Icon2 name="arrowright" color="yellow" size={22} />
+                                    </View>
+
+                                </TouchableOpacity>
+
+                            </View>
+                        </>
                     }
 
                 </ScrollView>
@@ -451,7 +670,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 30
+        paddingHorizontal: 20
     },
     headerText: {
         fontFamily: 'SFProDisplay-Medium',

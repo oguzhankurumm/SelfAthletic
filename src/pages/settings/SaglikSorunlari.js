@@ -149,7 +149,7 @@ const SaglikSorunlari = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
 
-                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 10, paddingHorizontal: 30 }}>
+                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 10, paddingHorizontal: 20 }}>
                     <Bar height={4} style={{ width: '100%' }} width={null} color="yellow" progress={SelectedPage / TotalPage} unfilledColor="#9999" borderWidth={0} />
                 </View>
                 {/* HEADER SON */}
@@ -158,7 +158,7 @@ const SaglikSorunlari = ({ navigation }) => {
 
                     {SelectedPage === 1 &&
                         <>
-                            <View style={{ width: '100%', paddingHorizontal: 30 }}>
+                            <View style={{ width: '100%', paddingHorizontal: 20 }}>
                                 <Text style={[styles.headerText, { fontSize: 20, fontWeight: 'bold', textAlign: 'center' }]}>Herhangi bir sağlık probleminiz var mı?</Text>
                             </View>
 
@@ -198,7 +198,7 @@ const SaglikSorunlari = ({ navigation }) => {
 
                     {SelectedPage === 2 &&
                         <>
-                            <View style={{ width: '100%', paddingHorizontal: 30 }}>
+                            <View style={{ width: '100%', paddingHorizontal: 20 }}>
                                 <Text style={[styles.headerText, { fontSize: 20, fontWeight: 'bold', textAlign: 'center' }]}>Herhangi bir kronik ağrınız var mı?</Text>
                             </View>
 

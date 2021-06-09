@@ -18,7 +18,6 @@ const WorkoutDetails = props => {
     const [Workouts, setWorkouts] = useState(props.route.params.item);
     const [Movements, setMovements] = useState(props.route.params.item.movements !== null && props.route.params.item.movements !== undefined ? Object.values(props.route.params.item.movements) : [])
     const [VideoList, setVideoList] = useState([]);
-    const [TotalHours, setTotalHours] = useState(0);
 
     const [isFavorited, setisFavorited] = useState(false);
 
@@ -53,7 +52,6 @@ const WorkoutDetails = props => {
 
     const getVideo = () => {
         let videoList = [];
-
         Movements.forEach((move) => {
             axios.get(`https://player.vimeo.com/video/${move.video}/config`)
                 .then((res) => {
@@ -67,28 +65,26 @@ const WorkoutDetails = props => {
                             id: res.data.video.id,
                             ...move
                         })
-
-                        setVideoList(videoList);
-
-                        let drt = videoList.reduce(function (prev, current) {
-                            return prev + +parseFloat(current.duration)
-                        }, 0);
-
-                        setTotalHours(moment.utc(drt * 1000).format('HH:mm:ss'));
-                        setLoading(false);
-                    } else {
-                        setLoading(false);
                     }
                 })
                 .catch((err) => {
                     setLoading(false);
-                    Alert.alert('Hata', 'Videolar yüklenemedi, lütfen internet bağlantınızı kontrol edin.')
+                    setTimeout(() => {
+                        Alert.alert('Hata', 'Bazı videolar yüklenemedi, lütfen internet bağlantınızı kontrol edin.');
+                    }, 200);
                 })
         })
+        const int = setInterval(() => {
+            if (videoList.length >= Movements.length) {
+                setVideoList(videoList.sort((a, b) => a.index - b.index))
+                setLoading(false);
+                clearInterval(int)
+            }
+        }, 500);
+
     }
 
     useEffect(() => {
-
         if (Workouts.length !== 0 && Movements.length !== 0) {
             getVideo();
             getFavorites();
@@ -129,7 +125,7 @@ const WorkoutDetails = props => {
                 <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} style={styles.container}>
                     <StatusBar barStyle="light-content" />
 
-                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30, marginTop: 20 }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, marginTop: 20 }}>
 
                         {!Loading &&
                             <>
@@ -184,21 +180,6 @@ const WorkoutDetails = props => {
                                             alignItems: 'center',
                                             marginRight: 10
                                         }}>
-                                            <Icon name="timer" color="#FFF" size={20} />
-                                            <Text style={{
-                                                fontFamily: 'SFProDisplay-Medium',
-                                                fontSize: 13,
-                                                color: '#FFF',
-                                                marginLeft: 5
-                                            }}>{String(TotalHours)}</Text>
-                                        </View>
-
-                                        <View style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            marginRight: 10
-                                        }}>
                                             <Icon name="directions-run" color="#FFF" size={20} />
                                             <Text style={{
                                                 fontFamily: 'SFProDisplay-Medium',
@@ -220,7 +201,7 @@ const WorkoutDetails = props => {
                                                 fontSize: 13,
                                                 color: '#FFF',
                                                 marginLeft: 5
-                                            }}>{String(parseFloat(Workouts.point).toFixed(0))}</Text>
+                                            }}>{String(parseFloat(Workouts.point).toFixed(0))} Puan</Text>
                                         </View>
 
                                         {/* {Workouts.level === 0 &&
@@ -329,7 +310,7 @@ const WorkoutDetails = props => {
                                 </View>
 
                                 <View style={{ width: '100%', marginTop: 20 }}>
-                                    {!Loading && VideoList.length !== 0 && Movements.length !== 0 &&
+                                    {!Loading && VideoList.length === VideoList.length && Movements.length === Movements.length &&
                                         <FlatList
                                             style={{ paddingBottom: 20, width: '100%' }}
                                             scrollEnabled={true}
@@ -339,7 +320,15 @@ const WorkoutDetails = props => {
                                             keyExtractor={(item, index) => index.toString()}
                                             renderItem={({ item, index }) => (
                                                 <TouchableOpacity
-                                                    onPress={() => Alert.alert('Bilgi', String(item.info))}
+                                                    onPress={() => {
+                                                        if (item.thumbs !== undefined && item.thumbs.length > 0) {
+                                                            props.navigation.navigate('MoveThumb', { item: item })
+                                                        } else {
+                                                            Alert.alert('Hata', 'Bu hareketin önizlemesi mevcut değil.', [
+                                                                { text: 'Tamam', onPress: () => null, style: 'cancel' }
+                                                            ])
+                                                        }
+                                                    }}
                                                     style={{
                                                         paddingVertical: 8,
                                                         flexDirection: 'row',
@@ -364,13 +353,14 @@ const WorkoutDetails = props => {
                                                                 fontFamily: 'SFProDisplay-Bold',
                                                                 fontSize: 16,
                                                                 color: '#FFF'
-                                                            }}>{item.title}</Text>
+                                                            }}>{String(item.title)[0] === "E" && String(item.title)[1] === "-" ? String(item.title).slice(2) : String(item.title)}</Text>
+
                                                             <Text style={{
                                                                 marginTop: 5,
                                                                 fontFamily: 'SFProDisplay-Medium',
                                                                 fontSize: 12,
-                                                                color: '#FFF'
-                                                            }}>{moment.utc(item.duration * 1000).format('mm:ss')} dk.</Text>
+                                                                color: item.completed === true ? '#3A3A3A' : '#FFF'
+                                                            }}>{String(item.set)} Set, {item.type !== 'time' ? String(item.reps) + ' Tekrar' : String(item.time) + ' Saniye'}</Text>
 
                                                         </View>
                                                     </View>

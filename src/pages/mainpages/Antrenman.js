@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, Image, StatusBar, TouchableOpacity, TouchableHighlight, Dimensions, ImageBackground, SafeAreaView, ScrollView, FlatList, Alert, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, Image, StatusBar, TouchableOpacity, TouchableHighlight, Dimensions, ImageBackground, SafeAreaView, ScrollView, FlatList, Alert } from 'react-native';
 import { database2 } from '../../config/config';
 import { useSelector } from 'react-redux';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
@@ -12,6 +12,7 @@ moment.locale('tr');
 import LinearGradient from 'react-native-linear-gradient';
 import CalendarStrip from 'react-native-calendar-strip';
 import axios from 'axios';
+import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
 
 const { height, width } = Dimensions.get("window");
 
@@ -19,30 +20,106 @@ const Antrenman = ({ navigation }) => {
     const profileData = useSelector(state => state.user.users);
 
     const [Loading, setLoading] = useState(true);
-    const [Refreshing, setRefreshing] = useState(false)
     const [SaveLoading, setSaveLoading] = useState(false);
-    const [TotalProgress, setTotalProgress] = useState(30); //hedeflerin ortalaması alınacak
+    const [TotalProgress, setTotalProgress] = useState(0); //hedeflerin ortalaması alınacak
 
     const [ShowSideModal, setShowSideModal] = useState(false);
     const [VideoList, setVideoList] = useState([]);
-    const [isFavorited, setisFavorited] = useState(false);
+    const [Workout, setWorkout] = useState([]);
     const [WorkoutKey, setWorkoutKey] = useState(null);
+
+    const [FavoritedList, setFavoritedList] = useState([]);
 
     const [MyHistory, setMyHistory] = useState([]);
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
-    const [isWorkoutDay, setisWorkoutDay] = useState(false);
     const [SelectedDate, setSelectedDate] = useState(moment());
 
     const [Calories, setCalories] = useState(0);
     const [CaloriesChart, setCaloriesChart] = useState(0);
 
+    const [totalKcal, settotalKcal] = useState(0);
+    const [TotalPoint, setTotalPoint] = useState(0);
+    const [isCompleted, setisCompleted] = useState(false);
+
+    const [ShowAlert, setShowAlert] = useState(false);
+    const [AlertSuccessTitle, setAlertSuccessTitle] = useState("");
+    const [AlertSuccessSubTitle, setAlertSuccessSubTitle] = useState("");
+    const [ShowAlert2, setShowAlert2] = useState(false);
 
     let datesBlacklist = [{
         start: moment().add(1, 'days'),
         end: moment().add(10, 'days')
     }];
 
-    const getMyCalories = () => {
+    const getVideo = async (newWorkouts) => {
+        let videoList = [];
+        let getL = newWorkouts;
+        let newL = []
+
+        getL.map((item, i) => {
+            newL.push({ ...item, index: i })
+        })
+
+        newL.forEach((move) => {
+            axios.get(`https://player.vimeo.com/video/${move.video}/config`)
+                .then((res) => {
+                    if (res.status === 200) {
+                        videoList.push({
+                            size: res.data.request.files.progressive[4].width,
+                            url: res.data.request.files.progressive[4].url,
+                            thumb: res.data.video.thumbs[640],
+                            title: res.data.video.title,
+                            duration: res.data.video.duration,
+                            id: res.data.video.id,
+                            ...move
+                        })
+                    }
+                })
+                .catch((err) => {
+                    setTimeout(() => {
+                        Alert.alert('Hata', 'Bazı videolar yüklenemedi, lütfen internet bağlantınızı kontrol edin.');
+                    }, 200);
+                })
+        })
+        const int = setInterval(() => {
+            if (videoList.length === newWorkouts.length) {
+                setVideoList(videoList.sort((a, b) => a.index - b.index))
+                setLoading(false);
+                clearInterval(int)
+            }
+        }, 500);
+    }
+
+    const getFavorites = async () => {
+        var workoutList = [];
+
+        await database2.ref(`users/${profileData.userId}/favorites/workouts`).once("value")
+            .then((snapshot) => {
+                if (snapshot.val() !== undefined && snapshot.val() !== null) {
+                    snapshot.forEach((item) => {
+                        if (item.val().type === "wod") {
+                            workoutList.push({
+                                ...item.val(),
+                                id: item.key
+                            });
+                        } else {
+                            workoutList.push({
+                                ...item.val(),
+                                id: item.key
+                            });
+                        }
+                        setFavoritedList(workoutList);
+                    })
+                } else {
+                    setFavoritedList([]);
+                }
+            })
+            .catch((err) => {
+                setFavoritedList([]);
+            })
+    }
+
+    const getMyCalories = async () => {
         let CalorieList = [];
         database2.ref('users_points/' + profileData.userId).on('value', snapshot => {
             if (snapshot.val() !== null && snapshot.val() !== undefined) {
@@ -62,121 +139,133 @@ const Antrenman = ({ navigation }) => {
         })
     }
 
-    const getVideo = async (newWorkouts) => {
-        let videoList = [];
-        newWorkouts.forEach((move) => {
-            axios.get(`https://player.vimeo.com/video/${move.video}/config`)
-                .then((res) => {
-                    if (res.status === 200) {
-                        videoList.push({
-                            size: res.data.request.files.progressive[4].width,
-                            url: res.data.request.files.progressive[4].url,
-                            thumb: res.data.video.thumbs[640],
-                            title: res.data.video.title,
-                            duration: res.data.video.duration,
-                            id: res.data.video.id,
-                            ...move
-                        })
-                        setVideoList(videoList);
-                        setLoading(false);
-                        setRefreshing(false);
-                    } else {
-                        setLoading(false);
-                        setRefreshing(false);
-                    }
-                })
-                .catch((err) => {
-                    setLoading(false);
-                    setRefreshing(false);
-                    setTimeout(() => {
-                        Alert.alert('Hata', 'Videolar yüklenemedi, lütfen internet bağlantınızı kontrol edin.');
-                    }, 200);
-                })
-        })
-    }
-
-    const addFavorites = () => {
+    const addFavorites = (item) => {
         const myMoveList = VideoList;
-        if (isFavorited !== true) {
-            setLoading(true);
+        setSaveLoading(true);
+        if (FavoritedList.filter(q => q.id === Workout.id).length === 0) {
 
-            database2.ref('users').child(profileData.userId + '/favorites/workouts').push({
+            const nowDate = moment().format("DD-MM-YYYY");
+            const Target = profileData.questions?.target !== undefined ? profileData.questions?.target : 'Yok';
+            let BannerDescription = ""
+
+            switch (Target) {
+                case "Kas Kütlesi Artışı":
+                    BannerDescription = "Dizayn edilen bu antrenman programı mevcut kas kütlesi ve kuvvetin geliştirilmesini sağlamaktadır. Programlamada yer alan egzersizlerin sıralaması maksimum oranda kas kütlesi gelişiminin sağlanması için bir gün tamamen üst vücut egzersizlerinden oluşurken, diğer gün tamamen alt vücut egzersizlerinden oluşmaktadır.";
+                    break;
+                case "Yağ Oranı Azaltma":
+                    BannerDescription = "Metabolik olarak daha hızlı ve daha ince bir görünüşe sahip olmak için dizayn edilen bu programda yağ oranınız azalırken aynı zamanda daha fonksiyonel ve fit bir fiziksel yapıya da sahip olacaksınız.";
+                    break;
+                case "Fit Olma":
+                    BannerDescription = "Daha sıkı ve atletik bir fiziksel görünüm kazanmanız için dizayn edilen bu antrenman programı, mevcut yağ oranınız düşmesini sağlarken, aynı zamanda da daha kuvvetli ve dayanıklı olmanızı sağlayacaktır.";
+                    break;
+                default:
+                    BannerDescription = "";
+                    break;
+            }
+
+            database2.ref('users').child(profileData.userId + '/favorites/workouts/' + nowDate).set({
                 date: moment().format("DD/MM/YYYYTHH:mm:ss"),
+                bannerDescription: BannerDescription,
                 moves: myMoveList,
                 workouttype: 'special'
             })
                 .then(() => {
-                    setLoading(false);
-                    setRefreshing(false);
-                    setisFavorited(true);
+                    getFavorites();
+                    setSaveLoading(false);
+                    setAlertSuccessTitle("Başarılı");
+                    setAlertSuccessSubTitle("Antrenman favorilerinize eklendi.")
                     setTimeout(() => {
-                        Alert.alert('Başarılı', 'Antrenman favorilerinize eklendi.');
+                        setShowAlert(true);
                     }, 200);
                 })
                 .catch((err) => {
-                    setLoading(false);
-                    setRefreshing(false)
-                    setisFavorited(false);
+                    setSaveLoading(false);
                     setTimeout(() => {
                         Alert.alert('Hata', 'Bir hata oluştu, lütfen daha sonra tekrar deneyin.');
                     }, 200);
                 })
         } else {
-            setLoading(false);
-            setRefreshing(false);
-            setisFavorited(false);
-            setTimeout(() => {
-                Alert.alert('Hata', 'Bu hareket zaten favorilerinize eklenmiş.');
-            }, 200);
+            database2.ref('users').child(profileData.userId + '/favorites/workouts/' + item.id).remove()
+                .then(() => {
+                    setFavoritedList(FavoritedList.filter(q => q.id !== Workout.id))
+                    setSaveLoading(false);
+                    setAlertSuccessTitle("Başarılı");
+                    setAlertSuccessSubTitle("Antrenman favorilerinizden kaldırıldı.");
+                    setTimeout(() => {
+                        setShowAlert(true);
+                    }, 200);
+                })
+                .catch((err) => {
+                    setSaveLoading(false);
+                    setTimeout(() => {
+                        Alert.alert('Hata', 'Bir hata oluştu, lütfen daha sonra tekrar deneyin.');
+                    }, 200);
+                })
         }
     }
 
     useEffect(() => {
-        getMyCalories();
         getMyWorkouts();
+        getMyCalories();
+        getFavorites();
     }, [])
 
     const getSelectedDay = async (date) => {
+        setLoading(true);
+
         let selectedDays = profileData.workoutDays !== undefined ? profileData.workoutDays : 'Yok';
         var oneDate = moment(moment(), 'DD-MM-YYYY');
         var dayName = oneDate.format('dddd');
-        const isWd = MyHistory.filter(q => q.date === moment(date).format("DD/MM/YYYY"));
-
-        setVideoList([])
-        setLoading(true);
-
-        if (isWd.length !== 0) {
-            setisWorkoutDay(true);
+        const isWd = MyHistory[moment(date).format("DD-MM-YYYY")];
+        if (isWd !== undefined) {
             setSelectedDate(date)
-            MyHistory.forEach((wData) => {
-                getVideo(wData.moves);
-                setWorkoutKey(wData.id);
+            setWorkout(isWd);
+            getVideo(isWd.moves);
+            setWorkoutKey(isWd.id);
+
+            let point = 0;
+            var kcal = 0;
+
+            Object.values(isWd.moves).forEach((wrk) => {
+
+                if (wrk.type === "reps") {
+                    if (wrk.set && wrk.reps !== undefined) {
+                        point += parseFloat(wrk.set) * parseFloat(wrk.reps);
+                    }
+                    if (wrk.calorie !== undefined) {
+                        kcal += parseFloat(wrk.calorie);
+                    }
+                } else {
+                    if (wrk.time !== undefined) {
+                        point += parseFloat(wrk.time) / parseFloat(10);
+                    }
+                    if (wrk.calorie !== undefined) {
+                        kcal += parseFloat(wrk.calorie);
+                    }
+                }
             })
-        } else if (moment(date).format("DD/MM/YYYY") === moment().format("DD/MM/YYYY")) {
+            settotalKcal(kcal);
+            setTotalPoint(point)
+
+        } else if (moment(date).format("DD/MM/YYYY") === MyHistory[moment(date).format("DD-MM-YYYY")]) {
             var wd = selectedDays.filter(q => q === dayName);
             if (wd.length !== 0) {
                 setSelectedDate(date)
-                setisWorkoutDay(true);
                 setLoading(false);
-                setRefreshing(false);
             } else {
-                setisWorkoutDay(false);
                 setLoading(false);
-                setRefreshing(false);
             }
         } else {
             setLoading(false);
-            setRefreshing(false);
-            setisWorkoutDay(false);
             setTimeout(() => {
-                Alert.alert('Antrenman Yok', 'Seçili günde antrenman kaydı bulunamadı.', [
+                Alert.alert('Antrenman Yok', 'Seçili güne ait antrenman kaydı bulunamadı.', [
                     { text: 'Kapat', style: 'cancel' }
                 ]);
             }, 200);
         }
     }
 
-    const createWorkout = () => {
+    const createWorkout = async () => {
         setLoading(true);
         let cronicProblems = profileData.questions?.cronicproblems !== undefined ? profileData.questions?.cronicproblems : 'Yok';
         let selectedDays = profileData.workoutDays !== undefined ? profileData.workoutDays : 'Yok';
@@ -184,6 +273,26 @@ const Antrenman = ({ navigation }) => {
 
         var oneDate = moment(moment(), 'DD-MM-YYYY');
         var dayName = oneDate.format('dddd');
+        var BannerDescription = ""
+        let oncekiGun = "Alt Vücut"
+
+        switch (Target) {
+            case "Kas Kütlesi Artışı":
+
+                BannerDescription = "Dizayn edilen bu antrenman programı mevcut kas kütlesi ve kuvvetin geliştirilmesini sağlamaktadır. Programlamada yer alan egzersizlerin sıralaması maksimum oranda kas kütlesi gelişiminin sağlanması için bir gün tamamen üst vücut egzersizlerinden oluşurken, diğer gün tamamen alt vücut egzersizlerinden oluşmaktadır.";
+                break;
+            case "Yağ Oranı Azaltma":
+                BannerDescription = "Metabolik olarak daha hızlı ve daha ince bir görünüşe sahip olmak için dizayn edilen bu programda yağ oranınız azalırken aynı zamanda daha fonksiyonel ve fit bir fiziksel yapıya da sahip olacaksınız.";
+                break;
+            case "Fit Olma":
+                BannerDescription = "Daha sıkı ve atletik bir fiziksel görünüm kazanmanız için dizayn edilen bu antrenman programı, mevcut yağ oranınız düşmesini sağlarken, aynı zamanda da daha kuvvetli ve dayanıklı olmanızı sağlayacaktır.";
+                break;
+
+            default:
+                BannerDescription = "";
+                break;
+        }
+
 
         if (selectedDays !== 'Yok') {
             var wd = selectedDays.filter(q => q === dayName);
@@ -194,741 +303,952 @@ const Antrenman = ({ navigation }) => {
                 let KuvvetList = [];
                 let CoreList = [];
 
-                database2.ref('workouts').once('value')
+                let mevcutList = [];
+
+                function shuffle(a) {
+                    var j, x, i;
+                    for (i = a.length - 1; i > 0; i--) {
+                        j = Math.floor(Math.random() * (i + 1));
+                        x = a[i];
+                        a[i] = a[j];
+                        a[j] = x;
+                    }
+                    return a;
+                }
+
+                let allWorkoutArr = [];
+                let workoutArr = []
+
+                await database2.ref('workouts').once('value')
                     .then((snapshot) => {
                         snapshot.forEach((item) => {
-                            var move = item.val();
-
-                            //SEVİYE 1 İÇİN BAŞLANGIÇ KAS KÜTLESİ
-                            if (profileData.point < 10000 && Target === "Kas Kütlesi Artışı" && move.notfor[0] !== cronicProblems && move.notfor[1] !== cronicProblems && move.notfor[2] !== cronicProblems && move.notfor[3] !== cronicProblems) {
-                                if (move.category === "Core Egzersizi" && CoreList.length < 3) {
-                                    if (move.category === "Core Egzersizi" && move.type === "time") {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            time: 15
-                                        })
-                                    } else {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
-                                    if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            time: 10
-                                        })
-                                    } else {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category == "Alt Vücut" && KuvvetList.length < 3) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 60,
-                                        reps: 10
-                                    })
-                                }
-
-                                if (move.category === "Üst Vücut" && KuvvetList.length < 3) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 60,
-                                        reps: 10
-                                    })
-                                }
-
-                                if (move.category === "Statik Stretching" && StatikList.length < 8) {
-                                    StatikList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 3,
-                                        pause: 60,
-                                        time: 10
-                                    })
-                                }
-
-                            }
-
-                            //SEVİYE 1 İÇİN KAS KÜTLESİ SON
-
-                            // SEVİYE 1 İÇİN YAĞ ORANI AZALTMA BAŞLANGIÇ
-                            if (profileData.point < 10000 && Target === "Yağ Oranı Azaltma" && move.notfor[0] !== cronicProblems && move.notfor[1] !== cronicProblems && move.notfor[2] !== cronicProblems && move.notfor[3] !== cronicProblems) {
-                                if (move.category === "Core Egzersizi" && CoreList.length < 4) {
-                                    if (move.category === "Core Egzersizi" && move.type === "time") {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 30,
-                                            time: 15
-                                        })
-                                    } else {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 30,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
-                                    if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 2,
-                                            pause: 30,
-                                            time: 10
-                                        })
-                                    } else {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 2,
-                                            pause: 30,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category == "Alt Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 2,
-                                        pause: 30,
-                                        reps: 15
-                                    })
-                                }
-
-                                if (move.category === "Üst Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 2,
-                                        pause: 30,
-                                        reps: 15
-                                    })
-                                }
-
-                                if (move.category === "Statik Stretching" && StatikList.length < 8) {
-                                    StatikList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 2,
-                                        pause: 30,
-                                        time: 10
-                                    })
-                                }
-
-                            }
-
-                            // SEVİYE 1 İÇİN YAĞ ORANI AZALTMA SON
-
-                            // SEVİYE 1 İÇİN FİT OLMA BAŞLANGIÇ
-                            if (profileData.point < 10000 && Target === "Fit Olma" && move.notfor[0] !== cronicProblems && move.notfor[1] !== cronicProblems && move.notfor[2] !== cronicProblems && move.notfor[3] !== cronicProblems) {
-                                if (move.category === "Core Egzersizi" && CoreList.length < 5) {
-                                    if (move.category === "Core Egzersizi" && move.type === "time") {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 45,
-                                            time: 15
-                                        })
-                                    } else {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 45,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
-                                    if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 45,
-                                            time: 10
-                                        })
-                                    } else {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 45,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category == "Alt Vücut" && KuvvetList.length < 2) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 45,
-                                        reps: 10
-                                    })
-                                }
-
-                                if (move.category === "Üst Vücut" && KuvvetList.length < 3) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 45,
-                                        reps: 15
-                                    })
-                                }
-
-                                if (move.category === "Statik Stretching" && StatikList.length < 8) {
-                                    StatikList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 3,
-                                        pause: 45,
-                                        time: 10
-                                    })
-                                }
-
-                            }
-
-                            // SEVİYE 1 İÇİN FİT OLMA SON
-
-                            /////// SEVİYE 2 //////
-
-                            /// KAS KÜTLES ARTIŞI SEVİYE 2 BAŞLANGIÇ
-
-                            if (profileData.point >= 10001 && profileData.point <= 15000 && Target === "Kas Kütlesi Artışı" && move.notfor[0] !== cronicProblems && move.notfor[1] !== cronicProblems && move.notfor[2] !== cronicProblems && move.notfor[3] !== cronicProblems) {
-                                if (move.category === "Core Egzersizi" && CoreList.length < 3) {
-                                    if (move.category === "Core Egzersizi" && move.type === "time") {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            time: 15
-                                        })
-                                    } else {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            reps: 15
-                                        })
-                                    }
-                                }
-
-                                if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
-                                    if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            time: 10
-                                        })
-                                    } else {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category == "Alt Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 60,
-                                        reps: 10
-                                    })
-                                }
-
-                                if (move.category === "Üst Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 60,
-                                        reps: 10
-                                    })
-                                }
-
-                                if (move.category === "Statik Stretching" && StatikList.length < 8) {
-                                    StatikList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 3,
-                                        pause: 60,
-                                        time: 10
-                                    })
-                                }
-
-                            }
-
-                            //SEVİYE 2 İÇİN KAS KÜTLESİ SON
-
-                            // SEVİYE 2 İÇİN YAĞ ORANI AZALTMA BAŞLANGIÇ
-                            if (profileData.point >= 10001 && profileData.point <= 15000 && Target === "Yağ Oranı Azaltma" && move.notfor[0] !== cronicProblems && move.notfor[1] !== cronicProblems && move.notfor[2] !== cronicProblems && move.notfor[3] !== cronicProblems) {
-                                if (move.category === "Core Egzersizi" && CoreList.length < 3) {
-                                    if (move.category === "Core Egzersizi" && move.type === "time") {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 30,
-                                            time: 15
-                                        })
-                                    } else {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 30,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
-                                    if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 2,
-                                            pause: 30,
-                                            time: 10
-                                        })
-                                    } else {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 2,
-                                            pause: 30,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category == "Alt Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 3,
-                                        pause: 30,
-                                        reps: 15
-                                    })
-                                }
-
-                                if (move.category === "Üst Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 3,
-                                        pause: 30,
-                                        reps: 10
-                                    })
-                                }
-
-                                if (move.category === "Statik Stretching" && StatikList.length < 8) {
-                                    StatikList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 2,
-                                        pause: 30,
-                                        time: 10
-                                    })
-                                }
-
-                            }
-
-                            // SEVİYE 2 İÇİN YAĞ ORANI AZALTMA SON
-
-                            // SEVİYE 2 İÇİN FİT OLMA BAŞLANGIÇ
-                            if (profileData.point >= 10001 && profileData.point <= 15000 && Target === "Fit Olma" && move.notfor[0] !== cronicProblems && move.notfor[1] !== cronicProblems && move.notfor[2] !== cronicProblems && move.notfor[3] !== cronicProblems) {
-                                if (move.category === "Core Egzersizi" && CoreList.length < 6) {
-                                    if (move.category === "Core Egzersizi" && move.type === "time") {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 30,
-                                            time: 15
-                                        })
-                                    } else {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 30,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
-                                    if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 2,
-                                            pause: 30,
-                                            time: 10
-                                        })
-                                    } else {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 2,
-                                            pause: 30,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category == "Alt Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 3,
-                                        pause: 30,
-                                        reps: 15
-                                    })
-                                }
-
-                                if (move.category === "Üst Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 3,
-                                        pause: 30,
-                                        reps: 15
-                                    })
-                                }
-
-                                if (move.category === "Statik Stretching" && StatikList.length < 8) {
-                                    StatikList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 2,
-                                        pause: 45,
-                                        time: 10
-                                    })
-                                }
-
-                            }
-
-                            // SEVİYE 2 İÇİN FİT OLMA SON
-
-
-                            /////// SEVİYE 3 //////
-
-                            /// KAS KÜTLES ARTIŞI SEVİYE 3 BAŞLANGIÇ
-
-                            if (profileData.point >= 15001 && profileData.point <= 25000 && Target === "Kas Kütlesi Artışı" && move.notfor[0] !== cronicProblems && move.notfor[1] !== cronicProblems && move.notfor[2] !== cronicProblems && move.notfor[3] !== cronicProblems) {
-                                if (move.category === "Core Egzersizi" && CoreList.length < 3) {
-                                    if (move.category === "Core Egzersizi" && move.type === "time") {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            time: 15
-                                        })
-                                    } else {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            reps: 15
-                                        })
-                                    }
-                                }
-
-                                if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
-                                    if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            time: 10
-                                        })
-                                    } else {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 60,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category == "Alt Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 60,
-                                        reps: 12
-                                    })
-                                }
-
-                                if (move.category === "Üst Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 60,
-                                        reps: 12
-                                    })
-                                }
-
-                                if (move.category === "Statik Stretching" && StatikList.length < 8) {
-                                    StatikList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 3,
-                                        pause: 60,
-                                        time: 10
-                                    })
-                                }
-
-                            }
-
-                            //SEVİYE 3 İÇİN KAS KÜTLESİ SON
-
-                            // SEVİYE 3 İÇİN YAĞ ORANI AZALTMA BAŞLANGIÇ
-                            if (profileData.point >= 15001 && profileData.point <= 25000 && Target === "Yağ Oranı Azaltma" && move.notfor[0] !== cronicProblems && move.notfor[1] !== cronicProblems && move.notfor[2] !== cronicProblems && move.notfor[3] !== cronicProblems) {
-                                if (move.category === "Core Egzersizi" && CoreList.length < 3) {
-                                    if (move.category === "Core Egzersizi" && move.type === "time") {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 30,
-                                            time: 15
-                                        })
-                                    } else {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 30,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
-                                    if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 2,
-                                            pause: 30,
-                                            time: 10
-                                        })
-                                    } else {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 2,
-                                            pause: 30,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category == "Alt Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 30,
-                                        reps: 12
-                                    })
-                                }
-
-                                if (move.category === "Üst Vücut" && KuvvetList.length < 4) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 30,
-                                        reps: 12
-                                    })
-                                }
-
-                                if (move.category === "Statik Stretching" && StatikList.length < 8) {
-                                    StatikList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 2,
-                                        pause: 30,
-                                        time: 10
-                                    })
-                                }
-
-                            }
-
-                            // SEVİYE 2 İÇİN YAĞ ORANI AZALTMA SON
-
-                            // SEVİYE 2 İÇİN FİT OLMA BAŞLANGIÇ
-                            if (profileData.point >= 15001 && profileData.point <= 25000 && Target === "Fit Olma" && move.notfor[0] !== cronicProblems && move.notfor[1] !== cronicProblems && move.notfor[2] !== cronicProblems && move.notfor[3] !== cronicProblems) {
-                                if (move.category === "Core Egzersizi" && CoreList.length < 6) {
-                                    if (move.category === "Core Egzersizi" && move.type === "time") {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 4,
-                                            pause: 45,
-                                            time: 25
-                                        })
-                                    } else {
-                                        CoreList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 4,
-                                            pause: 45,
-                                            reps: 15
-                                        })
-                                    }
-                                }
-
-                                if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
-                                    if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 45,
-                                            time: 10
-                                        })
-                                    } else {
-                                        MobiliteList.push({
-                                            ...item.val(),
-                                            id: item.key,
-                                            set: 3,
-                                            pause: 45,
-                                            reps: 10
-                                        })
-                                    }
-                                }
-
-                                if (move.category == "Alt Vücut" && KuvvetList.length < 3) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 45,
-                                        reps: 10
-                                    })
-                                }
-
-                                if (move.category === "Üst Vücut" && KuvvetList.length < 3) {
-                                    KuvvetList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 4,
-                                        pause: 45,
-                                        reps: 10
-                                    })
-                                }
-
-                                if (move.category === "Statik Stretching" && StatikList.length < 8) {
-                                    StatikList.push({
-                                        ...item.val(),
-                                        id: item.key,
-                                        set: 3,
-                                        pause: 45,
-                                        time: 10
-                                    })
-                                }
-
-                            }
-
-                            // SEVİYE 2 İÇİN FİT OLMA SON
-
-                        })
-
-                        let newList = [...KuvvetList, ...StatikList, ...CoreList, ...MobiliteList]
-
-                        setSaveLoading(true);
-
-                        database2.ref('users/' + profileData.userId + '/workouts').push({
-                            date: moment().format('DD/MM/YYYY'),
-                            completed: false,
-                            moves: newList
-                        })
-                            .then((response) => {
-                                database2.ref(response.path).once('value')
-                                    .then((res) => {
-                                        getVideo(res.val().moves);
-                                        setWorkoutKey(res.key);
-                                        setSaveLoading(false);
-                                    })
-                                    .catch((err) => {
-                                        setSaveLoading(false);
-                                        setLoading(false);
-                                        setRefreshing(false);
-                                    })
+                            allWorkoutArr.push({
+                                ...item.val(),
+                                id: item.key
                             })
-                            .catch((err) => {
-                                setSaveLoading(false);
-                                setLoading(false);
-                                setRefreshing(false);
-                            })
+                        })
+                        return workoutArr = shuffle(allWorkoutArr);
+
                     })
                     .catch((err) => {
                         setSaveLoading(false);
                         setLoading(false);
-                        setRefreshing(false);
+                    })
+
+                let filteredA = workoutArr.filter(item => !Object.values(item.notfor).includes(cronicProblems))
+
+                await database2.ref('users/' + profileData.userId + '/workouts').once('value')
+                    .then(snapshot => {
+                        var ind = 0;
+                        snapshot.forEach((work) => {
+                            mevcutList[ind] = {
+                                ...work.val()
+                            }
+                            ind = ind + 1
+                        })
+                        if (Object.values(mevcutList[mevcutList.length - 1].moves.includes("Alt Vücut"))) {
+                            oncekiGun = "Alt Vücut"
+                            console.log('alt')
+                        } else {
+                            oncekiGun = "Üst Vücut"
+                            console.log('üst')
+                        }
+                    })
+                    .catch((err) => console.log('err'))
+
+                filteredA.forEach((item) => {
+                    var move = item;
+
+                    //SEVİYE 1 İÇİN BAŞLANGIÇ KAS KÜTLESİ
+                    if (profileData.point < 10000 && Target === "Kas Kütlesi Artışı") {
+
+
+                        if (move.category === "Core Egzersizi" && CoreList.length < 3) {
+                            if (move.category === "Core Egzersizi" && move.type === "time") {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    time: 15
+                                })
+                            } else {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
+                            if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    time: 10
+                                })
+                            } else {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (oncekiGun === "Alt Vücut") {
+                            if (move.category == "Alt Vücut" && KuvvetList.length < 6) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 10 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 60,
+                                    reps: 10
+                                })
+                            }
+                        } else {
+                            if (move.category === "Üst Vücut" && KuvvetList.length < 6) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 10 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 60,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+
+                        if (move.category === "Statik Stretching" && StatikList.length <= 8) {
+                            StatikList.push({
+                                ...move,
+                                calorie: 10 * 3,
+                                completed: false,
+                                id: move.id,
+                                set: 3,
+                                pause: 60,
+                                time: 10
+                            })
+                        }
+
+                    }
+
+                    //SEVİYE 1 İÇİN KAS KÜTLESİ SON
+
+                    // SEVİYE 1 İÇİN YAĞ ORANI AZALTMA BAŞLANGIÇ
+                    if (profileData.point < 10000 && Target === "Yağ Oranı Azaltma") {
+
+                        if (move.category === "Core Egzersizi" && CoreList.length < 4 && CoreList.filter(q => q.name === move.name).length === 0) {
+                            if (move.category === "Core Egzersizi" && move.type === "time") {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    time: 15
+                                })
+                            } else {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3 && MobiliteList.filter(q => q.name === move.name).length === 0) {
+                            if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 2,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 2,
+                                    pause: 30,
+                                    time: 10
+                                })
+                            } else {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 2,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 2,
+                                    pause: 30,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (KuvvetList.length < 8) {
+                            if (move.category === "Alt Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Alt Vücut").length < 4) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 15 * 2,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 2,
+                                    pause: 30,
+                                    reps: 15
+                                })
+                            }
+
+                            if (move.category === "Üst Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Üst Vücut").length < 4) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 15 * 2,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 2,
+                                    pause: 30,
+                                    reps: 15
+                                })
+                            }
+                        }
+
+                        if (move.category === "Statik Stretching" && StatikList.length < 8 && KuvvetList.filter(q => q.name === move.name).length === 0) {
+                            StatikList.push({
+                                ...move,
+                                calorie: 10 * 2,
+                                completed: false,
+                                id: move.id,
+                                set: 2,
+                                pause: 30,
+                                time: 10
+                            })
+                        }
+
+                    }
+
+                    // SEVİYE 1 İÇİN YAĞ ORANI AZALTMA SON
+
+                    // SEVİYE 1 İÇİN FİT OLMA BAŞLANGIÇ
+                    if (profileData.point < 10000 && Target === "Fit Olma") {
+                        if (move.category === "Core Egzersizi" && CoreList.length < 5) {
+                            if (move.category === "Core Egzersizi" && move.type === "time") {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 45,
+                                    time: 15
+                                })
+                            } else {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 45,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
+                            if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 45,
+                                    time: 10
+                                })
+                            } else {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 45,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (KuvvetList.length < 5) {
+                            if (move.category === "Alt Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Alt Vücut").length < 2) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 10 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 45,
+                                    reps: 10
+                                })
+                            }
+
+                            if (move.category === "Üst Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Üst Vücut").length < 3) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 15 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 45,
+                                    reps: 15
+                                })
+                            }
+                        }
+
+                        if (move.category === "Statik Stretching" && StatikList.length < 8) {
+                            StatikList.push({
+                                ...move,
+                                calorie: 10 * 3,
+                                completed: false,
+                                id: move.id,
+                                set: 3,
+                                pause: 45,
+                                time: 10
+                            })
+                        }
+
+                    }
+
+                    // SEVİYE 1 İÇİN FİT OLMA SON
+
+                    /////// SEVİYE 2 //////
+
+                    /// KAS KÜTLES ARTIŞI SEVİYE 2 BAŞLANGIÇ
+
+                    if (profileData.point >= 10001 && profileData.point <= 15000 && Target === "Kas Kütlesi Artışı") {
+                        if (move.category === "Core Egzersizi" && CoreList.length < 3) {
+                            if (move.category === "Core Egzersizi" && move.type === "time") {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    time: 15
+                                })
+                            } else {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    reps: 15
+                                })
+                            }
+                        }
+
+                        if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
+                            if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    time: 10
+                                })
+                            } else {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (oncekiGun === "Alt Vücut") {
+                            if (move.category == "Alt Vücut" && KuvvetList.length < 8) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 10 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 60,
+                                    reps: 10
+                                })
+                            }
+                        } else {
+                            if (move.category === "Üst Vücut" && KuvvetList.length < 4) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 10 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 60,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+
+                        if (move.category === "Statik Stretching" && StatikList.length < 8) {
+                            StatikList.push({
+                                ...move,
+                                calorie: 10 * 3,
+                                completed: false,
+                                id: move.id,
+                                set: 3,
+                                pause: 60,
+                                time: 10
+                            })
+                        }
+
+                    }
+
+                    //SEVİYE 2 İÇİN KAS KÜTLESİ SON
+
+                    // SEVİYE 2 İÇİN YAĞ ORANI AZALTMA BAŞLANGIÇ
+                    if (profileData.point >= 10001 && profileData.point <= 15000 && Target === "Yağ Oranı Azaltma") {
+                        if (move.category === "Core Egzersizi" && CoreList.length < 3) {
+                            if (move.category === "Core Egzersizi" && move.type === "time") {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    time: 15
+                                })
+                            } else {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
+                            if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 2,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 2,
+                                    pause: 30,
+                                    time: 10
+                                })
+                            } else {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 2,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 2,
+                                    pause: 30,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (KuvvetList.length < 8) {
+                            if (move.category === "Alt Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Alt Vücut").length < 4) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    reps: 15
+                                })
+                            }
+
+                            if (move.category === "Üst Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Üst Vücut").length < 4) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (move.category === "Statik Stretching" && StatikList.length < 8) {
+                            StatikList.push({
+                                ...move,
+                                calorie: 10 * 2,
+                                completed: false,
+                                id: move.id,
+                                set: 2,
+                                pause: 30,
+                                time: 10
+                            })
+                        }
+
+                    }
+
+                    // SEVİYE 2 İÇİN YAĞ ORANI AZALTMA SON
+
+                    // SEVİYE 2 İÇİN FİT OLMA BAŞLANGIÇ
+                    if (profileData.point >= 10001 && profileData.point <= 15000 && Target === "Fit Olma") {
+                        if (move.category === "Core Egzersizi" && CoreList.length < 5) {
+                            if (move.category === "Core Egzersizi" && move.type === "time") {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    time: 15
+                                })
+                            } else {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 4) {
+                            if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 2,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 2,
+                                    pause: 30,
+                                    time: 10
+                                })
+                            } else {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 2,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 2,
+                                    pause: 30,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (KuvvetList.length < 8) {
+                            if (move.category === "Alt Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Alt Vücut").length < 4) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    reps: 15
+                                })
+                            }
+
+                            if (move.category === "Üst Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Üst Vücut").length < 4) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    reps: 15
+                                })
+                            }
+                        }
+
+                        if (move.category === "Statik Stretching" && StatikList.length < 8) {
+                            StatikList.push({
+                                ...move,
+                                calorie: 10 * 2,
+                                completed: false,
+                                id: move.id,
+                                set: 2,
+                                pause: 45,
+                                time: 10
+                            })
+                        }
+
+                    }
+
+                    // SEVİYE 2 İÇİN FİT OLMA SON
+
+
+                    /////// SEVİYE 3 //////
+
+                    /// KAS KÜTLES ARTIŞI SEVİYE 3 BAŞLANGIÇ
+
+                    if (profileData.point >= 15001 && profileData.point <= 25000 && Target === "Kas Kütlesi Artışı") {
+                        if (move.category === "Core Egzersizi" && CoreList.length < 3) {
+                            if (move.category === "Core Egzersizi" && move.type === "time") {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    time: 15
+                                })
+                            } else {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    reps: 15
+                                })
+                            }
+                        }
+
+                        if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
+                            if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    time: 10
+                                })
+                            } else {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 60,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (oncekiGun === "Alt Vücut") {
+                            if (move.category == "Alt Vücut" && KuvvetList.length < 8) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 12 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 60,
+                                    reps: 12
+                                })
+                            }
+                        } else {
+                            if (move.category === "Üst Vücut" && KuvvetList.length < 8) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 12 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 60,
+                                    reps: 12
+                                })
+                            }
+                        }
+
+
+                        if (move.category === "Statik Stretching" && StatikList.length < 8) {
+                            StatikList.push({
+                                ...move,
+                                calorie: 10 * 3,
+                                completed: false,
+                                id: move.id,
+                                set: 3,
+                                pause: 60,
+                                time: 10
+                            })
+                        }
+
+                    }
+
+                    //SEVİYE 3 İÇİN KAS KÜTLESİ SON
+
+                    // SEVİYE 3 İÇİN YAĞ ORANI AZALTMA BAŞLANGIÇ
+                    if (profileData.point >= 15001 && profileData.point <= 25000 && Target === "Yağ Oranı Azaltma") {
+                        if (move.category === "Core Egzersizi" && CoreList.length < 3) {
+                            if (move.category === "Core Egzersizi" && move.type === "time") {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    time: 15
+                                })
+                            } else {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 30,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
+                            if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 2,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 2,
+                                    pause: 30,
+                                    time: 10
+                                })
+                            } else {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 2,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 2,
+                                    pause: 30,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (KuvvetList.length < 8) {
+                            if (move.category === "Alt Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Alt Vücut").length < 4) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 12 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 30,
+                                    reps: 12
+                                })
+                            }
+
+                            if (move.category === "Üst Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Üst Vücut").length < 4) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 12 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 30,
+                                    reps: 12
+                                })
+                            }
+                        }
+
+                        if (move.category === "Statik Stretching" && StatikList.length < 8) {
+                            StatikList.push({
+                                ...move,
+                                calorie: 10 * 2,
+                                completed: false,
+                                id: move.id,
+                                set: 2,
+                                pause: 30,
+                                time: 10
+                            })
+                        }
+
+                    }
+
+                    // SEVİYE 2 İÇİN YAĞ ORANI AZALTMA SON
+
+                    // SEVİYE 2 İÇİN FİT OLMA BAŞLANGIÇ
+                    if (profileData.point >= 15001 && profileData.point <= 25000 && Target === "Fit Olma") {
+                        if (move.category === "Core Egzersizi" && CoreList.length < 6) {
+                            if (move.category === "Core Egzersizi" && move.type === "time") {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 25 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 45,
+                                    time: 25
+                                })
+                            } else {
+                                CoreList.push({
+                                    ...move,
+                                    calorie: 15 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 45,
+                                    reps: 15
+                                })
+                            }
+                        }
+
+                        if (move.category === "Mobilite ve Dinamik Isınma" && MobiliteList.length < 3) {
+                            if (move.category === "Mobilite ve Dinamik Isınma" && move.type === "time") {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 45,
+                                    time: 10
+                                })
+                            } else {
+                                MobiliteList.push({
+                                    ...move,
+                                    calorie: 10 * 3,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 3,
+                                    pause: 45,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (KuvvetList.length < 6) {
+                            if (move.category === "Alt Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Alt Vücut").length < 3) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 10 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 45,
+                                    reps: 10
+                                })
+                            }
+
+                            if (move.category === "Üst Vücut" && KuvvetList.filter(q => q.name === move.name).length === 0 && KuvvetList.filter(q => q.category === "Üst Vücut").length < 3) {
+                                KuvvetList.push({
+                                    ...move,
+                                    calorie: 10 * 4,
+                                    completed: false,
+                                    id: move.id,
+                                    set: 4,
+                                    pause: 45,
+                                    reps: 10
+                                })
+                            }
+                        }
+
+                        if (move.category === "Statik Stretching" && StatikList.length < 8) {
+                            StatikList.push({
+                                ...move,
+                                calorie: 10 * 3,
+                                completed: false,
+                                id: move.id,
+                                set: 3,
+                                pause: 45,
+                                time: 10
+                            })
+                        }
+
+                    }
+
+                    // SEVİYE 2 İÇİN FİT OLMA SON
+
+                })
+
+                let newKL = [];
+                let indAlt = 0;
+                let indUst = 1;
+
+                KuvvetList.forEach(item => {
+                    if (item.category === "Alt Vücut") {
+                        newKL.push({ ...item, index: indAlt });
+                        indAlt = indAlt + 1
+                    } else {
+                        newKL.push({ ...item, index: indUst });
+                        indUst = indUst + 1
+                    }
+                })
+
+                var statikLen = StatikList.length;
+
+                let newList = [...StatikList.slice(0, statikLen / 2), ...MobiliteList, ...CoreList, ...newKL.sort((a, b) => a.index - b.index), ...StatikList.slice(statikLen / 2, statikLen)]
+                var pushDate = moment().format('DD-MM-YYYY')
+
+                setSaveLoading(true);
+
+                await database2.ref('users/' + profileData.userId + '/workouts/' + String(pushDate)).set({
+                    bannerDescription: BannerDescription,
+                    moves: newList
+                })
+                    .then((response) => {
+                        database2.ref('users/' + profileData.userId + '/workouts/' + String(pushDate)).once('value')
+                            .then((res) => {
+                                getVideo(res.val().moves);
+                                setWorkout(res.val());
+                                setWorkoutKey(res.key);
+                                setSaveLoading(false);
+                            })
+                            .catch((err) => {
+                                console.log('err: ', err)
+                                setSaveLoading(false);
+                                setLoading(false);
+                            })
+                    })
+                    .catch((err) => {
+                        console.log('err: ', err)
+                        setSaveLoading(false);
+                        setLoading(false);
                     })
             } else {
                 setLoading(false);
                 setSaveLoading(false);
-                setRefreshing(false);
                 setTimeout(() => {
                     Alert.alert('Hata', 'Bugün antrenman yok.', [
                         { text: 'Günleri Değiştir', onPress: () => navigation.navigate('Settings'), style: 'default', },
@@ -938,7 +1258,6 @@ const Antrenman = ({ navigation }) => {
             }
         } else {
             setLoading(false);
-            setRefreshing(false);
             setTimeout(() => {
                 Alert.alert('Hata', 'Antrenman günü seçilmemiş, lütfen ayarlardan antrenman günü seçin.', [
                     { text: 'Ayarlara Git', onPress: () => navigation.navigate('AntrenmanGunleri'), style: 'default' },
@@ -954,20 +1273,47 @@ const Antrenman = ({ navigation }) => {
 
         await database2.ref('users/' + profileData.userId + '/workouts').once('value')
             .then(snapshot => {
-                if (snapshot.val() !== null) {
+                if (snapshot.val() !== null && snapshot.val() !== undefined) {
                     var MyList = [];
-
                     snapshot.forEach((work) => {
-                        MyList.push({
-                            ...work.val(),
-                            id: work.key
+                        let point = 0;
+                        var kcal = 0;
+
+                        Object.values(work.val().moves).forEach((wrk) => {
+
+                            if (wrk.type === "reps") {
+                                if (wrk.set && wrk.reps !== undefined) {
+                                    point += parseFloat(wrk.set) * parseFloat(wrk.reps);
+                                }
+                                if (wrk.calorie !== undefined) {
+                                    kcal += parseFloat(wrk.calorie);
+                                }
+                            } else {
+                                if (wrk.time !== undefined) {
+                                    point += parseFloat(wrk.time) / parseFloat(10);
+                                }
+                                if (wrk.calorie !== undefined) {
+                                    kcal += parseFloat(wrk.calorie);
+                                }
+                            }
+
                         })
 
+                        settotalKcal(kcal);
+                        setTotalPoint(point)
+
+                        MyList[work.key] = {
+                            ...work.val(),
+                            completed: work.val().completed !== undefined ? work.val().completed : false,
+                            id: work.key
+                        }
+
                         markedDatesArray.push({
-                            date: moment(work.val().date, "DD/MM/YYYY").format("YYYY-MM-DD"),
+                            date: moment(work.key, "DD-MM-YYYY").format("YYYY-MM-DD"),
+                            completed: work.val().completed !== undefined && work.val().completed === true ? true : false,
                             dots: [
                                 {
-                                    color: work.val().completed === true ? 'yellow' : '#d3d3d3',
+                                    color: work.val().completed !== undefined && work.val().completed === true ? '#00FF00' : '#9D9D9D',
                                 },
                             ],
                         });
@@ -976,23 +1322,22 @@ const Antrenman = ({ navigation }) => {
 
                     setMyHistory(MyList);
 
-                    var isWd = MyList.filter(q => q.date === moment().format("DD/MM/YYYY"));
+                    var isWd = MyList[moment().format("DD-MM-YYYY")];
 
-                    if (isWd.length !== 0) {
-                        MyList.forEach((wData) => {
-                            getVideo(wData.moves);
-                            setWorkoutKey(wData.key);
-                        })
-                    } else if (VideoList.length === 0) {
-                        setLoading(false);
-                        createWorkout();
+                    if (isWd !== undefined) {
+                        getVideo(isWd.moves);
+                        setWorkout(isWd);
+                        setWorkoutKey(isWd.id);
                     } else {
-                        setLoading(false);
+                        createWorkout();
                     }
+                } else {
+                    createWorkout();
                 }
 
             })
             .catch((err) => {
+                console.log('err: ', err)
                 setLoading(false);
             })
     }
@@ -1008,6 +1353,25 @@ const Antrenman = ({ navigation }) => {
                 <SpinnerLoading Loading={Loading} />
                 <SpinnerLoading Loading={SaveLoading} />
                 <Sidebar navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
+
+                <SCLAlert
+                    theme="success"
+                    show={ShowAlert}
+                    title={AlertSuccessTitle}
+                    subtitle={AlertSuccessSubTitle}
+                >
+                    <SCLAlertButton theme="success" onPress={() => setShowAlert(!ShowAlert)}>Tamam</SCLAlertButton>
+                </SCLAlert>
+
+                <SCLAlert
+                    theme="warning"
+                    show={ShowAlert2}
+                    title=""
+                    subtitle=""
+                >
+                    <SCLAlertButton theme="warning" onPress={null}>Testten Çık</SCLAlertButton>
+                    <SCLAlertButton theme="default" onPress={() => setShowAlert2(!ShowAlert2)}>Vazgeç</SCLAlertButton>
+                </SCLAlert>
 
                 <View style={styles.header} >
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
@@ -1030,67 +1394,52 @@ const Antrenman = ({ navigation }) => {
                     </View>
                 </View>
 
-                <ScrollView
-                    refreshControl={
-                        <RefreshControl
-                            tintColor="#fff"
-                            titleColor="#fff"
-                            refreshing={Refreshing}
-                            onRefresh={() => {
-                                setRefreshing(true);
-                                getMyWorkouts();
-                            }}
-                        />
-                    }
-                    style={{ flex: 1 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 30, marginTop: 20 }}>
-                        <View style={{ width: '50%', justifyContent: 'center', alignItems: 'baseline' }}>
+                <ScrollView style={{ width: '100%', height: height }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', width: '100%', marginTop: 10 }}>
 
-                            <View style={{ width: 130, justifyContent: 'center', alignItems: 'center' }}>
-                                <AnimatedCircularProgress
-                                    size={120}
-                                    width={4}
-                                    rotation={90}
-                                    fill={parseFloat(CaloriesChart).toFixed(1)}
-                                    tintColor="red"
-                                    backgroundColor="#2D2D2D">
-                                    {(fill) => (
-                                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                            <Text style={styles.circleHeaderText}>%{fill}</Text>
-                                        </View>
-                                    )}
-                                </AnimatedCircularProgress>
-                            </View>
-
-                            <View style={{ position: 'absolute', width: 130, justifyContent: 'center', alignItems: 'center' }}>
-                                <AnimatedCircularProgress
-                                    size={130}
-                                    width={4}
-                                    rotation={90}
-                                    fill={TotalProgress + 20}
-                                    tintColor="yellow"
-                                    backgroundColor="#2D2D2D">
-                                </AnimatedCircularProgress>
-                            </View>
+                        <View style={{ width: width / 2, justifyContent: 'center', alignItems: 'center' }}>
+                            <AnimatedCircularProgress
+                                size={width / 2.5}
+                                width={4}
+                                rotation={90}
+                                fill={String(CaloriesChart) !== "Infinity" ? parseFloat(CaloriesChart).toFixed(1) : 0}
+                                tintColor="#376F19"
+                                backgroundColor="#4D4D4D">
+                                {(fill) => (
+                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <Text style={styles.circleHeaderText}>{parseFloat(String(fill) !== "NaN" ? fill : 0).toFixed(1)}</Text>
+                                        <Text style={styles.targetHeader}>Kalori</Text>
+                                    </View>
+                                )}
+                            </AnimatedCircularProgress>
                         </View>
-                        <View style={{ width: '50%', justifyContent: 'center', alignItems: 'baseline', flexDirection: 'column' }}>
-                            <View>
-                                <Text style={styles.targetHeader}>Kalori</Text>
-                                <Text style={styles.targetText}>{parseFloat(Calories).toFixed(0)} / {String(profileData.targets?.calorie !== undefined ? profileData.targets.calorie : 0)}</Text>
-                                <View style={{ flexDirection: 'row' }}>
-                                    <Text style={styles.targetSubText}>Yapılan</Text>
-                                    <Text style={styles.targetSubText}> - Hedef</Text>
-                                </View>
-                            </View>
+
+                        <View style={{ width: width / 2, justifyContent: 'center', alignItems: 'center' }}>
+                            <AnimatedCircularProgress
+                                size={width / 2.5}
+                                width={4}
+                                rotation={90}
+                                fill={parseFloat(TotalProgress).toFixed(1)}
+                                tintColor="yellow"
+                                backgroundColor="#4D4D4D">
+                                {(fill) => (
+                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <Text style={styles.circleHeaderText}>{parseFloat(fill).toFixed(0)}</Text>
+                                        <Text style={styles.targetHeader}>Adım Sayısı</Text>
+                                    </View>
+                                )}
+                            </AnimatedCircularProgress>
                         </View>
                     </View>
 
                     <View style={{ width: '100%', paddingHorizontal: 10 }}>
                         {!Loading &&
                             <CalendarStrip
-                                scrollable={false}
+                                scrollable={true}
                                 datesBlacklist={datesBlacklist}
                                 selectedDate={SelectedDate}
+                                maxDate={moment()}
+                                minDate={moment().subtract(31, 'days')}
                                 // showMonth={false}
                                 onDateSelected={(val) => getSelectedDay(val)}
                                 // datesWhitelist={datesWhitelist}
@@ -1112,217 +1461,235 @@ const Antrenman = ({ navigation }) => {
                         }
                     </View>
 
-                    <View style={{ paddingHorizontal: 30, flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                        {!Loading &&
-
-                            <TouchableOpacity onPress={() => addFavorites()}
-                                style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                <Icon name={isFavorited === true ? "favorite" : "favorite-outline"} color="yellow" size={26} />
-                                <Text style={{
-                                    fontFamily: 'SFProDisplay-Medium',
-                                    fontSize: 15,
-                                    color: 'yellow',
-                                    marginLeft: 10
-                                }}
-                                >Favori</Text>
-                            </TouchableOpacity>
-                        }
-
-                        {/* {!Loading &&
-                            <TouchableOpacity onPress={() => getMyWorkouts()}
-                                style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                <Icon name="refresh" color="yellow" size={26} />
-                                <Text style={{
-                                    fontFamily: 'SFProDisplay-Medium',
-                                    fontSize: 15,
-                                    color: 'yellow',
-                                    marginLeft: 10
-                                }}
-                                >Yenile</Text>
-                            </TouchableOpacity>
-                        } */}
-
-                    </View>
-
-                    {!Loading && VideoList.length !== 0 &&
+                    {!Loading && !isCompleted ?
                         <>
-                            <FlatList style={{ height: 'auto', paddingHorizontal: 30, marginBottom: 100 }}
-                                scrollEnabled={true}
-                                data={VideoList}
-                                ListHeaderComponent={() => {
-                                    return (
-                                        <>
-                                            <TouchableOpacity style={{
-                                                height: 'auto',
-                                                width: '100%',
-                                                borderRadius: 18,
-                                                marginTop: 10,
-                                                marginBottom: 10
-                                            }}>
-                                                <Image
-                                                    resizeMode="cover"
-                                                    source={{ uri: 'https://www.lanochefithall.com/assets/img/usenme.jpg' }}
-                                                    style={{
+                            <View style={{ paddingHorizontal: 20, flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                {!Loading &&
+
+                                    <TouchableOpacity onPress={() => addFavorites(Workout)}
+                                        style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                        <Icon name={FavoritedList.filter(q => q.id === Workout.id).length !== 0 ? "favorite" : "favorite-outline"} color="yellow" size={26} />
+                                        <Text style={{
+                                            fontFamily: 'SFProDisplay-Medium',
+                                            fontSize: 15,
+                                            color: 'yellow',
+                                            marginLeft: 10
+                                        }}
+                                        >Favori</Text>
+                                    </TouchableOpacity>
+                                }
+
+                                {!Loading &&
+                                    <TouchableOpacity onPress={() => getMyWorkouts()}
+                                        style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                        <Icon name="refresh" color="yellow" size={26} />
+                                        <Text style={{
+                                            fontFamily: 'SFProDisplay-Medium',
+                                            fontSize: 15,
+                                            color: 'yellow',
+                                            marginLeft: 10
+                                        }}
+                                        >Yenile</Text>
+                                    </TouchableOpacity>
+                                }
+
+                            </View>
+
+                            {!Loading && VideoList.length > 1 &&
+                                <>
+                                    <FlatList style={{ flex: 1, flexGrow: 1, paddingHorizontal: 20 }}
+                                        scrollEnabled={false}
+                                        contentContainerStyle={{ flexGrow: 1, paddingBottom: 300 }}
+                                        data={VideoList}
+                                        ListHeaderComponent={() => {
+                                            let workoutTime = VideoList.reduce(function (prev, current) {
+                                                return prev + +parseFloat(current.duration)
+                                            }, 0)
+                                            return (
+                                                <>
+                                                    <View style={{
+                                                        height: 'auto',
                                                         width: '100%',
-                                                        height: 200,
-                                                        borderRadius: 18
-                                                    }}
-                                                />
-                                                <LinearGradient
-                                                    start={{ x: 1, y: 1 }}
-                                                    end={{ x: 1, y: 1 }}
-                                                    colors={['rgba(0,0,0,0.6)', 'transparent']}
-                                                    style={{
-                                                        position: 'absolute',
                                                         borderRadius: 18,
-                                                        width: '100%',
-                                                        height: 200
+                                                        marginTop: 10,
+                                                        marginBottom: 10
+                                                    }}>
+                                                        <Image
+                                                            resizeMode="cover"
+                                                            source={{ uri: 'https://www.lanochefithall.com/assets/img/usenme.jpg' }}
+                                                            style={{
+                                                                width: '100%',
+                                                                height: 250,
+                                                                borderRadius: 18
+                                                            }}
+                                                        />
+                                                        <LinearGradient
+                                                            start={{ x: 1, y: 1 }}
+                                                            end={{ x: 1, y: 1 }}
+                                                            colors={['rgba(0,0,0,0.6)', 'transparent']}
+                                                            style={{
+                                                                position: 'absolute',
+                                                                borderRadius: 18,
+                                                                width: '100%',
+                                                                height: 250
+                                                            }}
+                                                        />
+                                                        <View style={{ position: 'absolute', top: 15, paddingHorizontal: 20 }}>
+                                                            <Text style={{
+                                                                fontFamily: 'SFProDisplay-Medium',
+                                                                fontSize: 14,
+                                                                textAlign: 'justify',
+                                                                lineHeight: 18,
+                                                                color: '#FFF',
+                                                            }}>{String(Workout.bannerDescription !== undefined && Workout.bannerDescription)}</Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            flexDirection: 'row',
+                                                            width: '100%',
+                                                            justifyContent: 'space-between',
+                                                            paddingHorizontal: 20,
+                                                            position: 'absolute',
+                                                            bottom: 15
+                                                        }}>
+
+                                                            <View style={{
+                                                                flexDirection: 'row',
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                marginRight: 10
+                                                            }}>
+                                                                <Icon name="timer" color="#FFF" size={20} />
+                                                                <Text style={{
+                                                                    fontFamily: 'SFProDisplay-Medium',
+                                                                    fontSize: 13,
+                                                                    color: '#FFF',
+                                                                    marginLeft: 5
+                                                                }}>{moment.utc(workoutTime * 1000).format('mm:ss')} dk.</Text>
+                                                            </View>
+
+                                                            <View style={{
+                                                                flexDirection: 'row',
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                marginRight: 10
+                                                            }}>
+                                                                <Icon name="directions-run" color="#FFF" size={20} />
+                                                                <Text style={{
+                                                                    fontFamily: 'SFProDisplay-Medium',
+                                                                    fontSize: 13,
+                                                                    color: '#FFF',
+                                                                    marginLeft: 5
+                                                                }}>{totalKcal} kcal</Text>
+                                                            </View>
+
+                                                            <View style={{
+                                                                flexDirection: 'row',
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                marginRight: 10
+                                                            }}>
+                                                                <Icon name="star" color="#FFF" size={20} />
+                                                                <Text style={{
+                                                                    fontFamily: 'SFProDisplay-Medium',
+                                                                    fontSize: 13,
+                                                                    color: '#FFF',
+                                                                    marginLeft: 5
+                                                                }}>{TotalPoint} puan</Text>
+                                                            </View>
+                                                        </View>
+
+                                                    </View>
+
+                                                    <TouchableOpacity onPress={() => {
+                                                        if (VideoList.length !== 0) {
+                                                            navigation.navigate('WorkoutSpecial', { VideoList: VideoList, key: WorkoutKey })
+                                                        } else if (Workout.completed === true) {
+                                                            Alert.alert('Uyarı', 'Bu antrenman zaten tamamlanmış.');
+                                                        }
+                                                        else {
+                                                            Alert.alert('Hata', 'Bu antrenmanda hiç video yok.');
+                                                        }
                                                     }}
-                                                />
-                                                <View style={{ position: 'absolute', top: 15, paddingHorizontal: 20 }}>
-                                                    <Text style={{
-                                                        fontFamily: 'SFProDisplay-Medium',
-                                                        fontSize: 14,
-                                                        color: '#FFF',
-                                                    }}>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</Text>
-                                                </View>
-
-                                                <View style={{
-                                                    flexDirection: 'row',
-                                                    width: '100%',
-                                                    justifyContent: 'space-between',
-                                                    paddingHorizontal: 20,
-                                                    position: 'absolute',
-                                                    bottom: 15
-                                                }}>
-
-                                                    <View style={{
-                                                        flexDirection: 'row',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        marginRight: 10
-                                                    }}>
-                                                        <Icon name="timer" color="#FFF" size={20} />
+                                                        style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
                                                         <Text style={{
                                                             fontFamily: 'SFProDisplay-Medium',
-                                                            fontSize: 13,
-                                                            color: '#FFF',
-                                                            marginLeft: 5
-                                                        }}>13</Text>
-                                                    </View>
-
-                                                    <View style={{
-                                                        flexDirection: 'row',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        marginRight: 10
-                                                    }}>
-                                                        <Icon name="directions-run" color="#FFF" size={20} />
-                                                        <Text style={{
-                                                            fontFamily: 'SFProDisplay-Medium',
-                                                            fontSize: 13,
-                                                            color: '#FFF',
-                                                            marginLeft: 5
-                                                        }}>160 kcal</Text>
-                                                    </View>
-
-                                                    <View style={{
-                                                        flexDirection: 'row',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
-                                                        marginRight: 10
-                                                    }}>
-                                                        <Icon name="star" color="#FFF" size={20} />
-                                                        <Text style={{
-                                                            fontFamily: 'SFProDisplay-Medium',
-                                                            fontSize: 13,
-                                                            color: '#FFF',
-                                                            marginLeft: 5
-                                                        }}>80</Text>
-                                                    </View>
-                                                </View>
-
-                                            </TouchableOpacity>
-
-                                            <TouchableOpacity onPress={() => {
-                                                if (VideoList.length !== 0) {
-                                                    navigation.navigate('WorkoutSpecial', { VideoList: VideoList, key: WorkoutKey })
-                                                } else {
-                                                    Alert.alert('Hata', 'Bu antrenmanda hiç video yok.');
-                                                }
-                                            }}
-                                                style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-                                                <Text style={{
-                                                    fontFamily: 'SFProDisplay-Medium',
-                                                    fontSize: 15,
-                                                    color: 'yellow',
-                                                    marginRight: 10
-                                                }}
-                                                >Hemen Başla</Text>
-                                                <Icon name="keyboard-arrow-right" color="yellow" size={26} />
-                                            </TouchableOpacity>
-                                        </>
-                                    )
-                                }}
-                                keyExtractor={(item, index) => index.toString()}
-                                renderItem={(workouts) => {
-                                    var item = workouts.item;
-                                    return (item &&
-                                        <TouchableOpacity key={item.id} onPress={() => navigation.navigate('MoveThumb', { item: item })}
-                                            style={{
-                                                paddingVertical: 8,
-                                                flexDirection: 'row',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                height: 'auto',
-                                                width: '100%',
-                                                borderRadius: 18
-                                            }}>
-                                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                                <Image
-                                                    resizeMode="cover"
-                                                    source={{ uri: item.thumb }}
+                                                            fontSize: 15,
+                                                            color: 'yellow',
+                                                            marginRight: 10
+                                                        }}
+                                                        >Hemen Başla</Text>
+                                                        <Icon name="keyboard-arrow-right" color="yellow" size={26} />
+                                                    </TouchableOpacity>
+                                                </>
+                                            )
+                                        }}
+                                        keyExtractor={(item, index) => index.toString()}
+                                        renderItem={(workouts) => {                                            var item = workouts.item;
+                                            return (item &&
+                                                <TouchableOpacity key={item.id} onPress={() => navigation.navigate('MoveThumb', { item: item })}
                                                     style={{
-                                                        width: 60,
-                                                        height: 60,
-                                                        borderRadius: 8
-                                                    }}
-                                                />
-                                                <View style={{ marginLeft: 20 }}>
-                                                    <Text style={{
-                                                        fontFamily: 'SFProDisplay-Bold',
-                                                        fontSize: 16,
-                                                        color: '#FFF'
-                                                    }}>{item.title}</Text>
-                                                    {item.type === "time" ?
-                                                        <View style={{ marginTop: 5, flexDirection: 'row', width: '100%', alignItems: 'center' }}>
-                                                            <Icon name="timer" color="#FFF" size={20} />
-                                                            <Text numberOfLines={2} style={{
-                                                                fontFamily: 'SFProDisplay-Medium',
-                                                                fontSize: 13,
-                                                                color: '#FFF',
-                                                                marginLeft: 5
-                                                            }}>{item.set + ' Set, ' + item.time + ' Saniye'}</Text>
-                                                        </View>
-                                                        :
-                                                        <View style={{ marginTop: 5, flexDirection: 'row', width: '100%', alignItems: 'center' }}>
-                                                            <Icon name="replay" color="#FFF" size={20} />
-                                                            <Text numberOfLines={2} style={{
-                                                                fontFamily: 'SFProDisplay-Medium',
-                                                                fontSize: 13,
-                                                                color: '#FFF',
-                                                                marginLeft: 5
-                                                            }}>{item.set + ' Set, ' + item.reps + ' Tekrar'}</Text>
-                                                        </View>
-                                                    }
+                                                        paddingVertical: 8,
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        height: 'auto',
+                                                        width: '100%',
+                                                        borderRadius: 18
+                                                    }}>
+                                                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                        <Image
+                                                            resizeMode="cover"
+                                                            source={{ uri: item.thumb }}
+                                                            style={{
+                                                                width: 60,
+                                                                height: 60,
+                                                                borderRadius: 8
+                                                            }}
+                                                        />
+                                                        <View style={{ marginLeft: 20 }}>
+                                                            <Text style={{
+                                                                fontFamily: 'SFProDisplay-Bold',
+                                                                fontSize: 16,
+                                                                color: '#FFF'
+                                                            }}>{item.title}</Text>
+                                                            {item.type === "time" ?
+                                                                <View style={{ marginTop: 5, flexDirection: 'row', width: '100%', alignItems: 'center' }}>
+                                                                    <Icon name="timer" color="#FFF" size={20} />
+                                                                    <Text numberOfLines={2} style={{
+                                                                        fontFamily: 'SFProDisplay-Medium',
+                                                                        fontSize: 13,
+                                                                        color: '#FFF',
+                                                                        marginLeft: 5
+                                                                    }}>{item.set + ' Set, ' + item.time + ' Saniye'}</Text>
+                                                                </View>
+                                                                :
+                                                                <View style={{ marginTop: 5, flexDirection: 'row', width: '100%', alignItems: 'center' }}>
+                                                                    <Icon name="replay" color="#FFF" size={20} />
+                                                                    <Text numberOfLines={2} style={{
+                                                                        fontFamily: 'SFProDisplay-Medium',
+                                                                        fontSize: 13,
+                                                                        color: '#FFF',
+                                                                        marginLeft: 5
+                                                                    }}>{item.set + ' Set, ' + item.reps + ' Tekrar'}</Text>
+                                                                </View>
+                                                            }
 
-                                                </View>
-                                            </View>
-                                        </TouchableOpacity>
-                                    )
-                                }}
-                            />
-                        </>
+                                                        </View>
+                                                    </View>
+                                                </TouchableOpacity>
+                                            )
+                                        }}
+                                    />
+                                </>
+                            }
+                        </> : <>
+                            {!Loading &&
+                                <View style={{ height: 'auto', paddingHorizontal: 40, marginBottom: 20, marginTop: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                                    <Icon name="tag-faces" size={64} color="#4D4D4D" />
+                                    <Text style={[styles.headerText, { color: '#4D4D4D', fontSize: 16, textAlign: 'center', marginTop: 10 }]}>Tebrikler! Seçili günün antrenmanını tamamladınız.</Text>
+                                </View>
+                            }</>
                     }
                 </ScrollView>
             </SafeAreaView>
@@ -1341,7 +1708,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 30
+        paddingHorizontal: 20
     },
     headerText: {
         fontFamily: 'SFProDisplay-Medium',
@@ -1353,21 +1720,32 @@ const styles = StyleSheet.create({
         fontSize: 28,
         color: '#FFF'
     },
-    targetHeader: {
+    circleSubText: {
+        marginTop: 15,
+        textAlign: 'center',
         fontFamily: 'SFProDisplay-Medium',
-        fontSize: 22,
+        fontSize: 12,
+        color: '#FFF'
+    },
+    targetHeader: {
+        textAlign: 'center',
+        fontFamily: 'SFProDisplay-Medium',
+        fontSize: 16,
         color: '#FFF',
         marginBottom: 5
     },
     targetText: {
+        marginTop: 10,
+        textAlign: 'center',
         fontFamily: 'SFProDisplay-Medium',
-        fontSize: 20,
+        fontSize: 16,
         color: '#FFF'
     },
     targetSubText: {
         marginTop: 5,
+        textAlign: 'center',
         fontFamily: 'SFProDisplay-Medium',
-        fontSize: 13,
+        fontSize: 12,
         color: '#FFF'
     },
 })

@@ -29,32 +29,32 @@ const Settings = ({ navigation }) => {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30, marginTop: 10 }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, marginTop: 10 }}>
 
-                        <TouchableOpacity onPress={() => navigation.navigate('KisiselBilgiler')} style={[styles.textContainer, { backgroundColor: '#FFF', marginTop: 10, height: 70 }]}>
+                        <TouchableOpacity onPress={() => navigation.navigate('KisiselBilgiler')} style={[styles.textContainer, { backgroundColor: '#202026', marginTop: 10, height: 70 }]}>
                             <Text style={styles.textStyleHeader}>Kişisel Bilgiler</Text>
-                            <Icon name="keyboard-arrow-right" size={28} color="#2D2D2D" />
+                            <Icon name="keyboard-arrow-right" size={28} color="#FFF" />
                         </TouchableOpacity>
-
+{/* 
                         <TouchableOpacity onPress={() => navigation.navigate('HedefAyarlari')} style={[styles.textContainer, { backgroundColor: '#FFF', marginTop: 10, height: 70 }]}>
                             <Text style={styles.textStyleHeader}>Hedef Ayarları</Text>
                             <Icon name="keyboard-arrow-right" size={28} color="#2D2D2D" />
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
 
-                        <TouchableOpacity onPress={() => navigation.navigate('SaglikSorunlari')} style={[styles.textContainer, { backgroundColor: '#FFF', marginTop: 10, height: 70 }]}>
+                        <TouchableOpacity onPress={() => navigation.navigate('SaglikSorunlari')} style={[styles.textContainer, { backgroundColor: '#202026', marginTop: 10, height: 70 }]}>
                             <Text style={styles.textStyleHeader}>Sağlık Sorunları</Text>
-                            <Icon name="keyboard-arrow-right" size={28} color="#2D2D2D" />
+                            <Icon name="keyboard-arrow-right" size={28} color="#FFF" />
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => navigation.navigate('BildirimAyarlari')} style={[styles.textContainer, { backgroundColor: '#FFF', marginTop: 10, height: 70 }]}>
+                        <TouchableOpacity onPress={() => navigation.navigate('BildirimAyarlari')} style={[styles.textContainer, { backgroundColor: '#202026', marginTop: 10, height: 70 }]}>
                             <Text style={styles.textStyleHeader}>Bildirim Ayarları</Text>
-                            <Icon name="keyboard-arrow-right" size={28} color="#2D2D2D" />
+                            <Icon name="keyboard-arrow-right" size={28} color="#FFF" />
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => navigation.navigate('AntrenmanGunleri')} style={[styles.textContainer, { backgroundColor: '#FFF', marginTop: 10, height: 70 }]}>
+                        <TouchableOpacity onPress={() => navigation.navigate('AntrenmanGunleri')} style={[styles.textContainer, { backgroundColor: '#202026', marginTop: 10, height: 70 }]}>
                             <Text style={styles.textStyleHeader}>Antrenman Günleri</Text>
-                            <Icon name="keyboard-arrow-right" size={28} color="#2D2D2D" />
+                            <Icon name="keyboard-arrow-right" size={28} color="#FFF" />
                         </TouchableOpacity>
 
                         <TouchableOpacity onPress={() => {
@@ -73,9 +73,9 @@ const Settings = ({ navigation }) => {
                                 },
                                 { text: 'Vazgeç', onPress: () => null, style: 'cancel' }
                             ])
-                        }} style={[styles.textContainer, { backgroundColor: '#FFF', marginTop: 10, height: 70 }]}>
+                        }} style={[styles.textContainer, { backgroundColor: '#202026', marginTop: 10, height: 70 }]}>
                             <Text style={styles.textStyleHeader}>Çıkış Yap</Text>
-                            <Icon name="lock-outline" size={25} color="#2D2D2D" />
+                            <Icon name="lock-outline" size={25} color="#FFF" />
                         </TouchableOpacity>
 
                     </View>
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     textStyleHeader: {
-        color: "#2d2d2d",
+        color: "#FFF",
         fontFamily: 'SFProDisplay-Bold',
         fontSize: 16,
     },

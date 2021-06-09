@@ -80,7 +80,7 @@ const StepCounter = ({ props, navigation }) => {
                     </View>
                 </View>
 
-                <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30, marginTop: 20 }}>
+                <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, marginTop: 20 }}>
 
                     {!Loading &&
                         <View style={{

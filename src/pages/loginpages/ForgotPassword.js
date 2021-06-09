@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View, Keyboard, Alert, Image } from 'react-native';
+import { View, Keyboard, Alert, Text, ImageBackground, Dimensions } from 'react-native';
 import { auth2 } from '../../config/config';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import Style from '../../styles/Style';
 import SpinnerLoading from '../../components/SpinnerLoading';
-import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
-import Logo from '../../img/self_logo.png';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+const { height, width } = Dimensions.get("window");
 
 function ForgotPassword({ navigation }) {
     const [Email, setEmail] = useState('');
@@ -46,50 +47,54 @@ function ForgotPassword({ navigation }) {
     };
 
     return (
-        <KeyboardAwareView animated={true} style={{ flex: 1, flexDirection: 'column', backgroundColor: '#FFF', height: '100%', width: '100%' }} >
+        <KeyboardAwareScrollView extraHeight={150} enableOnAndroid={true} animated={true} style={{
+            flex: 1, flexDirection: 'column', backgroundColor: '#FFF'
+        }}>
             <SpinnerLoading Loading={Loading} />
 
-            <View style={{ flex: 1, flexDirection: 'column', backgroundColor: '#FFF', alignItems: 'center', justifyContent: 'flex-start', paddingHorizontal: 30, marginTop: 50 }}>
+            <ImageBackground style={{ height: height, width: '100%' }} resizeMode="cover" source={require('../../img/bg.jpg')}>
+                <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingHorizontal: 20, marginTop: 100 }}>
 
-                <Image
-                    source={Logo}
-                    style={{
-                        width: 300,
-                        height: 100,
-                        resizeMode: 'contain',
-                        marginBottom: 50
-                    }}
-                />
+                    <View style={{ width: '100%', paddingVertical: 30 }}>
+                        <Text allowFontScaling={false} style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 16, color: '#FFF', textAlign: 'left' }}>Lütfen hesabınıza ilişkin e-posta adresinizi girin. Yeni parola oluşturmak için bir bağlantı alacaksınız.</Text>
+                    </View>
 
-                <View style={Style.registerItemProfile}>
-                    <Input
-                        style={Style.registerTextInput}
-                        autoCapitalize="none"
-                        allowFontScaling={false}
-                        blurOnSubmit={true}
-                        maxLength={70}
-                        placeholder="E-Posta Adresiniz"
-                        returnKeyType={"done"}
-                        value={Email}
-                        onChangeText={email => setEmail(email)}
-                        keyboardType={"email-address"}
-                    />
+
+                    <View style={Style.registerItemProfile}>
+                        <Input
+                            style={[Style.registerTextInput, { backgroundColor: '#202026' }]}
+                            autoCapitalize="none"
+                            allowFontScaling={false}
+                            blurOnSubmit={true}
+                            maxLength={70}
+                            placeholder="E-Posta Adresiniz"
+                            placeholderTextColor='#FFF'
+                            fontFamily='SFProDisplay-Medium'
+                            fontWeight='500'
+                            fontSize={15}
+                            returnKeyType={"done"}
+                            value={Email}
+
+                            onChangeText={email => setEmail(email)}
+                            keyboardType={"email-address"}
+                        />
+                    </View>
+
+                    <View style={[Style.registerItemProfile, { marginTop: 30 }]}>
+                        <Button
+                            title="Parolamı Yenile"
+                            onPress={() => OnButtonClicked()}
+                            style={{
+                                color: 'yellow',
+                                backgroundColor: '#000',
+                                fontWeight: '700'
+                            }}
+                        />
+                    </View>
+
                 </View>
-
-                <View style={[Style.registerItemProfile, { marginTop: 30 }]}>
-                    <Button
-                        title="Parolamı Yenile"
-                        onPress={() => OnButtonClicked()}
-                        style={{
-                            color: 'white',
-                            backgroundColor: '#000',
-                            fontWeight: '700'
-                        }}
-                    />
-                </View>
-
-            </View>
-        </KeyboardAwareView>
+            </ImageBackground>
+        </KeyboardAwareScrollView>
     )
 }
 

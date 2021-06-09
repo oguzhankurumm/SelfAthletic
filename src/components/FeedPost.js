@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const FeedPost = props => {
     const likeCount = props.item.likes !== undefined ? parseFloat([props.item.likes].length + 1) : 0
-    const commentCount = props.item.comments !== undefined ? parseFloat([props.item.comments].length) : 0
+    const commentCount = props.item.comments !== undefined ? parseFloat([props.item.comments].length + 1) : 0
 
     const type = props.item.type !== undefined ? props.item.type : 'text';
 
@@ -12,11 +12,11 @@ const FeedPost = props => {
 
         if (type === 'text') {
             return (
-                <TouchableOpacity onPress={() => props.navigation.navigate('FeedDetails', { item: props.item })} style={{ width: '100%', paddingHorizontal: 20, backgroundColor: '#FFF', height: 150, borderRadius: 18, padding: 20 }}>
+                <TouchableOpacity onPress={() => props.navigation.navigate('FeedDetails', { item: props.item })} style={{ width: '100%', paddingHorizontal: 20, backgroundColor: '#202026', height: 150, borderRadius: 18, padding: 20 }}>
                     <Text style={{
                         fontFamily: 'SFProDisplay-Bold',
                         fontSize: 16,
-                        color: '#000',
+                        color: '#FFF',
                         marginBottom: 8
                     }}>{props.item.title}</Text>
                 </TouchableOpacity>

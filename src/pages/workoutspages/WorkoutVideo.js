@@ -7,6 +7,7 @@ import Modal from 'react-native-modal';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import moment from 'moment';
 import { database2, auth2 } from '../../config/config';
+import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert';
 
 const { height, width } = Dimensions.get("window");
 
@@ -22,9 +23,11 @@ const WorkoutVideo = props => {
     const [Workouts, setWorkouts] = useState(props.route.params.Workouts !== null && props.route.params.Workouts !== undefined ? props.route.params.Workouts : []);
 
     const [finishDisabled, setfinishDisabled] = useState(false);
+    const [FinishModal, setFinishModal] = useState(false);
 
     const [CompletedList, setCompletedList] = useState([]);
     const [TotalPoint, setTotalPoint] = useState(0);
+    const [TotalKcal, setTotalKcal] = useState(0);
 
     const [playVideo, setplayVideo] = useState(false);
 
@@ -32,7 +35,11 @@ const WorkoutVideo = props => {
 
     const [initialTime, setInitialTime] = React.useState(0);
     const [startTimer, setStartTimer] = React.useState(false);
+    const [MolaTimerDuration, setMolaTimerDuration] = useState(SelectedMove.pause ? SelectedMove.pause : 10);
+    const [ShowMolaTimer, setShowMolaTimer] = useState(false);
 
+    const [MevcutSet, setMevcutSet] = useState(1);
+    const [ShowAlert, setShowAlert] = useState(false);
 
     const changeMove = (index) => {
 
@@ -43,7 +50,7 @@ const WorkoutVideo = props => {
         }
 
         if (index === VideoList.length) {
-            Alert.alert('Tamamlandı', 'Egzersiz bitirilsin mi?', [
+            Alert.alert('Tamamlandı', 'Antrenman bitirilsin mi?', [
                 { text: 'Vazgeç', style: 'destructive' },
                 { text: 'Evet', onPress: () => completeTraining(), style: 'default' },
             ])
@@ -53,23 +60,37 @@ const WorkoutVideo = props => {
 
     const completeMove = () => {
         var newItem = SelectedMove;
-        var array = CompletedList;
 
-        array.indexOf(newItem) === -1 ? array.push(newItem) : Alert.alert('Uyarı', 'Bu hareket zaten tamamlanmış.');
+        if (newItem.set === MevcutSet) {
+            var caloriesForMove = 0;
+            var pointForMove = 0;
 
-        setCompletedList(array);
+            if (newItem.type === "reps") {
+                caloriesForMove = parseFloat(parseFloat(newItem.set) * parseFloat(newItem.reps));
+                pointForMove = parseFloat(newItem.set) * parseFloat(newItem.reps);
+                setTotalPoint(TotalPoint + pointForMove)
+                setTotalKcal(TotalKcal + caloriesForMove);
+            } else {
+                caloriesForMove = parseFloat(newItem.time) / parseFloat(1);
+                pointForMove = parseFloat(newItem.time) / parseFloat(10);
+                setTotalPoint(TotalPoint + pointForMove)
+                setTotalKcal(TotalKcal + caloriesForMove);
+            }
+            setMevcutSet(1);
+            changeMove(SelectedIndex + 1)
+        } else {
+            setMevcutSet(MevcutSet + 1)
+        };
 
-        let sum = CompletedList.reduce(function (prev, current) {
-            return prev + +parseFloat(current.point)
-        }, 0);
+        setMolaTimerDuration(newItem.pause ? newItem.pause : 15)
+        setplayVideo(false);
+        setStartTimer(false);
+        setShowMolaTimer(true);
 
-        setTotalPoint(sum);
-
-        changeMove(SelectedIndex + 1)
     }
 
     const showThumb = (index) => {
-        console.log('selectedMove: ', VideoList[index])
+        props.navigation.navigate('MoveThumb', { item: VideoList[index] })
     }
 
     const completeTraining = async () => {
@@ -89,7 +110,7 @@ const WorkoutVideo = props => {
             workoutid: Workouts.id
         }
 
-        await database2.ref('users_points').child(auth2.currentUser.uid).push(data)
+        await database2.ref('users_points' + '/' + auth2.currentUser.uid + '/' + Workouts.id).set(data)
             .then(() => {
                 setLoadingSave(false);
                 setTimeout(() => {
@@ -104,6 +125,30 @@ const WorkoutVideo = props => {
                 }, 300);
             })
     }
+
+    const MolaTimer = () => (
+        <CountdownCircleTimer
+            isPlaying={ShowMolaTimer}
+            duration={MolaTimerDuration}
+            onComplete={() => {
+                setShowMolaTimer(!ShowMolaTimer);
+                setplayVideo(true)
+                setStartTimer(true);
+                changeMove(SelectedIndex + 1)
+            }}
+            colors={[
+                ['#004777', 0.4],
+                ['#F7B801', 0.4],
+                ['#A30000', 0.2],
+            ]}
+        >
+            {({ remainingTime, animatedColor }) => (
+                <Animated.Text style={{ fontFamily: 'SFProDisplay-Bold', fontSize: 18, color: animatedColor }}>
+                    {remainingTime}
+                </Animated.Text>
+            )}
+        </CountdownCircleTimer>
+    )
 
     const UrgeWithPleasureComponent = () => (
         <CountdownCircleTimer
@@ -158,6 +203,19 @@ const WorkoutVideo = props => {
                 <SpinnerLoading color="yellow" text="Antrenman kaydediliyor..." Loading={LoadingSave} />
                 <SpinnerLoading Loading={VideoLoading} />
 
+                <SCLAlert
+                    theme="warning"
+                    show={ShowAlert}
+                    title="Antrenmandan Çık"
+                    subtitle="Antrenmandan çıkmak istiyor musunuz?"
+                >
+                    <SCLAlertButton theme="warning" onPress={() => {
+                        setShowAlert(false);
+                        props.navigation.goBack();
+                    }}>Antrenmandan Çık</SCLAlertButton>
+                    <SCLAlertButton theme="default" onPress={() => setShowAlert(!ShowAlert)}>Vazgeç</SCLAlertButton>
+                </SCLAlert>
+
                 <Modal style={{ marginTop: 'auto' }}
                     animationIn="fadeIn"
                     animationOut="fadeOut"
@@ -171,8 +229,31 @@ const WorkoutVideo = props => {
                     </View>
                 </Modal>
 
+                <Modal style={{ marginTop: 'auto' }}
+                    animationIn="fadeIn"
+                    animationOut="fadeOut"
+                    isVisible={ShowMolaTimer}
+                    animationInTiming={500}
+                    animationOutTiming={500}
+                    backdropOpacity={0.7}
+                >
+                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <MolaTimer />
+
+                        <TouchableOpacity
+                            style={{ marginTop: 30, backgroundColor: 'yellow', borderRadius: 18, paddingVertical: 10, paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center' }}
+                            onPress={() => {
+                                setShowMolaTimer(!ShowMolaTimer);
+                                setplayVideo(true);
+                                setStartTimer(true);
+                            }}>
+                            <Text style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 16, color: '#000' }}>Dinlenmeyi Atla</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Modal>
+
                 <View style={styles.header} >
-                    <TouchableOpacity onPress={() => props.navigation.goBack()} style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+                    <TouchableOpacity onPress={() => setShowAlert(true)} style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                         <Icon name="keyboard-arrow-left" color="#FFF" size={42} style={{ marginRight: 15 }} />
                         <Text style={styles.headerText}>Antrenman</Text>
                     </TouchableOpacity>
@@ -188,7 +269,7 @@ const WorkoutVideo = props => {
 
                 <View style={styles.container}>
 
-                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30, marginTop: 20 }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, marginTop: 20 }}>
 
                         {!Loading &&
                             <>
@@ -273,7 +354,6 @@ const WorkoutVideo = props => {
                                                         <View style={{ marginTop: 20, flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
 
                                                             <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-
                                                                 {SelectedMove.type === "reps" ?
                                                                     <>
                                                                         <Icon name="replay" color="#FFF" size={28} />
@@ -282,7 +362,18 @@ const WorkoutVideo = props => {
                                                                             fontSize: 15,
                                                                             color: '#FFF',
                                                                             marginLeft: 5
-                                                                        }}>{String(SelectedMove.reps)} Tekrar</Text>
+                                                                        }}>{String(SelectedMove.reps)} Tekrar, {String(SelectedMove.set)} /
+                                                                        <Text style={{
+                                                                                fontFamily: 'SFProDisplay-Bold',
+                                                                                fontSize: 15,
+                                                                                color: 'yellow'
+                                                                            }}> {MevcutSet}
+                                                                                <Text style={{
+                                                                                    fontFamily: 'SFProDisplay-Medium',
+                                                                                    fontSize: 15,
+                                                                                    color: '#FFF'
+                                                                                }}> Set </Text></Text>
+                                                                        </Text>
                                                                     </>
                                                                     :
                                                                     <>
@@ -356,8 +447,9 @@ const WorkoutVideo = props => {
                                                                 marginTop: 5,
                                                                 fontFamily: 'SFProDisplay-Medium',
                                                                 fontSize: 12,
-                                                                color: '#FFF'
-                                                            }}>{moment.utc(item.duration * 1000).format('mm:ss')} dk.</Text>
+                                                                color: item.completed === true ? '#3A3A3A' : '#FFF'
+                                                            }}>{String(item.set)} Set, {item.type !== 'time' ? String(item.reps) + ' Tekrar' : String(item.time) + ' Saniye'}</Text>
+
 
                                                         </View>
                                                     </View>
@@ -373,36 +465,36 @@ const WorkoutVideo = props => {
                 </View>
             </SafeAreaView>
 
-            <View style={{
-                flexDirection: 'row',
-                width: '100%',
-                height: 60,
-                backgroundColor: '#000',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }}>
-                <TouchableOpacity disabled={finishDisabled} onPress={() => {
-                    if (SelectedIndex === VideoList.length) {
-                        completeTraining();
-                    } else {
-                        completeMove();
-                    }
-                }} style={{
+            {
+                SelectedIndex === VideoList.length - 1 &&
+                <View style={{
+                    flexDirection: 'row',
                     width: '100%',
                     height: 60,
-                    backgroundColor: 'yellow',
-                    justifyContent: 'center',
+                    backgroundColor: '#000',
+                    justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <Text style={{
-                        fontFamily: 'SFProDisplay-Bold',
-                        justifyContent: 'flex-start',
-                        fontSize: 16,
-                        color: '#000',
-                        marginRight: 5
-                    }}>{SelectedIndex === VideoList.length - 1 ? 'Antrenmanı Bitir' : 'Hareketi Tamamla'}</Text>
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity onPress={() => {
+                        setFinishModal(true);
+                        setStartTimer(false);
+                    }} style={{
+                        width: '100%',
+                        height: 60,
+                        backgroundColor: 'yellow',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <Text style={{
+                            fontFamily: 'SFProDisplay-Bold',
+                            justifyContent: 'flex-start',
+                            fontSize: 16,
+                            color: '#000',
+                            marginRight: 5
+                        }}>Antrenmanı Bitir</Text>
+                    </TouchableOpacity>
+                </View>
+            }
 
 
         </ImageBackground >

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, SafeAreaView, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Alert } from 'react-native'
+import { View, SafeAreaView, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Alert, ScrollView } from 'react-native'
 import { useSelector } from 'react-redux';
 import Modal from 'react-native-modal';
 import { auth2 } from '../config/config';
@@ -38,93 +38,98 @@ const Sidebar = ({ navigation, opened, onClose }) => {
             }}
         >
             <SafeAreaView style={styles.safeAreaView}>
-                <View style={styles.container}>
-                    <SpinnerLoading Loading={Loading} />
+                <ScrollView
+                    style={{
+                        margin: 0,
+                        width: width * 0.75
+                    }}>
+                    <View style={styles.container}>
+                        <SpinnerLoading Loading={Loading} />
 
-                    <View style={styles.itemStyle}>
-                        <Image style={styles.imageView} source={{ uri: profileData.avatar !== '' ? profileData.avatar : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }} />
-                        <Text style={styles.textName}>{profileData.name}</Text>
-                    </View>
+                        <View style={styles.itemStyle}>
+                            <Image style={styles.imageView} resizeMode="cover" source={{ uri: profileData.avatar !== '' && profileData.avatar !== undefined ? profileData.avatar : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }} />
+                            <Text style={styles.textName}>{profileData.name}</Text>
+                        </View>
 
-                    <TouchableOpacity onPress={() => {
-                        onClose();
-                        setShowSideModal(!ShowSideModal);
-                        setTimeout(() => {
-                            navigation.navigate('ANASAYFA');
-                        }, 100);
-                    }} style={styles.itemStyle}>
-                        <Text style={styles.text}>Ana Sayfa</Text>
-                        {currentRoute === "ANASAYFA" &&
-                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                        }
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('ANASAYFA');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text}>Ana Sayfa</Text>
+                            {currentRoute === "ANASAYFA" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => {
-                        onClose();
-                        setShowSideModal(!ShowSideModal);
-                        setTimeout(() => {
-                            navigation.navigate('ANTRENMAN');
-                        }, 100);
-                    }} style={styles.itemStyle}>
-                        <Text style={styles.text}>Antrenman</Text>
-                        {currentRoute === "ANTRENMAN" &&
-                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                        }
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('ANTRENMAN');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text}>Antrenman</Text>
+                            {currentRoute === "ANTRENMAN" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => {
-                        onClose();
-                        setShowSideModal(!ShowSideModal);
-                        setTimeout(() => {
-                            navigation.navigate('BESLENME');
-                        }, 100);
-                    }} style={styles.itemStyle}>
-                        <Text style={styles.text}>Beslenme</Text>
-                        {currentRoute === "BESLENME" &&
-                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                        }
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('BESLENME');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text}>Beslenme</Text>
+                            {currentRoute === "BESLENME" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => {
-                        onClose();
-                        setShowSideModal(!ShowSideModal);
-                        setTimeout(() => {
-                            navigation.navigate('PROFİLİM');
-                        }, 100);
-                    }} style={styles.itemStyle}>
-                        <Text style={styles.text}>Profil</Text>
-                        {currentRoute === "PROFİLİM" &&
-                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                        }
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('PROFİLİM');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text}>Profil</Text>
+                            {currentRoute === "PROFİLİM" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => {
-                        onClose();
-                        setShowSideModal(!ShowSideModal);
-                        setTimeout(() => {
-                            navigation.navigate('FavoritedWorkouts');
-                        }, 100);
-                    }} style={styles.itemStyle}>
-                        <Text style={styles.text2}>Favori Antrenmanlarım</Text>
-                        {currentRoute === "FavoritedWorkouts" &&
-                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                        }
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('FavoritedWorkouts');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text2}>Favori Antrenmanlarım</Text>
+                            {currentRoute === "FavoritedWorkouts" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => {
-                        onClose();
-                        setShowSideModal(!ShowSideModal);
-                        setTimeout(() => {
-                            navigation.navigate('FavoritedFoods');
-                        }, 100);
-                    }} style={styles.itemStyle}>
-                        <Text style={styles.text2}>Favori Öğünlerim</Text>
-                        {currentRoute === "FavoritedFoods" &&
-                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                        }
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('FavoritedFoods');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text2}>Favori Öğünlerim</Text>
+                            {currentRoute === "FavoritedFoods" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
 
-                    {/* <TouchableOpacity onPress={() => {
+                        {/* <TouchableOpacity onPress={() => {
                         onClose();
                         setShowSideModal(!ShowSideModal);
                         setTimeout(() => {
@@ -134,78 +139,107 @@ const Sidebar = ({ navigation, opened, onClose }) => {
                         <Text style={styles.text2}>Arkadaşına Öner</Text>
                     </TouchableOpacity> */}
 
-                    <TouchableOpacity onPress={() => {
-                        onClose();
-                        setShowSideModal(!ShowSideModal);
-                        setTimeout(() => {
-                            navigation.navigate('EgzersizKutuphanesi');
-                        }, 100);
-                    }} style={styles.itemStyle}>
-                        <Text style={styles.text2}>Egzersiz Kütüphanesi</Text>
-                        {currentRoute === "EgzersizKutuphanesi" &&
-                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                        }
-                    </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('WorkoutLib');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text2}>Egzersiz Kütüphanesi</Text>
+                            {currentRoute === "WorkoutLib" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('FoodLib');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text2}>Besin Kütüphanesi</Text>
+                            {currentRoute === "FoodLib" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('OlcumGecmisi');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text2}>Ölçüm Geçmişi</Text>
+                            {currentRoute === "OlcumGecmisi" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('SuGecmisi');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text2}>Su Geçmişi</Text>
+                            {currentRoute === "SuGecmisi" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('Premium');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={[styles.text2, { fontWeight: 'bold' }]}>Üyelik (Premium)</Text>
+                            {currentRoute === "Premium" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('Settings');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text2}>Ayarlar</Text>
+                            {currentRoute === "Settings" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
+                    </View>
 
                     <TouchableOpacity onPress={() => {
-                        onClose();
-                        setShowSideModal(!ShowSideModal);
-                        setTimeout(() => {
-                            navigation.navigate('BesinKutuphanesi');
-                        }, 100);
+                        Alert.alert('Çıkış Yap', 'Hesabınızdan çıkılsın mı?', [
+                            {
+                                text: 'Evet', onPress: () => {
+                                    setLoading(true);
+                                    auth2.signOut()
+                                        .then(() => {
+                                            setLoading(false);
+                                        })
+                                        .catch((err) => {
+                                            setLoading(false);
+                                            Alert.alert('Hata', 'Çıkış yapılırken bir hata oluştu.');
+                                            console.log('Hata: ', err)
+                                        })
+                                }, style: 'default'
+                            },
+                            { text: 'Vazgeç', onPress: () => null, style: 'cancel' }
+                        ])
                     }} style={styles.itemStyle}>
-                        <Text style={styles.text2}>Besin Kütüphanesi</Text>
-                        {currentRoute === "BesinKutuphanesi" &&
-                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                        }
+                        <Text style={styles.text2}>Çıkış Yap</Text>
                     </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => {
-                        onClose();
-                        setShowSideModal(!ShowSideModal);
-                        setTimeout(() => {
-                            navigation.navigate('Premium');
-                        }, 100);
-                    }} style={styles.itemStyle}>
-                        <Text style={[styles.text2, { fontWeight: 'bold' }]}>Üyelik (Premium)</Text>
-                        {currentRoute === "Premium" &&
-                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                        }
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => {
-                        onClose();
-                        setShowSideModal(!ShowSideModal);
-                        setTimeout(() => {
-                            navigation.navigate('Settings');
-                        }, 100);
-                    }} style={styles.itemStyle}>
-                        <Text style={styles.text2}>Ayarlar</Text>
-                        {currentRoute === "Settings" &&
-                            <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                        }
-                    </TouchableOpacity>
-                </View>
-
-                <TouchableOpacity onPress={() => {
-                    Alert.alert('Çıkış Yap', 'Hesabınızdan çıkılsın mı?', [
-                        {
-                            text: 'Evet', onPress: () => {
-                                setLoading(true);
-                                auth2.signOut()
-                                    .then(() => {
-                                        setLoading(false);
-                                    })
-                                    .catch((err) => {
-                                        console.log('Hata: ', err)
-                                    })
-                            }, style: 'default'
-                        },
-                        { text: 'Vazgeç', onPress: () => null, style: 'cancel' }
-                    ])
-                }} style={styles.itemStyle}>
-                    <Text style={styles.text2}>Çıkış Yap</Text>
-                </TouchableOpacity>
+                </ScrollView>
             </SafeAreaView>
         </Modal>
     )
@@ -220,7 +254,7 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     container: {
-        margin: 12,
+        marginVertical: 20,
         flex: 1,
         alignItems: 'center'
     },

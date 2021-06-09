@@ -13,7 +13,7 @@ export default function Loading() {
         }}>
             <ImageBackground
                 source={require('../img/loading_bg.jpg')}
-                style={{ width, height, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 30 }}>
+                style={{ width, height, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
 
                 <ActivityIndicator size='large' color="#FFF" animating={true} />
                 <View style={{ marginTop: 10 }}></View>

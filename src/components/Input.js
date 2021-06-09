@@ -2,7 +2,8 @@ import React from 'react'
 import { StyleSheet, Text, TextInput } from 'react-native'
 
 export default function Input({ style, ...props }) {
-    return <TextInput {...props} style={[styles.input, style]} />
+    const { inputRef } = props;
+    return <TextInput {...props} ref={inputRef} style={[styles.input, style]} />
 }
 
 const styles = StyleSheet.create({

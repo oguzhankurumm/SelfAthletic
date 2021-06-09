@@ -5,54 +5,44 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icon2 from 'react-native-vector-icons/FontAwesome5';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import FeedPost from '../../components/FeedPost';
+import moment from 'moment';
 
 const { height, width } = Dimensions.get("window");
 
 const FeedList = ({ props, navigation }) => {
 
-    const [Loading, setLoading] = useState(false);
+    const [Loading, setLoading] = useState(true);
     const [Feed, setFeed] = useState([]);
-    const [ShowPostModal, setShowPostModal] = useState(false);
 
-    useEffect(() => {
-        setLoading(true);
+    const getFeed = async () => {
+        database2.ref('feed').on('value', data => {
+            let PostList = [];
 
-        database2.ref('feed').once('value')
-            .then((data) => {
-                let PostList = [];
-
-                data.forEach((item) => {
-                    item.forEach((newitem) => {
-                        database2.ref('users').child(item.key).once('value')
-                            .then((userData) => {
-                                PostList.push({
-                                    ...newitem.val(),
-                                    name: userData.val().name !== '' ? userData.val().name : 'Kullanıcı Silindi',
-                                    avatar: userData.val().avatar !== '' ? userData.val().avatar : '',
-                                    id: newitem.key
-                                })
-                                console.log('postList: ', PostList)
-                                setFeed(PostList);
-                                setLoading(false);
+            data.forEach((item) => {
+                item.forEach((newitem) => {
+                    database2.ref('users').child(item.key).once('value')
+                        .then((userData) => {
+                            PostList.push({
+                                ...newitem.val(),
+                                name: userData.val().name !== '' ? userData.val().name : 'Kullanıcı Silindi',
+                                avatar: userData.val().avatar !== '' ? userData.val().avatar : '',
+                                id: newitem.key
                             })
-                            .catch((err) => {
-                                PostList.push({
-                                    ...newitem.val(),
-                                    name: userData.val().name !== '' ? userData.val().name : 'İsim Gizli',
-                                    avatar: '',
-                                    id: newitem.key
-                                })
-                                setFeed(PostList);
-                                setLoading(false);
-                            })
-                    })
+                            setFeed(PostList);
+                            setLoading(false);
+                        })
+                        .catch((err) => {
+                            setFeed(PostList);
+                            setLoading(false);
+                        })
                 })
             })
-            .catch((err) => {
-                Alert.alert('Hata', 'Feed listesi çekilemedi.');
-                setFeed([]);
-                setLoading(false);
-            })
+
+        })
+    }
+
+    useEffect(() => {
+        getFeed();
     }, [])
 
     return (
@@ -69,15 +59,19 @@ const FeedList = ({ props, navigation }) => {
                         <Text style={styles.headerText}>SelfAthletic Team</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => setShowPostModal(!ShowPostModal)}>
+                    <TouchableOpacity onPress={() => navigation.navigate('SendPost')}>
                         <Icon2 name="plus" color="#FFF" size={24} style={{ marginRight: 20 }} />
                     </TouchableOpacity>
                 </View>
 
                 {!Loading &&
-                    <FlatList style={{ height: 'auto', paddingHorizontal: 30 }}
+                    <FlatList style={{ height: 'auto', paddingHorizontal: 20 }}
                         scrollEnabled={true}
-                        data={Feed}
+                        data={Feed.sort(function (a, b) {
+                            var formattedA = moment(a.date, "DD/MM/YYYY HH:mm:ss");
+                            var formattedB = moment(b.date, "DD/MM/YYYY HH:mm:ss");
+                            return moment(formattedB).diff(formattedA);
+                        })}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={(feed) => {
                             return (feed.item &&

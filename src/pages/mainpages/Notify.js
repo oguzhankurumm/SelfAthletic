@@ -97,7 +97,7 @@ const Notify = (props) => {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}>
 
-            <View style={{ backgroundColor: 'white', flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 30 }}
+            <View style={{ backgroundColor: 'white', flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}
             >
                 <Image source={require('../../img/notifyicon.png')} />
                 <Text style={{ fontSize: 24, lineHeight: 40, fontFamily: 'SFProDisplay-Bold', color: '#1E2432', marginTop: 48, textAlign: 'center' }}>Bildirimleri Aç</Text>

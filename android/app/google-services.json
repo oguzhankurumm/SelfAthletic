@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1053407049319-ioddn518sjspgrkv86bp2hgrg1k9duvk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.selfathletic",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
           "client_id": "1053407049319-tapah6a7jmpk8v5cjk0trlsl6jg65lth.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -48,7 +48,7 @@ const WorkoutList = props => {
                 </View>
 
                 {!Loading &&
-                    <FlatList style={{ height: 'auto', paddingHorizontal: 30 }}
+                    <FlatList style={{ height: 'auto', paddingHorizontal: 20 }}
                         scrollEnabled={true}
                         data={Workouts}
                         keyExtractor={(item, index) => index.toString()}
@@ -110,14 +110,29 @@ const WorkoutList = props => {
                                             alignItems: 'center',
                                             marginRight: 10
                                         }}>
-                                            <Icon name="timer" color="#FFF" size={20} />
+                                            <Icon name="star" color="#FFF" size={20} />
                                             <Text numberOfLines={2} style={{
                                                 fontFamily: 'SFProDisplay-Medium',
                                                 fontSize: 13,
                                                 color: '#FFF',
                                                 marginLeft: 5
-                                            }}>{String(parseFloat(workouts.item.totalhours).toFixed(2)).replace('.', ':')}</Text>
+                                            }}>{String(parseFloat(workouts.item.point))} Puan</Text>
                                         </View>
+
+                                        <View style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            alignItems: 'center'
+                                        }}>
+                                            <Icon name="directions-run" color="#FFF" size={20} />
+                                            <Text style={{
+                                                fontFamily: 'SFProDisplay-Medium',
+                                                fontSize: 14,
+                                                color: '#FFF',
+                                                marginLeft: 5
+                                            }}>{String(parseFloat(workouts.item.calories))} Kalori</Text>
+                                        </View>
+
                                     </View>
                                 </TouchableOpacity>
                             )

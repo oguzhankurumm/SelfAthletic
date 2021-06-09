@@ -1,4 +1,5 @@
 import React from 'react'
+import { Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -6,7 +7,10 @@ import Welcome from '../pages/loginpages/Welcome';
 import ForgotPassword from '../pages/loginpages/ForgotPassword';
 import Home from '../pages/mainpages/Home';
 import Antrenman from '../pages/mainpages/Antrenman';
+import AntrenmanList from '../pages/profilepages/AntrenmanList';
 import Food from '../pages/mainpages/Food';
+import FoodLib from '../pages/mainpages/FoodLib';
+import WorkoutLib from '../pages/mainpages/WorkoutLib';
 import SendPost from '../pages/mainpages/SendPost';
 import Profile from '../pages/profilepages/Profile';
 import WorkoutDetails from '../pages/workoutspages/WorkoutDetails';
@@ -24,6 +28,7 @@ import Settings from '../pages/profilepages/Settings';
 import BildirimAyarlari from '../pages/settings/BildirimAyarlari';
 import KisiselBilgiler from '../pages/settings/KisiselBilgiler';
 import FavoritedWorkouts from '../pages/profilepages/FavoritedWorkouts';
+import FavoritedFoods from '../pages/profilepages/FavoritedFoods';
 import Steps from '../pages/registerpages/Steps';
 import Info from '../pages/registerpages/Info';
 import Gecmis from '../pages/profilepages/Gecmis';
@@ -31,6 +36,11 @@ import SaglikSorunlari from '../pages/settings/SaglikSorunlari';
 import HedefAyarlari from '../pages/settings/HedefAyarlari';
 import AntrenmanGunleri from '../pages/settings/AntrenmanGunleri';
 import MoveThumb from '../pages/workoutspages/MoveThumb';
+import Testler from '../pages/profilepages/Testler';
+import Olcumler from '../pages/profilepages/Olcumler';
+import AddWater from '../pages/profilepages/AddWater';
+import OlcumGecmisi from '../pages/profilepages/OlcumGecmisi';
+import SuGecmisi from '../pages/profilepages/SuGecmisi';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -41,38 +51,85 @@ function HomeTabBar() {
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ color, size }) => {
-                    let iconName;
 
                     if (route.name === 'ANASAYFA') {
-                        iconName = 'home';
+                        return (
+                            <Image
+                                resizeMode="contain"
+                                style={{ height: 28, width: 28, tintColor: color }}
+                                source={require('../img/anasayfa.png')
+                                } />
+                        )
                     }
 
                     if (route.name === 'ANTRENMAN') {
-                        iconName = 'dumbbell';
+                        return (
+                            <Image
+                                resizeMode="contain"
+                                style={{ height: 28, width: 28, tintColor: color }}
+                                source={require('../img/antrenman.png')
+                                } />
+                        )
                     }
 
-                    // if (route.name === 'SENDPOST') {
-                    //     iconName = 'plus';
-                    // }
 
                     if (route.name === 'BESLENME') {
-                        iconName = 'utensils';
+                        return (
+                            <Image
+                                resizeMode="contain"
+                                style={{ height: 28, width: 28, tintColor: color }}
+                                source={require('../img/beslenme.png')
+                                } />
+                        )
                     }
 
                     if (route.name === 'PROFİLİM') {
-                        iconName = 'user';
+                        return (
+                            <Image
+                                resizeMode="contain"
+                                style={{ height: 28, width: 28, tintColor: color }}
+                                source={require('../img/profilicon.png')
+                                } />
+                        )
                     }
 
-                    // Burada tüm ikonları return edebilirsiniz!
-                    return <Icon name={iconName} size={size} color={color} />;
+                    // let iconName;
+
+                    // if (route.name === 'ANASAYFA') {
+                    //     iconName = 'home';
+                    // }
+
+                    // if (route.name === 'ANTRENMAN') {
+                    //     iconName = 'dumbbell';
+                    // }
+
+                    // // if (route.name === 'SENDPOST') {
+                    // //     iconName = 'plus';
+                    // // }
+
+                    // if (route.name === 'BESLENME') {
+                    //     iconName = 'utensils';
+                    // }
+
+                    // if (route.name === 'PROFİLİM') {
+                    //     iconName = 'user';
+                    // }
+
+                    // // Burada tüm ikonları return edebilirsiniz!
+                    // return <Icon name={iconName} size={size} color={color} />;
                 },
             })}
             tabBarOptions={{
-                activeBackgroundColor: '#000',
-                inactiveBackgroundColor: '#000',
+                activeBackgroundColor: '#19181D',
+                inactiveBackgroundColor: '#19181D',
                 activeTintColor: '#C7CB4B',
                 inactiveTintColor: 'gray',
-                showLabel: false
+                showLabel: false,
+                style: {
+                    backgroundColor: '#19181D',
+                    borderTopWidth: 1,
+                    borderTopColor: '#19181D'
+                },
             }}
         >
             <Tab.Screen name="ANASAYFA" component={Home} />
@@ -80,7 +137,7 @@ function HomeTabBar() {
             {/* <Tab.Screen name="SENDPOST" component={SendPost} /> */}
             <Tab.Screen name="BESLENME" component={Food} />
             <Tab.Screen name="PROFİLİM" component={Profile} />
-        </Tab.Navigator>
+        </Tab.Navigator >
     );
 }
 
@@ -93,16 +150,27 @@ export function Auth() {
                     headerShown: false
                 }}
             />
+            <AuthStack.Screen name="Info" component={Info}
+                options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }}
+            />
+            <AuthStack.Screen name="Steps" component={Steps}
+                options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }}
+            />
             <AuthStack.Screen name="ForgotPassword" component={ForgotPassword}
                 options={{
                     title: 'Parolamı Unuttum',
                     headerBackTitleVisible: false,
-                    headerTintColor: '#000',
+                    headerTintColor: '#FFF',
+                    headerTransparent: true,
                     headerShown: true
                 }}
             />
-
-
         </AuthStack.Navigator>
     )
 }
@@ -116,13 +184,13 @@ export function Root() {
                     gestureEnabled: false
                 })}
             />
-            <RootStack.Screen name="Info" component={Info}
+            <AuthStack.Screen name="Info" component={Info}
                 options={{
                     headerShown: false,
                     gestureEnabled: false
                 }}
             />
-            <RootStack.Screen name="Steps" component={Steps}
+            <AuthStack.Screen name="Steps" component={Steps}
                 options={{
                     headerShown: false,
                     gestureEnabled: false
@@ -134,6 +202,11 @@ export function Root() {
                 }}
             />
             <RootStack.Screen name="FeedDetails" component={FeedDetails}
+                options={{
+                    headerShown: false
+                }}
+            />
+            <RootStack.Screen name="SendPost" component={SendPost}
                 options={{
                     headerShown: false
                 }}
@@ -216,6 +289,22 @@ export function Root() {
                     headerTintColor: '#000'
                 }}
             />
+            <RootStack.Screen name="Testler" component={Testler}
+                options={{
+                    gestureEnabled: false,
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="Olcumler" component={Olcumler}
+                options={{
+                    gestureEnabled: false,
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
             <RootStack.Screen name="WorkoutVideo" component={WorkoutVideo}
                 options={{
                     headerShown: false,
@@ -272,7 +361,56 @@ export function Root() {
                     headerTintColor: '#000'
                 }}
             />
+            <RootStack.Screen name="OlcumGecmisi" component={OlcumGecmisi}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="SuGecmisi" component={SuGecmisi}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="AntrenmanList" component={AntrenmanList}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="AddWater" component={AddWater}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="FavoritedFoods" component={FavoritedFoods}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
             <RootStack.Screen name="Gecmis" component={Gecmis}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="FoodLib" component={FoodLib}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="WorkoutLib" component={WorkoutLib}
                 options={{
                     headerShown: false,
                     headerBackTitleVisible: false,

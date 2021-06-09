@@ -27,7 +27,7 @@ const Gecmis = props => {
                     </TouchableOpacity>
                 </View>
 
-                <View style={{ width: '100%', marginTop: 20, paddingHorizontal: 30 }}>
+                <View style={{ width: '100%', marginTop: 20, paddingHorizontal: 20 }}>
                     {!Loading && WorkoutList.length > 0 ?
                         <FlatList
                             style={{ paddingBottom: 20, width: '100%', height: '100%' }}

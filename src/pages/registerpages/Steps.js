@@ -1,17 +1,33 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAreaView, Image, ImageBackground, Alert } from 'react-native';
 import { Bar } from 'react-native-progress';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { database2, auth2 } from '../../config/config';
-import { useSelector } from 'react-redux';
 import moment from 'moment';
+import axios from 'axios';
+import { auth2 } from '../../config/config';
+import { CommonActions } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get("window");
 
-const Steps = ({ props, navigation }) => {
-    const [Loading, setLoading] = useState(false);
-    const profileData = useSelector(state => state.user.users);
+const Steps = props => {
+
+    const { index, routes } = props.navigation.dangerouslyGetState();
+    const currentRoute = routes[index].name;
+
+    const userData = props.route.params.userData;
+    const Password = props.route.params.password;
+    const userId = props.route.params.uid
+
+    const [UserTarget, setUserTarget] = useState(null);
+    const [UserCronicProblems, setUserCronicProblems] = useState(null);
+    const [UserHealthProblems, setUserHealthProblems] = useState(null);
+    const [UserNutrition, setUserNutrition] = useState(null);
+    const [Program, setProgram] = useState(null);
+
+    const [Loading, setLoading] = useState(true);
+
+    const [profileData, setProfileData] = useState([]);
 
     const [SelectedPage, setSelectedPage] = useState(1);
     const [TotalPage, setTotalPage] = useState(5);
@@ -19,7 +35,7 @@ const Steps = ({ props, navigation }) => {
         { value: "Yağ Oranı Azaltma", checked: false },
         { value: "Formda Kalma", checked: false },
         { value: "Kas Kütlesi Artışı", checked: false }
-    ])
+    ]);
     const [HealthProblems, setHealthProblems] = useState([
         { value: "Diyabet/İnsülin Direnci", checked: false },
         { value: "Yüksek Tansiyon", checked: false },
@@ -40,21 +56,45 @@ const Steps = ({ props, navigation }) => {
         { value: "Vejetaryen", checked: false }
     ]);
     const [Aktiflik, setAktiflik] = useState([
-        { value: "Kısmen aktif\n(Masa başı iş/ haftada 1-2 gün hareket)", deger: 1.1, checked: false },
+        { value: "Kısmen Aktif\n(Masa başı iş/ haftada 1-2 gün hareket)", deger: 1.1, checked: false },
         { value: "Yeterince Aktif\n(Haftada 3 gün düzenli hareket)", deger: 1.2, checked: false },
-        { value: "Çok Aktif\n(Haftada 4-5 gün hareket", deger: 1.3, checked: false },
+        { value: "Çok Aktif\n(Haftada 4-5 gün hareket)", deger: 1.3, checked: false },
         { value: "Ağır Düzeyde Aktif\n(Haftada 6-7 gün aktif)", deger: 1.4, checked: false },
         { value: "Ekstra Aktif\n(Günde 2 kez spor yapan)", deger: 1.5, checked: false },
     ]);
 
     const CalculateAge = () => {
-        if (profileData.birthdate) {
-            var birthDate = moment(profileData.birthdate, "DD-MM-YYYY").format("DD-MM-YYYY")
-            return moment().diff(moment(birthDate, 'DD-MM-YYYY'), 'years')
+        if (profileData?.birthdate !== undefined && profileData?.birthdate !== null) {
+            var birthDate = moment(profileData?.birthdate, "DD/MM/YYYY").format("DD-MM-YYYY")
+            return moment().diff(moment(birthDate, 'DD/MM/YYYY'), 'years')
+        } else {
+            var birthDate = moment(userData?.birthdate, "DD/MM/YYYY").format("DD-MM-YYYY")
+            return moment().diff(moment(birthDate, 'DD/MM/YYYY'), 'years')
         }
     }
 
     const userAge = CalculateAge();
+
+    useEffect(() => {
+        axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/getUserData", { uid: userId })
+            .then((res) => {
+                if (res.status === 200) {
+                    setProfileData(res.data.userData);
+                    setLoading(false);
+                } else {
+                    setLoading(false);
+                    setTimeout(() => {
+                        Alert.alert('Hata', String(res.data))
+                    }, 200);
+                }
+            })
+            .catch((err) => {
+                setLoading(false);
+                setTimeout(() => {
+                    Alert.alert('Hata', String(err))
+                }, 200);
+            })
+    }, [])
 
     return (
         <ImageBackground style={{ height: height, width: width }} resizeMode="cover" source={require('../../img/bg.jpg')}>
@@ -67,8 +107,7 @@ const Steps = ({ props, navigation }) => {
 
                     <TouchableOpacity
                         style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}
-                        disabled={SelectedPage !== 1 ? false : true}
-                        onPress={() => setSelectedPage(SelectedPage - 1)}>
+                        onPress={() => SelectedPage !== 1 ? setSelectedPage(SelectedPage - 1) : props.navigation.goBack()}>
                         <Icon name="keyboard-arrow-left" color="#FFF" size={42} style={{ marginRight: 5 }} />
                         <Text style={styles.headerText}>Önceki</Text>
                     </TouchableOpacity>
@@ -83,66 +122,48 @@ const Steps = ({ props, navigation }) => {
                         onPress={() => {
                             if (TotalPage !== SelectedPage) {
                                 if (SelectedPage === 1) {
-                                    var checkedList = Target.filter(tg => tg.checked);
-                                    if (checkedList.length === 0) {
+                                    var targetCheck = Target.filter(tg => tg.checked)
+
+                                    if (targetCheck.length === 0) {
                                         Alert.alert('Uyarı', 'Hedef seçimi yapmalısınız.');
                                     } else {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/questions/target').set(checkedList[0].value)
-                                            .then(() => {
-                                                setSelectedPage(SelectedPage + 1);
-                                            })
-                                            .catch(() => {
-                                                setSelectedPage(SelectedPage + 1);
-                                            })
+                                        setUserTarget(targetCheck[0].value);
+                                        setSelectedPage(SelectedPage + 1);
                                     }
                                 }
 
                                 if (SelectedPage === 2) {
-                                    var checkedList = HealthProblems.filter(tg => tg.checked);
-                                    if (checkedList.length === 0) {
+                                    var healthCheck = HealthProblems.filter(tg => tg.checked);
+
+                                    if (healthCheck.length === 0) {
                                         Alert.alert('Uyarı', 'Bir seçim yapmalısınız.');
-                                    } else if (checkedList[0].value === "Hiçbiri") {
+                                    } else if (healthCheck[0].value === "Hiçbiri") {
                                         setSelectedPage(SelectedPage + 1);
                                     } else {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/questions/healthproblems').set(checkedList[0].value)
-                                            .then(() => {
-                                                setSelectedPage(SelectedPage + 1);
-                                            })
-                                            .catch(() => {
-                                                setSelectedPage(SelectedPage + 1);
-                                            })
+                                        setUserHealthProblems(healthCheck[0].value);
+                                        setSelectedPage(SelectedPage + 1);
                                     }
                                 }
 
                                 if (SelectedPage === 3) {
-                                    var checkedList = CronicProblems.filter(tg => tg.checked);
-                                    if (checkedList.length === 0) {
+                                    var cronicCheck = CronicProblems.filter(tg => tg.checked)
+                                    if (cronicCheck.length === 0) {
                                         Alert.alert('Uyarı', 'Bir seçim yapmalısınız.');
-                                    } else if (checkedList[0].value === "Hiçbiri") {
+                                    } else if (cronicCheck[0].value === "Hiçbiri") {
                                         setSelectedPage(SelectedPage + 1);
                                     } else {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/questions/cronicproblems').set(checkedList[0].value)
-                                            .then(() => {
-                                                setSelectedPage(SelectedPage + 1);
-                                            })
-                                            .catch(() => {
-                                                setSelectedPage(SelectedPage + 1);
-                                            })
+                                        setUserCronicProblems(cronicCheck[0].value);
+                                        setSelectedPage(SelectedPage + 1);
                                     }
                                 }
 
                                 if (SelectedPage === 4) {
-                                    var checkedList = Nutrition.filter(tg => tg.checked);
-                                    if (checkedList.length === 0) {
+                                    var nutritionCheck = Nutrition.filter(tg => tg.checked)
+                                    if (nutritionCheck.length === 0) {
                                         Alert.alert('Uyarı', 'Beslenme türü seçmelisiniz.');
                                     } else {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/questions/nutrition').set(checkedList[0].value)
-                                            .then(() => {
-                                                setSelectedPage(SelectedPage + 1);
-                                            })
-                                            .catch(() => {
-                                                setSelectedPage(SelectedPage + 1);
-                                            })
+                                        setUserNutrition(nutritionCheck[0].value)
+                                        setSelectedPage(SelectedPage + 1);
                                     }
                                 }
                             } else {
@@ -151,14 +172,14 @@ const Steps = ({ props, navigation }) => {
                                     var checkedList = Aktiflik.filter(tg => tg.checked);
                                     if (checkedList.length === 0) {
                                         Alert.alert('Uyarı', 'Bir seçim yapmalısınız.');
-                                    } else if (checkedList[0].value === "Hiçbiri") {
-                                        setSelectedPage(SelectedPage + 1);
                                     } else {
-                                        var cinsiyet = profileData.gender !== undefined ? profileData.gender : "Erkek";
-                                        var boy = profileData.height !== undefined ? profileData.height : 160;
-                                        var kilo = profileData.weight !== undefined ? profileData.weight : 50;
+                                        setLoading(true);
+
+                                        var cinsiyet = profileData.gender;
+                                        var boy = profileData.height;
+                                        var kilo = profileData.weight;
                                         var yas = userAge;
-                                        var userTarget = profileData.questions.target !== undefined ? profileData.questions.target : "Kas Kütlesi Artışı";
+                                        var userTarget = UserTarget !== undefined ? UserTarget : "Kas Kütlesi Artışı";
                                         var faDeger = checkedList[0].deger
 
                                         let Bmh = 0;
@@ -184,27 +205,60 @@ const Steps = ({ props, navigation }) => {
                                             gunlukEnerji = parseFloat(parseFloat(Bmh) * faDeger);
                                         }
 
-                                        // console.log('degerler: ', {
-                                        //     aktifliksecimi: checkedList[0].value,
-                                        //     bmh: Bmh,
-                                        //     boy: boy,
-                                        //     cinsiyet: cinsiyet,
-                                        //     faDegeri: faDeger,
-                                        //     gunlukEnerji: gunlukEnerji,
-                                        //     hedef: userTarget,
-                                        //     kilo: kilo,
-                                        //     yas: yas,
-                                        // })
-
-                                        database2.ref('users').child(auth2.currentUser.uid).update({
+                                        let newData = {
+                                            questions: {
+                                                cronicproblems: UserCronicProblems,
+                                                healthproblems: UserHealthProblems,
+                                                nutrition: UserNutrition,
+                                                target: UserTarget
+                                            },
                                             fa: checkedList[0].deger,
-                                            gunlukEnerji: gunlukEnerji
+                                            gunlukEnerji: gunlukEnerji,
+                                            program: Program
+                                        }
+
+                                        axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/updateUserData", {
+                                            uid: userId,
+                                            data: {
+                                                ...newData
+                                            }
                                         })
-                                            .then(() => {
-                                                navigation.navigate('Home');
+                                            .then((res) => {
+                                                if (res.status === 200) {
+                                                    auth2.signInWithEmailAndPassword(userData.email, Password)
+                                                        .then(() => {
+                                                            setLoading(false);
+                                                            props.navigation.dispatch(
+                                                                CommonActions.reset({
+                                                                    index: 1,
+                                                                    routes: [
+                                                                        {
+                                                                            name: 'Home'
+                                                                        }
+                                                                    ],
+                                                                })
+                                                            );
+                                                        })
+                                                        .catch((err) => {
+                                                            setLoading(false);
+                                                            setTimeout(() => {
+                                                                Alert.alert('Hata', 'Giriş yapılırken bir problem oluştu.')
+                                                            }, 200)
+                                                        })
+
+                                                } else {
+                                                    setLoading(false);
+                                                    setTimeout(() => {
+                                                        Alert.alert('Hata', String(res.data))
+                                                    }, 200);
+                                                }
                                             })
-                                            .catch(() => {
-                                                navigation.navigate('Home');
+                                            .catch((err) => {
+                                                console.log('err: ', err)
+                                                setLoading(false);
+                                                setTimeout(() => {
+                                                    Alert.alert('Hata', String(err))
+                                                }, 200);
                                             })
                                     }
                                 }
@@ -216,7 +270,7 @@ const Steps = ({ props, navigation }) => {
 
                 </View>
 
-                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 10, paddingHorizontal: 30 }}>
+                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 10, paddingHorizontal: 20 }}>
                     <Bar height={4} style={{ width: '100%' }} width={null} color="yellow" progress={SelectedPage / TotalPage} unfilledColor="#9999" borderWidth={0} />
                 </View>
                 {/* HEADER SON */}
@@ -249,10 +303,17 @@ const Steps = ({ props, navigation }) => {
                                                     return item
                                                 }
 
+                                                if (checkbox.value === "Yağ Oranı Azaltma") {
+                                                    setProgram("Dengeli");
+                                                } else {
+                                                    setProgram(null);
+                                                }
+
                                                 return checkbox
                                             })
 
                                             setTarget(newValue);
+
                                         }}
                                         key={index}
                                         style={{ marginTop: 20, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
@@ -265,7 +326,7 @@ const Steps = ({ props, navigation }) => {
 
                     {SelectedPage === 2 &&
                         <>
-                            <View style={{ width: '100%', paddingHorizontal: 30 }}>
+                            <View style={{ width: '100%', paddingHorizontal: 20 }}>
                                 <Text style={[styles.headerText, { fontSize: 20, fontWeight: 'bold', textAlign: 'center' }]}>Herhangi bir sağlık probleminiz var mı?</Text>
                             </View>
 
@@ -305,7 +366,7 @@ const Steps = ({ props, navigation }) => {
 
                     {SelectedPage === 3 &&
                         <>
-                            <View style={{ width: '100%', paddingHorizontal: 30 }}>
+                            <View style={{ width: '100%', paddingHorizontal: 20 }}>
                                 <Text style={[styles.headerText, { fontSize: 20, fontWeight: 'bold', textAlign: 'center' }]}>Herhangi bir kronik ağrınız var mı?</Text>
                             </View>
 
@@ -345,7 +406,7 @@ const Steps = ({ props, navigation }) => {
 
                     {SelectedPage === 4 &&
                         <>
-                            <View style={{ width: '100%', paddingHorizontal: 30 }}>
+                            <View style={{ width: '100%', paddingHorizontal: 20 }}>
                                 <Text style={[styles.headerText, { fontSize: 20, fontWeight: 'bold', textAlign: 'center' }]}>Beslenme programınızın temel içeriği nasıl olsun?</Text>
                             </View>
 
@@ -385,7 +446,7 @@ const Steps = ({ props, navigation }) => {
 
                     {SelectedPage === 5 &&
                         <>
-                            <View style={{ width: '100%', paddingHorizontal: 30 }}>
+                            <View style={{ width: '100%', paddingHorizontal: 20 }}>
                                 <Text style={[styles.headerText, { fontSize: 20, fontWeight: 'bold', textAlign: 'center' }]}>Günlük yaşamınızda fiziksel olarak ne kadar aktifsiniz?</Text>
                             </View>
 

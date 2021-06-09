@@ -93,7 +93,7 @@ const Notifications = props => {
                                 }}
                                 renderHiddenItem={(bildirim, i) => {
                                     return (
-                                        <CardItem key={i} style={{ borderRadius: 10, marginHorizontal: 30, marginBottom: 5, height: 80 }}>
+                                        <CardItem key={i} style={{ backgroundColor: '#202026', borderRadius: 10, marginHorizontal: 30, marginBottom: 5, height: 80 }}>
 
                                             <View style={{ flex: 1, flexDirection: 'row', height: 60, justifyContent: 'center', alignItems: 'center', position: 'absolute', right: 0 }}>
                                                 <Button onPress={() => {
@@ -134,35 +134,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         height: '100%',
-        paddingHorizontal: 30
-    },
-    socialButton: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'yellow',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: 18
-    },
-    socialText: {
-        marginLeft: 10,
-        fontFamily: 'SFProDisplay-Bold',
-        justifyContent: 'flex-start',
-        fontSize: 14,
-        color: '#000'
-    },
-    titleStyle: {
-        fontFamily: 'SFProDisplay-Bold',
-        justifyContent: 'flex-start',
-        fontSize: 22,
-        color: '#FFF'
-    },
-    subTitleStyle: {
-        fontFamily: 'SFProDisplay-Medium',
-        justifyContent: 'flex-start',
-        fontSize: 16,
-        color: '#FFF'
+        paddingHorizontal: 20
     },
     header: {
         width: '100%',

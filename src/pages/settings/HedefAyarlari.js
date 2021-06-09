@@ -57,7 +57,7 @@ const HedefAyarlari = ({ navigation }) => {
                     </View>
 
                     <View style={styles.container}>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 30, marginTop: 10 }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 20, marginTop: 10 }}>
                             <Text style={styles.textStyleHeader}>Adım Sayısı</Text>
                             <Card style={styles.textContainer}>
                                 <Input
@@ -75,7 +75,7 @@ const HedefAyarlari = ({ navigation }) => {
                             </Card>
                         </View>
 
-                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 30, marginTop: 10 }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 20, marginTop: 10 }}>
                             <Text style={styles.textStyleHeader}>Kalori</Text>
                             <Card style={styles.textContainer}>
                                 <Input

@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, ImageB
 import { useSelector } from 'react-redux';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon2 from 'react-native-vector-icons/FontAwesome5';
 import Sidebar from '../../components/Sidebar';
 import { database2 } from '../../config/config';
 import moment from 'moment';
+import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
 
 const { height, width } = Dimensions.get("window");
 
@@ -16,42 +18,70 @@ const FavoritedWorkouts = ({ navigation }) => {
     const [FavoritedList, setFavoritedList] = useState([]);
 
     const [ShowSideModal, setShowSideModal] = useState(false);
+    const [ShowAlert, setShowAlert] = useState(false);
+    const [ShowSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [SelectedKey, setSelectedKey] = useState("")
 
     const closeModal = () => {
         setShowSideModal(!ShowSideModal);
     }
 
-    const getFavorites = () => {
+    const getFavorites = async () => {
+        setLoading(true);
         var workoutList = [];
 
-        if (userData.favorites !== undefined && userData.favorites !== null) {
-            Object.values(userData.favorites.workouts).forEach((item) => {
-                if (item.type === "wod") {
-                    database2.ref('workouts_wod').child(item.id).once('value')
-                        .then((response) => {
+        await database2.ref(`users/${userData.userId}/favorites/workouts`).once("value")
+            .then((snapshot) => {
+                if (snapshot.val() !== undefined && snapshot.val() !== null) {
+                    snapshot.forEach((item) => {
+                        console.log('date: ', item.val())
+                        if (item.val().type === "wod") {
                             workoutList.push({
-                                ...response.val(),
-                                date: item.date
+                                ...item.val(),
+                                id: item.key
                             });
-                            setFavoritedList(workoutList)
-                            setLoading(false);
-                        })
-                        .catch((err) => {
-                            console.log('çekilemedi');
-                            setFavoritedList([]);
-                            setLoading(false);
-                        })
+                        } else {
+                            workoutList.push({
+                                ...item.val(),
+                                id: item.key
+                            });
+                        }
+                        setFavoritedList(workoutList.sort((a, b) => b.date.localeCompare(a.date)))
+                        setLoading(false);
+                    })
+                } else {
+                    setFavoritedList([]);
+                    setLoading(false);
                 }
             })
-        } else {
-            setFavoritedList([]);
-            setLoading(false);
-        }
+            .catch((err) => {
+                setFavoritedList([]);
+                setLoading(false);
+                console.log('hata: ', err)
+            })
     }
 
     useEffect(() => {
         getFavorites();
     }, [])
+
+    const deleteFav = id => {
+        database2.ref(`users/${userData.userId}/favorites/workouts/`).child(id).remove()
+            .then(() => {
+                setFavoritedList(FavoritedList.filter(q => q.id !== id))
+                setShowAlert(false);
+                setTimeout(() => {
+                    setShowSuccessAlert(true);
+                }, 300);
+            })
+            .catch((err) => {
+                console.log('err: ', err)
+            })
+    }
+
+    const showWorkout = item => {
+        navigation.navigate('AntrenmanList', { item: item, type: 1 })
+    }
 
     return (
         <ImageBackground style={{ height: height, width: width }} resizeMode="cover" source={require('../../img/bg.jpg')}>
@@ -67,7 +97,28 @@ const FavoritedWorkouts = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
 
-                <View style={{ width: '100%', marginTop: 20, paddingHorizontal: 30 }}>
+                <SCLAlert
+                    onRequestClose={() => setShowAlert(false)}
+                    theme="danger"
+                    show={ShowAlert}
+                    title="Favorilerden Kaldır"
+                    subtitle="Antrenman favorilerden kaldırılsın mı?"
+                >
+                    <SCLAlertButton theme="danger" onPress={() => deleteFav(SelectedKey)}>Evet</SCLAlertButton>
+                    <SCLAlertButton theme="default" onPress={() => setShowAlert(!ShowAlert)}>Vazgeç</SCLAlertButton>
+                </SCLAlert>
+
+                <SCLAlert
+                    onRequestClose={() => setShowSuccessAlert(false)}
+                    theme="success"
+                    show={ShowSuccessAlert}
+                    title="Başarılı"
+                    subtitle="Antrenman favorilerden kaldırıldı."
+                >
+                    <SCLAlertButton theme="success" onPress={() => setShowSuccessAlert(false)}>Tamam</SCLAlertButton>
+                </SCLAlert>
+
+                <View style={{ width: '100%', marginTop: 20, paddingHorizontal: 20 }}>
                     {!Loading && FavoritedList.length >= 1 ?
                         <FlatList
                             style={{ paddingBottom: 20, width: '100%', height: '100%' }}
@@ -76,54 +127,116 @@ const FavoritedWorkouts = ({ navigation }) => {
                             showsVerticalScrollIndicator={false}
                             data={FavoritedList}
                             keyExtractor={(item, index) => index.toString()}
-                            renderItem={({ item, index }) => (
-                                <TouchableOpacity
-                                    style={{
-                                        backgroundColor: 'rgba(0,0,0,0.2)',
-                                        padding: 10,
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        height: 'auto',
-                                        width: '100%',
-                                        borderRadius: 18
-                                    }}>
-                                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                        <Image
-                                            resizeMode="cover"
-                                            source={{ uri: item.image }}
-                                            style={{
-                                                width: 60,
-                                                height: 60,
-                                                borderRadius: 8
-                                            }}
-                                        />
-                                        <View style={{ marginLeft: 20 }}>
-                                            <Text style={{
-                                                fontFamily: 'SFProDisplay-Bold',
-                                                fontSize: 16,
-                                                color: '#FFF'
-                                            }}>{item.title}</Text>
-                                            <Text style={{
-                                                marginTop: 8,
-                                                fontFamily: 'SFProDisplay-Medium',
-                                                fontSize: 12,
-                                                color: '#FFF'
-                                            }}>{moment(item.date, "DD/MM/YYYYTHH:mm:ss").format('lll')}</Text>
+                            renderItem={({ item, index }) => {
+                                let point = 0;
+                                var kcal = 0;
+                                if (item.moves !== undefined) {
+
+                                    Object.values(item.moves).forEach((wrk) => {
+                                        if (wrk.type === "reps") {
+                                            if (wrk.set && wrk.reps !== undefined) {
+                                                point += parseFloat(wrk.set) * parseFloat(wrk.reps);
+                                            }
+                                            if (wrk.calorie !== undefined) {
+                                                kcal += parseFloat(wrk.calorie);
+                                            }
+                                        } else {
+                                            if (wrk.time !== undefined) {
+                                                point += parseFloat(wrk.time) / parseFloat(10);
+                                            }
+                                            if (wrk.calorie !== undefined) {
+                                                kcal += parseFloat(wrk.calorie);
+                                            }
+                                        }
+                                    })
+                                }
+                                return (
+                                    <View
+                                        style={{
+                                            backgroundColor: '#202026',
+                                            padding: 15,
+                                            marginBottom: 10,
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            height: 'auto',
+                                            width: '100%',
+                                            borderRadius: 18
+                                        }}>
+
+                                        <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+
+                                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                                <Icon2 size={32} color="#F1F1F1" name="dumbbell" />
+
+                                                <View style={{ marginLeft: 20 }}>
+                                                    <Text style={{
+                                                        fontFamily: 'SFProDisplay-Bold',
+                                                        fontSize: 14,
+                                                        color: '#FFF'
+                                                    }}>Favori Antrenman {index + 1}</Text>
+
+                                                    <Text style={{
+                                                        marginTop: 2,
+                                                        fontFamily: 'SFProDisplay-Medium',
+                                                        fontSize: 11,
+                                                        color: '#FFF'
+                                                    }}>{moment(item.date, "DD/MM/YYYYTHH:mm:ss").format('lll')}</Text>
+
+                                                    <View style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+
+                                                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+                                                            <Icon name="star" color="#FFF" size={15} />
+                                                            <Text style={{
+                                                                marginLeft: 5,
+                                                                fontFamily: 'SFProDisplay-Medium',
+                                                                fontSize: 11,
+                                                                color: '#FFF'
+                                                            }}>{String(point !== undefined && String(point) !== "NaN" ? point : 0)} puan</Text>
+                                                        </View>
+
+                                                        <View style={{ marginLeft: 10, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+                                                            <Icon name="directions-run" color="#FFF" size={15} />
+                                                            <Text style={{
+                                                                marginLeft: 5,
+                                                                fontFamily: 'SFProDisplay-Medium',
+                                                                fontSize: 11,
+                                                                color: '#FFF'
+                                                            }}>{String(kcal !== undefined && String(kcal) !== "NaN" ? kcal : 0)} kcal</Text>
+                                                        </View>
+
+                                                    </View>
+
+                                                </View>
+                                            </View>
+
+                                            <View style={{ flexDirection: 'row' }}>
+                                                <Icon2 onPress={() => {
+                                                    let newObj = {
+                                                        ...item,
+                                                        kcal: kcal,
+                                                        point: point
+                                                    }
+                                                    showWorkout(newObj)
+                                                }} style={{ marginRight: 20 }} size={20} color="#F1F1F1" name="arrow-right" />
+                                                <Icon2 onPress={() => {
+                                                    setSelectedKey(item.id);
+                                                    setShowAlert(!ShowAlert);
+                                                }} size={20} color="#F1F1F1" name="minus-circle" />
+                                            </View>
 
                                         </View>
+
                                     </View>
-
-                                </TouchableOpacity>
-                            )}
-
+                                )
+                            }}
                         />
                         : <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={styles.headerText}>Favori antrenmanınız yok.</Text>
                         </View>
                     }
                 </View>
-            </SafeAreaView>
+            </SafeAreaView >
         </ImageBackground >
     )
 }

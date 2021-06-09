@@ -14,6 +14,7 @@ const MoveThumb = props => {
     const [VideoLoading, setVideoLoading] = useState(false);
     const [VideoList, setVideoList] = useState([]);
     const [Thumbs, setThumbs] = useState(props.route.params.item.thumbs)
+    const infoText = props.route.params.item.info;
 
     const getVideo = () => {
         let videoList = [];
@@ -46,10 +47,11 @@ const MoveThumb = props => {
     }
 
     useEffect(() => {
-        if (Thumbs.length !== 0) {
+        if (Thumbs !== undefined && Thumbs.length !== 0) {
             getVideo();
-        } else {
+        } else if (infoText !== undefined){
             setLoading(false);
+        } else {
             setTimeout(() => {
                 Alert.alert('Hata', 'Bu hareket için hiç önizlenecek video yok.', [
                     { text: 'Geri Dön', onPress: () => props.navigation.goBack(), style: 'cancel' }
@@ -68,22 +70,26 @@ const MoveThumb = props => {
                 <View style={styles.header} >
                     <TouchableOpacity onPress={() => props.navigation.goBack()} style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                         <Icon name="keyboard-arrow-left" color="#FFF" size={42} style={{ marginRight: 15 }} />
-                        <Text style={styles.headerText}>Önizleme</Text>
+                        <Text style={styles.headerText}>Önizleme & Bilgi</Text>
                     </TouchableOpacity>
                 </View>
 
                 <View showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} style={styles.container}>
                     <StatusBar barStyle="light-content" />
 
-                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30, marginTop: 20 }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20, marginTop: 20 }}>
 
                         {!Loading &&
                             <>
                                 <View style={{
                                     height: 'auto',
                                     width: '100%',
-                                    borderRadius: 18
+                                    borderRadius: 18,
+                                    marginBottom: 20
                                 }}>
+                                    <View style={{ width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+                                        <Text style={styles.textStyle}>{infoText !== undefined ? infoText : ""}</Text>
+                                    </View>
                                 </View>
 
                                 <View style={{ width: '100%' }}>
@@ -100,7 +106,7 @@ const MoveThumb = props => {
                                                     paused={false}
                                                     shouldPlay={false}
                                                     source={{ uri: item.url }}
-                                                    style={{ height: 200, width: '100%' }}
+                                                    style={{ height: 200, width: '100%', borderWidth: 1, borderColor: '#FFF', marginBottom: 10, borderRadius: 12 }}
                                                     playInBackground={false}
                                                     playWhenInactive={false}
                                                     onBuffer={self.onBuffer}
@@ -122,9 +128,7 @@ const MoveThumb = props => {
                                         })
                                         }
                                     </View>
-
                                 </View>
-
                             </>
                         }
                     </View>
@@ -139,21 +143,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1
     },
-    linearGradient: {
-        position: 'absolute',
-        top: 0,
-        width: '100%',
-        height: height
-    },
-    titleStyle: {
-        fontFamily: 'SFProDisplay-Bold',
-        justifyContent: 'flex-start',
-        fontSize: 22,
-        color: '#FFF'
-    },
-    subTitleStyle: {
+    textStyle: {
         fontFamily: 'SFProDisplay-Medium',
         justifyContent: 'flex-start',
+        textAlign: 'justify',
         fontSize: 16,
         color: '#FFF'
     },

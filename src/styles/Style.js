@@ -7,7 +7,7 @@ export const SCREEN_WIDTH = Dimensions.get('window').width
 
 const Style = StyleSheet.create({
     registerItemProfile: {
-        // paddingHorizontal: 30,
+        // paddingHorizontal: 20,
         marginTop: 10,
         flexDirection: 'row',
         justifyContent: 'space-between'

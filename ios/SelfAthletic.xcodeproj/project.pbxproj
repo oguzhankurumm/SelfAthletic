@@ -59,6 +59,7 @@
 		115FEE8F25EC756A00A3761D /* AntDesign.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = AntDesign.ttf; sourceTree = "<group>"; };
 		115FEE9025EC756A00A3761D /* Ionicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Ionicons.ttf; sourceTree = "<group>"; };
 		115FEE9125EC756A00A3761D /* Foundation.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Foundation.ttf; sourceTree = "<group>"; };
+		116CC2862637821F003CF5A9 /* SelfAthletic.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SelfAthletic.entitlements; path = SelfAthletic/SelfAthletic.entitlements; sourceTree = "<group>"; };
 		119875DE2614AA480087D636 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		11E06E9225EC70BC00178BF7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		12D5571C1B7D421BB0D926D2 /* Roboto_medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Roboto_medium.ttf; path = "../node_modules/native-base/Fonts/Roboto_medium.ttf"; sourceTree = "<group>"; };
@@ -169,6 +170,7 @@
 		13B07FAE1A68108700A75B9A /* SelfAthletic */ = {
 			isa = PBXGroup;
 			children = (
+				116CC2862637821F003CF5A9 /* SelfAthletic.entitlements */,
 				115FEE8125EC755500A3761D /* Fonts */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				11E06E9225EC70BC00178BF7 /* GoogleService-Info.plist */,
@@ -386,7 +388,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		07978D4A660970E36CA73DD4 /* [CP-User] [RNFB] Core Configuration */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -405,6 +407,7 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SelfAthletic/Pods-SelfAthletic-resources.sh",
+				"${PODS_ROOT}/GoogleSignIn/Resources/GoogleSignIn.bundle",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/Entypo.ttf",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf",
@@ -425,6 +428,7 @@
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleSignIn.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AntDesign.ttf",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Entypo.ttf",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EvilIcons.ttf",
@@ -510,6 +514,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = SelfAthletic/SelfAthletic.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7HZCUPQ765;
 				ENABLE_BITCODE = NO;
@@ -520,7 +525,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.selfathletic.selfathleticapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.selfathletic.selfathletictr;
 				PRODUCT_NAME = SelfAthletic;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -534,6 +539,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = SelfAthletic/SelfAthletic.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7HZCUPQ765;
 				INFOPLIST_FILE = SelfAthletic/Info.plist;
@@ -543,7 +549,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.selfathletic.selfathleticapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.selfathletic.selfathletictr;
 				PRODUCT_NAME = SelfAthletic;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

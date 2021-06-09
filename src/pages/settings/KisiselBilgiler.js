@@ -84,7 +84,7 @@ const KisiselBilgiler = ({ navigation }) => {
 
                     <ScrollView style={styles.container}>
 
-                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 30, marginTop: 10 }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 20, marginTop: 10 }}>
                             <Text style={styles.textStyleHeader}>Ad Soyad</Text>
                             <Card style={styles.textContainer}>
                                 <Input
@@ -103,7 +103,7 @@ const KisiselBilgiler = ({ navigation }) => {
                         </View>
 
 
-                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 30, marginTop: 10 }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 20, marginTop: 10 }}>
                             <Text style={styles.textStyleHeader}>Boyunuz</Text>
                             <Card style={styles.textContainer}>
                                 <Input
@@ -121,7 +121,7 @@ const KisiselBilgiler = ({ navigation }) => {
                             </Card>
                         </View>
 
-                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 30, marginTop: 10 }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 20, marginTop: 10 }}>
                             <Text style={styles.textStyleHeader}>Kilonuz</Text>
                             <Card style={styles.textContainer}>
                                 <Input
@@ -139,7 +139,7 @@ const KisiselBilgiler = ({ navigation }) => {
                             </Card>
                         </View>
 
-                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 30, marginTop: 10 }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 20, marginTop: 10 }}>
                             <Text style={styles.textStyleHeader}>Cinsiyet</Text>
                             <Card style={styles.textContainer}>
                                 <Picker
@@ -160,7 +160,7 @@ const KisiselBilgiler = ({ navigation }) => {
                             </Card>
                         </View>
 
-                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 30, marginTop: 10 }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 20, marginTop: 10 }}>
                             <Text style={styles.textStyleHeader}>Doğum Tarihi</Text>
                             <Card style={styles.textContainer}>
                                 <TouchableOpacity style={styles.textContainer} onPress={() => setDatePickerVisibility(!isDatePickerVisible)}>
@@ -182,7 +182,7 @@ const KisiselBilgiler = ({ navigation }) => {
                             </Card>
                         </View>
 
-                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 30, marginTop: 10, paddingBottom: 100 }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%', paddingHorizontal: 20, marginTop: 10, paddingBottom: 100 }}>
                             <Text style={styles.textStyleHeader}>Kayıt Tarihi</Text>
                             <Card style={styles.textContainer}>
                                 <Input editable={false}
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         width: '100%',
         padding: 20,
-        color: "#2d2d2d",
+        color: "#FFF",
         fontFamily: 'SFProDisplay-Bold',
         fontSize: 16,
         // fontFamily: "SFProDisplay-Medium",
@@ -276,6 +276,8 @@ const styles = StyleSheet.create({
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#202026',
+        borderColor: '#202026'
     }
 })
 
