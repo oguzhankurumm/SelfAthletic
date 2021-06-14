@@ -35,11 +35,11 @@ const Settings = ({ navigation }) => {
                             <Text style={styles.textStyleHeader}>Kişisel Bilgiler</Text>
                             <Icon name="keyboard-arrow-right" size={28} color="#FFF" />
                         </TouchableOpacity>
-{/* 
-                        <TouchableOpacity onPress={() => navigation.navigate('HedefAyarlari')} style={[styles.textContainer, { backgroundColor: '#FFF', marginTop: 10, height: 70 }]}>
+
+                        <TouchableOpacity onPress={() => navigation.navigate('HedefAyarlari')} style={[styles.textContainer, { backgroundColor: '#202026', marginTop: 10, height: 70 }]}>
                             <Text style={styles.textStyleHeader}>Hedef Ayarları</Text>
-                            <Icon name="keyboard-arrow-right" size={28} color="#2D2D2D" />
-                        </TouchableOpacity> */}
+                            <Icon name="keyboard-arrow-right" size={28} color="#FFF" />
+                        </TouchableOpacity>
 
 
                         <TouchableOpacity onPress={() => navigation.navigate('SaglikSorunlari')} style={[styles.textContainer, { backgroundColor: '#202026', marginTop: 10, height: 70 }]}>

@@ -1,12 +1,12 @@
 import React, { useState, useLayoutEffect, useEffect, useRef } from 'react'
-import { View, Text, StyleSheet, StatusBar, SafeAreaView, Alert, TouchableOpacity, Animated, ImageBackground, Dimensions, TextInput, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, SafeAreaView, Alert, TouchableOpacity, ImageBackground, Dimensions, TextInput, ScrollView, Image } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Video from 'react-native-video';
 import axios from 'axios';
 import moment from 'moment';
-import { auth2, database2 } from '../../config/config';
+import { database2 } from '../../config/config';
 import * as actions from '../../redux/actions/profile';
 import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
 import Carousel from 'react-native-snap-carousel';
@@ -259,12 +259,11 @@ const Testler = props => {
         }
     }
 
-    const getVideo = () => {
+    const getVideo = async () => {
         let videoList = [];
-
-        Exams.forEach((ex) => {
-            ex.videos.forEach((move, i) => {
-                axios.get(`https://player.vimeo.com/video/${move}/config`)
+        Object.values(Exams.questions).forEach(async (ex) => {
+            ex.videos.forEach(async (move, i) => {
+                await axios.get(`https://player.vimeo.com/video/${move}/config`)
                     .then((res) => {
                         if (res.status === 200) {
                             videoList.push({
@@ -275,7 +274,8 @@ const Testler = props => {
                                 },
                                 ...ex
                             })
-                            if (Exams.length === videoList.length) {
+
+                            if (Object.values(Exams.questions).length === videoList.length) {
                                 let testList = videoList.sort((a, b) => a.index - b.index)
                                 setTestler(testList);
 
@@ -288,6 +288,7 @@ const Testler = props => {
                         }
                     })
                     .catch((err) => {
+                        console.log('err: ', err)
                         setLoading(false);
                         Alert.alert('Hata', 'Videolar yüklenemedi, lütfen internet bağlantınızı kontrol edin.')
                     })
@@ -296,44 +297,59 @@ const Testler = props => {
     }
 
     const CompleteTest = () => {
-        console.log('fdslfjsdlkfjsdf complete')
 
-        let point = 0;
+        let tPoint = 0;
 
         Testler.forEach((item) => {
-            console.log('item: ', item);
             const Type = item.type
 
             if (Type === "time") {
-                point = parseFloat(Yapilan).toFixed(0) / 10;
-                setTotalPoint(parseFloat(TotalPoint) + parseFloat(point));
+                tPoint = parseFloat(tPoint) + parseFloat(parseFloat(item.completedTime).toFixed(0) / 10);
             } else {
-                point = 1 * parseFloat(Yapilan).toFixed(0);
-                setTotalPoint(parseFloat(TotalPoint) + parseFloat(point));
+                tPoint = parseFloat(tPoint) + parseFloat(1 * parseFloat(item.completedReps).toFixed(0));
             }
         })
 
-        FinishTest();
 
+        FinishTest(tPoint);
     }
 
-    const FinishTest = async () => {
+    const FinishTest = async (tPoint) => {
         setplayVideo(false);
         setStartTimer(false);
+
 
         let profilePoint = parseFloat(profileData.point);
         let newP = 0;
 
-        if (TotalPoint < 50) {
+        if (tPoint < 50) {
             if (profilePoint <= 10000) {
                 newP = 99999 - parseFloat(profilePoint);
             }
-
-        } else if (TotalPoint >= 50 && TotalPoint <= 100) {
             if (profilePoint >= 10001 && profilePoint <= 15000) {
                 newP = 15001 - parseFloat(profilePoint);
             }
-        } else if (TotalPoint >= 101) {
+            if (profilePoint >= 15001 && profilePoint <= 25000) {
+                newP = 25001 - parseFloat(profilePoint);
+            }
+
+        } else if (tPoint >= 50 && tPoint <= 100) {
+            if (profilePoint <= 10000) {
+                newP = 99999 - parseFloat(profilePoint);
+            }
+            if (profilePoint >= 10001 && profilePoint <= 15000) {
+                newP = 15001 - parseFloat(profilePoint);
+            }
+            if (profilePoint >= 15001 && profilePoint <= 25000) {
+                newP = 25001 - parseFloat(profilePoint);
+            }
+        } else if (tPoint >= 101) {
+            if (profilePoint <= 10000) {
+                newP = 99999 - parseFloat(profilePoint);
+            }
+            if (profilePoint >= 10001 && profilePoint <= 15000) {
+                newP = 15001 - parseFloat(profilePoint);
+            }
             if (profilePoint >= 15001 && profilePoint <= 25000) {
                 newP = 25001 - parseFloat(profilePoint);
             }
@@ -347,21 +363,26 @@ const Testler = props => {
             reps: parseFloat(Yapilan)
         }
 
-        setLoadingSave(false);
-        setTimeout(() => {
-            setShowAlert2(!ShowAlert2);
-        }, 200);
 
-        // await database2.ref('users_points/' + auth2.currentUser.uid).push(dataModel)
-        //     .then(() => {
-        //         dispatch(actions.fetchUserData(profileData.userId));
-        //         setLoadingSave(false);
-        //         props.navigation.goBack();
-        //         setTimeout(() => {
-        //             Alert.alert('Tebrikler', "Test tamamlandı ve kaydedildi.", [
-        //                 { text: 'Tamam', onPress: () => null, style: 'default' }
-        //             ]);
-        //         }, 200);
+        // await database2.ref('users_points/' + profileData.userId).push(dataModel)
+        //     .then(async () => {
+        //         await database2.ref(`users/${profileData.userId}/exams`).push(Exams.id)
+        //             .then(() => {
+        //                 setLoadingSave(false);
+        //                 dispatch(actions.fetchUserData(profileData.userId));
+        //                 props.navigation.goBack();
+        //                 setTimeout(() => {
+        //                     setTimeout(() => {
+        //                         setShowAlert2(!ShowAlert2);
+        //                     }, 200);
+        //                 }, 200);
+        //             })
+        //             .catch((err) => {
+        //                 setLoadingSave(false);
+        //                 setTimeout(() => {
+        //                     Alert.alert('Hata', String(err.message));
+        //                 }, 300);
+        //             })
         //     })
         //     .catch((err) => {
         //         setLoadingSave(false);
@@ -375,7 +396,7 @@ const Testler = props => {
     }
 
     useLayoutEffect(() => {
-        if (Exams !== undefined && Exams.length !== 0) {
+        if (Exams !== undefined && Object.values(Exams.questions).length !== 0) {
             getVideo();
         } else {
             setTimeout(() => {
@@ -497,7 +518,15 @@ const Testler = props => {
                     <TouchableOpacity onPress={() => {
                         setStartTimer(false);
                         setplayVideo(false);
-                        CompleteTest();
+                        if (Testler[SelectedIndex].type === "time") {
+                            Testler[SelectedIndex].completedTime = parseFloat(Yapilan);
+                        } else {
+                            Testler[SelectedIndex].completedReps = parseFloat(Yapilan);
+                        }
+
+                        setTimeout(() => {
+                            CompleteTest();
+                        }, 200);
                     }} style={{
                         width: '100%',
                         height: 60,

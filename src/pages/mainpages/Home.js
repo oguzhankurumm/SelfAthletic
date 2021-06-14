@@ -9,6 +9,7 @@ import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Sidebar from '../../components/Sidebar';
 import { useSelector } from 'react-redux';
 import StepcounterIosAndroid from "react-native-stepcounter-ios-android";
+import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert';
 
 
 const { height, width } = Dimensions.get("window");
@@ -24,6 +25,7 @@ const Home = ({ props, navigation }) => {
     const [CaloriesChart, setCaloriesChart] = useState(0)
     const [Steps, setSteps] = useState(0);
     const [StepChart, setStepChart] = useState(0);
+    const [ShowAlert, setShowAlert] = useState(false);
 
     const closeModal = () => {
         setShowSideModal(!ShowSideModal);
@@ -34,6 +36,12 @@ const Home = ({ props, navigation }) => {
         // getMySteps();
         getWorkouts();
         getCampaings();
+
+        if (profileData.questions.target === undefined || profileData.questions.nutrition === undefined) {
+            setTimeout(() => {
+                setShowAlert(true);
+            }, 1000);
+        }
     }, [])
 
     useEffect(() => {
@@ -81,6 +89,24 @@ const Home = ({ props, navigation }) => {
                 setCalories(0);
             }
         })
+    }
+
+    const SCLModal = ({ title, subtitle, onPress1, onPress1Title, onPress1Style, onPress2, onPress2Title, onPress2Style }) => {
+        return (
+            <SCLAlert
+                cancellable={false}
+                theme="warning"
+                show={ShowAlert}
+                onRequestClose={() => setShowAlert(false)}
+                title={title}
+                subtitle={subtitle}
+            >
+                <SCLAlertButton theme={onPress1Style} onPress={onPress1}>{onPress1Title}</SCLAlertButton>
+                {onPress2 !== undefined &&
+                    <SCLAlertButton theme={onPress2Style} onPress={onPress2}>{onPress2Title}</SCLAlertButton>
+                }
+            </SCLAlert>
+        )
     }
 
     // const getMySteps = () => {
@@ -169,6 +195,17 @@ const Home = ({ props, navigation }) => {
 
                     </View>
                 </View>
+
+                <SCLModal
+                    title="Bazı Bilgiler Eksik"
+                    subtitle="Bilgiler doldurulmamış, şimdi doldurmak ister misiniz?"
+                    onPress1={() => {
+                        setShowAlert(false);
+                        navigation.navigate("Info");
+                    }}
+                    onPress1Title="Hemen Düzenle"
+                    onPress1Style="warning"
+                />
 
                 <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} style={styles.container}>
                     <StatusBar barStyle="light-content" />

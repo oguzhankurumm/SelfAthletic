@@ -36,6 +36,7 @@ import SaglikSorunlari from '../pages/settings/SaglikSorunlari';
 import HedefAyarlari from '../pages/settings/HedefAyarlari';
 import AntrenmanGunleri from '../pages/settings/AntrenmanGunleri';
 import MoveThumb from '../pages/workoutspages/MoveThumb';
+import TestList from '../pages/profilepages/TestList';
 import Testler from '../pages/profilepages/Testler';
 import Olcumler from '../pages/profilepages/Olcumler';
 import AddWater from '../pages/profilepages/AddWater';
@@ -284,6 +285,14 @@ export function Root() {
             />
             <RootStack.Screen name="MoveThumb" component={MoveThumb}
                 options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="TestList" component={TestList}
+                options={{
+                    gestureEnabled: true,
                     headerShown: false,
                     headerBackTitleVisible: false,
                     headerTintColor: '#000'

@@ -45,6 +45,7 @@ const Antrenman = ({ navigation }) => {
     const [AlertSuccessTitle, setAlertSuccessTitle] = useState("");
     const [AlertSuccessSubTitle, setAlertSuccessSubTitle] = useState("");
     const [ShowAlert2, setShowAlert2] = useState(false);
+    const [ShowTestAlert, setShowTestAlert] = useState(false);
 
     let datesBlacklist = [{
         start: moment().add(1, 'days'),
@@ -204,10 +205,39 @@ const Antrenman = ({ navigation }) => {
         }
     }
 
+    const CheckExams = () => {
+        if (profileData?.exams !== undefined && profileData.exams.length !== 0) {
+            getMyWorkouts();
+        } else {
+            setLoading(false);
+            setTimeout(() => {
+                setShowTestAlert(true);
+            }, 500);
+        }
+    }
+
+    const GoExam = () => {
+        setLoading(false);
+        setShowTestAlert(false);
+        navigation.navigate("TestList");
+    }
+
+    const PassExam = async () => {
+        setShowTestAlert(false);
+        setLoading(true);
+        await database2.ref(`users/${profileData.userId}/exams/`).update({ "-Test1": "-Test1" })
+            .then(() => {
+                getMyWorkouts();
+            })
+            .catch((err) => {
+                getMyWorkouts();
+            })
+    }
+
     useEffect(() => {
-        getMyWorkouts();
         getMyCalories();
         getFavorites();
+        CheckExams();
     }, [])
 
     const getSelectedDay = async (date) => {
@@ -1230,6 +1260,7 @@ const Antrenman = ({ navigation }) => {
                     .then((response) => {
                         database2.ref('users/' + profileData.userId + '/workouts/' + String(pushDate)).once('value')
                             .then((res) => {
+                                console.log('res: ', res)
                                 getVideo(res.val().moves);
                                 setWorkout(res.val());
                                 setWorkoutKey(res.key);
@@ -1346,6 +1377,7 @@ const Antrenman = ({ navigation }) => {
         setShowSideModal(!ShowSideModal);
     }
 
+
     return (
         <ImageBackground style={{ height: height, width: width }} resizeMode="cover" source={require('../../img/bg.jpg')}>
             <SafeAreaView style={styles.container}>
@@ -1353,6 +1385,22 @@ const Antrenman = ({ navigation }) => {
                 <SpinnerLoading Loading={Loading} />
                 <SpinnerLoading Loading={SaveLoading} />
                 <Sidebar navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
+
+                <SCLAlert
+                    cancellable={false}
+                    theme="warning"
+                    show={ShowTestAlert}
+                    onRequestClose={() => {
+                        setShowTestAlert(false);
+                        setLoading(true);
+                        getMyWorkouts();
+                    }}
+                    title="Teste Girilmemiş"
+                    subtitle="Seviyenizi belirlemek için şimdi teste girmek iseter misiniz?"
+                >
+                    <SCLAlertButton theme="warning" onPress={GoExam}>Testi Başlat</SCLAlertButton>
+                    <SCLAlertButton theme="default" onPress={PassExam}>Daha Sonra</SCLAlertButton>
+                </SCLAlert>
 
                 <SCLAlert
                     theme="success"
@@ -1402,12 +1450,12 @@ const Antrenman = ({ navigation }) => {
                                 size={width / 2.5}
                                 width={4}
                                 rotation={90}
-                                fill={String(CaloriesChart) !== "Infinity" ? parseFloat(CaloriesChart).toFixed(1) : 0}
+                                fill={100}
                                 tintColor="#376F19"
                                 backgroundColor="#4D4D4D">
                                 {(fill) => (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={styles.circleHeaderText}>{parseFloat(String(fill) !== "NaN" ? fill : 0).toFixed(1)}</Text>
+                                        <Text style={styles.circleHeaderText}>0</Text>
                                         <Text style={styles.targetHeader}>Kalori</Text>
                                     </View>
                                 )}
@@ -1419,12 +1467,12 @@ const Antrenman = ({ navigation }) => {
                                 size={width / 2.5}
                                 width={4}
                                 rotation={90}
-                                fill={parseFloat(TotalProgress).toFixed(1)}
+                                fill={100}
                                 tintColor="yellow"
                                 backgroundColor="#4D4D4D">
                                 {(fill) => (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={styles.circleHeaderText}>{parseFloat(fill).toFixed(0)}</Text>
+                                        <Text style={styles.circleHeaderText}>{parseFloat(TotalProgress).toFixed(0)}</Text>
                                         <Text style={styles.targetHeader}>Adım Sayısı</Text>
                                     </View>
                                 )}
@@ -1433,7 +1481,7 @@ const Antrenman = ({ navigation }) => {
                     </View>
 
                     <View style={{ width: '100%', paddingHorizontal: 10 }}>
-                        {!Loading &&
+                        {!Loading && !ShowTestAlert &&
                             <CalendarStrip
                                 scrollable={true}
                                 datesBlacklist={datesBlacklist}
@@ -1461,7 +1509,7 @@ const Antrenman = ({ navigation }) => {
                         }
                     </View>
 
-                    {!Loading && !isCompleted ?
+                    {!Loading && !ShowTestAlert && !isCompleted ?
                         <>
                             <View style={{ paddingHorizontal: 20, flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                 {!Loading &&
@@ -1495,7 +1543,7 @@ const Antrenman = ({ navigation }) => {
 
                             </View>
 
-                            {!Loading && VideoList.length > 1 &&
+                            {!Loading && !ShowTestAlert && VideoList.length > 1 &&
                                 <>
                                     <FlatList style={{ flex: 1, flexGrow: 1, paddingHorizontal: 20 }}
                                         scrollEnabled={false}
@@ -1625,7 +1673,8 @@ const Antrenman = ({ navigation }) => {
                                             )
                                         }}
                                         keyExtractor={(item, index) => index.toString()}
-                                        renderItem={(workouts) => {                                            var item = workouts.item;
+                                        renderItem={(workouts) => {
+                                            var item = workouts.item;
                                             return (item &&
                                                 <TouchableOpacity key={item.id} onPress={() => navigation.navigate('MoveThumb', { item: item })}
                                                     style={{
@@ -1684,7 +1733,7 @@ const Antrenman = ({ navigation }) => {
                                 </>
                             }
                         </> : <>
-                            {!Loading &&
+                            {!Loading && !ShowTestAlert &&
                                 <View style={{ height: 'auto', paddingHorizontal: 40, marginBottom: 20, marginTop: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                     <Icon name="tag-faces" size={64} color="#4D4D4D" />
                                     <Text style={[styles.headerText, { color: '#4D4D4D', fontSize: 16, textAlign: 'center', marginTop: 10 }]}>Tebrikler! Seçili günün antrenmanını tamamladınız.</Text>

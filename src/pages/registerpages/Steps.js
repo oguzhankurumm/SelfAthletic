@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAreaView, Image, ImageBackground, Alert } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAreaView, ImageBackground, Alert } from 'react-native';
 import { Bar } from 'react-native-progress';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -7,23 +7,26 @@ import moment from 'moment';
 import axios from 'axios';
 import { auth2 } from '../../config/config';
 import { CommonActions } from '@react-navigation/native';
+import { useSelector, useDispatch } from 'react-redux';
+import * as actions from '../../redux/actions/profile';
 
 const { height, width } = Dimensions.get("window");
 
 const Steps = props => {
+    const dispatch = useDispatch();
 
     const { index, routes } = props.navigation.dangerouslyGetState();
     const currentRoute = routes[index].name;
 
-    const userData = props.route.params.userData;
-    const Password = props.route.params.password;
-    const userId = props.route.params.uid
+    const userData = props.route.params?.userData !== undefined ? props.route.params.userData : useSelector(state => state.user.users);
+    const Password = props.route.params?.password !== undefined ? props.route.params.password : "";
+    const userId = props.route.params?.uid !== undefined ? props.route.params.uid : useSelector(state => state.user.users.userId);
 
     const [UserTarget, setUserTarget] = useState(null);
     const [UserCronicProblems, setUserCronicProblems] = useState(null);
     const [UserHealthProblems, setUserHealthProblems] = useState(null);
     const [UserNutrition, setUserNutrition] = useState(null);
-    const [Program, setProgram] = useState(null);
+    const [Program, setProgram] = useState("");
 
     const [Loading, setLoading] = useState(true);
 
@@ -75,12 +78,11 @@ const Steps = props => {
 
     const userAge = CalculateAge();
 
-    useEffect(() => {
-        axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/getUserData", { uid: userId })
+    const fetchData = async () => {
+        await axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/getUserData", { uid: userId })
             .then((res) => {
                 if (res.status === 200) {
                     setProfileData(res.data.userData);
-                    setLoading(false);
                 } else {
                     setLoading(false);
                     setTimeout(() => {
@@ -94,6 +96,11 @@ const Steps = props => {
                     Alert.alert('Hata', String(err))
                 }, 200);
             })
+    }
+    useEffect(() => {
+        fetchData().then(() => {
+            setLoading(false);
+        })
     }, [])
 
     return (
@@ -129,6 +136,12 @@ const Steps = props => {
                                     } else {
                                         setUserTarget(targetCheck[0].value);
                                         setSelectedPage(SelectedPage + 1);
+
+                                        if (targetCheck[0].value === "Yağ Oranı Azaltma") {
+                                            setProgram("Dengeli");
+                                        } else {
+                                            setProgram("");
+                                        }
                                     }
                                 }
 
@@ -210,11 +223,11 @@ const Steps = props => {
                                                 cronicproblems: UserCronicProblems,
                                                 healthproblems: UserHealthProblems,
                                                 nutrition: UserNutrition,
-                                                target: UserTarget
+                                                target: UserTarget,
+                                                program: Program
                                             },
                                             fa: checkedList[0].deger,
                                             gunlukEnerji: gunlukEnerji,
-                                            program: Program
                                         }
 
                                         axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/updateUserData", {
@@ -225,26 +238,35 @@ const Steps = props => {
                                         })
                                             .then((res) => {
                                                 if (res.status === 200) {
-                                                    auth2.signInWithEmailAndPassword(userData.email, Password)
-                                                        .then(() => {
-                                                            setLoading(false);
-                                                            props.navigation.dispatch(
-                                                                CommonActions.reset({
-                                                                    index: 1,
-                                                                    routes: [
-                                                                        {
-                                                                            name: 'Home'
-                                                                        }
-                                                                    ],
-                                                                })
-                                                            );
-                                                        })
-                                                        .catch((err) => {
-                                                            setLoading(false);
-                                                            setTimeout(() => {
-                                                                Alert.alert('Hata', 'Giriş yapılırken bir problem oluştu.')
-                                                            }, 200)
-                                                        })
+                                                    if (auth2.currentUser.uid === null) {
+                                                        auth2.signInWithEmailAndPassword(userData.email, Password)
+                                                            .then((userRes) => {
+                                                                if (userRes.user.uid !== null) {
+                                                                    setLoading(false);
+                                                                    props.navigation.dispatch(
+                                                                        CommonActions.reset({
+                                                                            index: 0,
+                                                                            routes: [
+                                                                                { name: 'Home' }
+                                                                            ],
+                                                                        })
+                                                                    );
+                                                                    dispatch(actions.fetchUserData(userId));
+                                                                }
+                                                            })
+                                                            .catch((err) => {
+                                                                setLoading(false);
+                                                                setTimeout(() => {
+                                                                    Alert.alert('Hata', 'Giriş yapılırken bir problem oluştu.')
+                                                                }, 200)
+                                                            })
+                                                    } else {
+                                                        dispatch(actions.fetchUserData(userId));
+                                                        setLoading(false);
+                                                        setTimeout(() => {
+                                                            props.navigation.navigate('Home');
+                                                        }, 200);
+                                                    }
 
                                                 } else {
                                                     setLoading(false);
@@ -288,7 +310,6 @@ const Steps = props => {
                                     <TouchableOpacity
                                         onPress={() => {
                                             const newValue = Target.map((checkbox, i) => {
-
                                                 if (i !== index)
                                                     return {
                                                         ...checkbox,
@@ -303,17 +324,10 @@ const Steps = props => {
                                                     return item
                                                 }
 
-                                                if (checkbox.value === "Yağ Oranı Azaltma") {
-                                                    setProgram("Dengeli");
-                                                } else {
-                                                    setProgram(null);
-                                                }
-
                                                 return checkbox
                                             })
 
                                             setTarget(newValue);
-
                                         }}
                                         key={index}
                                         style={{ marginTop: 20, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>

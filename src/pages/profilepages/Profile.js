@@ -34,7 +34,6 @@ const Profile = ({ props, navigation }) => {
     const [TamamlananCount, setTamamlananCount] = useState(0);
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
     const [HedefAvg, setHedefAvg] = useState(0);
-    const [Exams, setExams] = useState([]);
 
     const [BestDay, setBestDay] = useState("")
 
@@ -155,28 +154,6 @@ const Profile = ({ props, navigation }) => {
         }
     }
 
-    const getExams = async () => {
-        let examList = [];
-
-        database2.ref('exams').once('value')
-            .then((examSnap) => {
-                if (examSnap.val().length !== 0) {
-                    examSnap.forEach((item) => {
-                        examList.push({
-                            ...item.val(),
-                            id: item.key
-                        })
-                    })
-                    setExams(examList)
-                    setLoading(false);
-                }
-            })
-            .catch((err) => {
-                console.log('hata: ', err);
-                setLoading(false);
-            })
-    }
-
     const getMyWorkouts = async () => {
         let egzList = [];
         let completedList = [];
@@ -190,30 +167,30 @@ const Profile = ({ props, navigation }) => {
                         id: item.key
                     });
 
-                    let completed = null;
+                    // let completed = null;
                     let total = 0;
 
-                    Object.values(item.val().moves).forEach((wrk) => {
-                        if (wrk.completed === false) {
-                            completed = false
-                        } else if (wrk.completed === true) {
-                            completed = true;
-                            wrk.calorie !== undefined && wrk.calorie !== "NaN" ? total += parseFloat(wrk.calorie) : 0
-                        }
-                    })
+                    // Object.values(item.val().moves).forEach((wrk) => {
+                    //     if (wrk.completed === false) {
+                    //         // completed = false
+                    //     } else if (wrk.completed === true) {
+                    //         // completed = true;
+                    //         wrk.calorie !== undefined && wrk.calorie !== "NaN" ? total += parseFloat(wrk.calorie) : 0
+                    //     }
+                    // })
 
-                    if (completed === true) {
-                        completedList.push({
-                            ...item.val(),
-                            date: item.key,
-                            total: parseFloat(total)
-                        })
-                    }
+                    // if (completed === true) {
+                    //     completedList.push({
+                    //         ...item.val(),
+                    //         date: item.key,
+                    //         total: parseFloat(total)
+                    //     })
+                    // }
 
 
-                    let workout = { key: 'workout', color: 'green' };
+                    // let workout = { key: 'workout', color: 'green' };
 
-                    arr[moment(item.key, "DD-MM-YYYY").format("YYYY-MM-DD")] = { dots: [workout], disabled: false }
+                    // arr[moment(item.key, "DD-MM-YYYY").format("YYYY-MM-DD")] = { dots: [workout], disabled: false }
                 })
 
                 if (completedList.length >= 1) {
@@ -291,7 +268,6 @@ const Profile = ({ props, navigation }) => {
         setAktifGun(parseFloat(moment.duration(end.diff(start)).asDays()).toFixed(0));
 
         getMyWorkouts();
-        getExams();
         CalcTargets();
     }, [])
 
@@ -500,7 +476,7 @@ const Profile = ({ props, navigation }) => {
                             <View style={[styles.iconsContainer, { paddingHorizontal: 20, paddingBottom: 100 }]}>
 
                                 <TouchableOpacity
-                                    onPress={() => navigation.navigate('Testler', { item: Exams })}
+                                    onPress={() => navigation.navigate('TestList')}
                                     style={{
                                         height: 'auto',
                                         width: '100%',
@@ -537,7 +513,7 @@ const Profile = ({ props, navigation }) => {
                                             color: 'yellow',
                                             marginRight: 10
                                         }}
-                                        >Testi Başlat</Text>
+                                        >Testleri Gör</Text>
                                         <Icon2 name="arrowright" color="yellow" size={22} />
                                     </View>
 

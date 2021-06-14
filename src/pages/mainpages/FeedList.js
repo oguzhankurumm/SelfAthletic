@@ -19,24 +19,33 @@ const FeedList = ({ props, navigation }) => {
             let PostList = [];
 
             data.forEach((item) => {
-                item.forEach((newitem) => {
-                    database2.ref('users').child(item.key).once('value')
-                        .then((userData) => {
-                            PostList.push({
-                                ...newitem.val(),
-                                name: userData.val().name !== '' ? userData.val().name : 'Kullanıcı Silindi',
-                                avatar: userData.val().avatar !== '' ? userData.val().avatar : '',
-                                id: newitem.key
-                            })
-                            setFeed(PostList);
-                            setLoading(false);
-                        })
-                        .catch((err) => {
-                            setFeed(PostList);
-                            setLoading(false);
-                        })
+                item.forEach(async (newitem) => {
+                    PostList.push({
+                        ...newitem.val(),
+                        name: 'Ad Soyad',
+                        avatar: '',
+                        id: newitem.key
+                    })
+                    // await database2.ref('users').child(item.key).once('value')
+                    //     .then(async (userData) => {
+                    //         PostList.push({
+                    //             ...newitem.val(),
+                    //             name: userData.val().name !== '' ? userData.val().name : 'Kullanıcı Silindi',
+                    //             avatar: userData.val().avatar !== '' ? userData.val().avatar : '',
+                    //             id: newitem.key
+                    //         })
+                    //     })
+                    //     .catch((err) => {
+                    //         setFeed(PostList);
+                    //         setLoading(false);
+                    //     })
                 })
             })
+
+
+            setFeed(PostList);
+            setLoading(false);
+            console.log('post: ', PostList)
 
         })
     }

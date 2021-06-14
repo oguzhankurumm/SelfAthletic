@@ -58,8 +58,7 @@ const Food = ({ navigation }) => {
 
     const [SelectedReplaceFood, setSelectedReplaceFood] = useState({})
 
-    const dateToday = moment().format("YYYY-MM-DDTHH:mm:ss");
-    const dateNumberToday = moment(dateToday).day();
+    const dateNumberToday = moment().format("d");
 
     let PushedFoods = [];
 
@@ -578,6 +577,7 @@ const Food = ({ navigation }) => {
         let healthProblems = profileData.questions?.healthproblems !== undefined ? profileData.questions?.healthproblems : 'Yok';
         let Nutrition = profileData.questions?.nutrition !== undefined ? profileData.questions?.nutrition : 'Yok';
         let Target = profileData.questions?.target !== undefined ? profileData.questions?.target : 'Yok';
+        let Program = profileData.questions?.program !== undefined ? profileData.questions?.program : 'Yok';
 
         let AlgorithmList = [];
 
@@ -595,7 +595,12 @@ const Food = ({ navigation }) => {
         let myValues = null
 
         //besin degerlerini algoritmadan cek
-        const enerji = String(Math.round(profileData.gunlukEnerji)).replace(/\d{2}$/, '00');
+        var enerji = String(Math.round(profileData.gunlukEnerji)).replace(/\d{2}$/, '00');
+
+        if (enerji < 1400) {
+            enerji = 1400;
+        }
+
         console.log('enerji : ', enerji)
 
         //algoritmadan gelecek olan besin degerleri
@@ -638,12 +643,109 @@ const Food = ({ navigation }) => {
                     myValues = { ...AlgorithmList.s1 }
                     break;
 
-                case 7:
+                case 0:
                     myValues = { ...AlgorithmList.s2 }
                     break;
 
                 default:
-                    console.log('gün getirilemedi.');
+                    console.log('kas kutles iartisi gun getirilemedi.');
+                    break;
+            }
+        }
+
+        if (Target === "Formda Kalma") {
+            await database2.ref(`algorithm/formdakalma/${enerji}`).once('value')
+                .then((snapshot) => {
+                    snapshot.forEach((item) => {
+                        AlgorithmList[item.key] = {
+                            ...item.val()
+                        }
+                    })
+                })
+                .catch((err) => {
+                    console.log('algorithm get error');
+                })
+
+            switch (parseFloat(dateNumberToday)) {
+                case 1:
+                    myValues = { ...AlgorithmList.s1 }
+                    break;
+
+                case 2:
+                    myValues = { ...AlgorithmList.s2 }
+                    break;
+
+                case 3:
+                    myValues = { ...AlgorithmList.s1 }
+                    break;
+
+                case 4:
+                    myValues = { ...AlgorithmList.s2 }
+                    break;
+
+                case 5:
+                    myValues = { ...AlgorithmList.s1 }
+                    break;
+
+                case 6:
+                    myValues = { ...AlgorithmList.s2 }
+                    break;
+
+                case 0:
+                    myValues = { ...AlgorithmList.s1 }
+                    break;
+
+                default:
+                    console.log('formda kalma gun getirilemedi.');
+                    break;
+            }
+        }
+
+        if (Target === "Yağ Oranı Azaltma") {
+            await database2.ref(`algorithm/dengeli/${enerji}`).once('value')
+                .then((snapshot) => {
+                    console.log('snap: ', snapshot.val())
+                    snapshot.forEach((item) => {
+                        AlgorithmList[item.key] = {
+                            ...item.val()
+                        }
+                    })
+                })
+                .catch((err) => {
+                    console.log('algorithm get error');
+                })
+
+            switch (parseFloat(dateNumberToday)) {
+                case 1:
+                    myValues = { ...AlgorithmList.s1 }
+                    break;
+
+                case 2:
+                    myValues = { ...AlgorithmList.s2 }
+                    break;
+
+                case 3:
+                    myValues = { ...AlgorithmList.s1 }
+                    break;
+
+                case 4:
+                    myValues = { ...AlgorithmList.s2 }
+                    break;
+
+                case 5:
+                    myValues = { ...AlgorithmList.s1 }
+                    break;
+
+                case 6:
+                    myValues = { ...AlgorithmList.s2 }
+                    break;
+
+                case 0:
+                    myValues = { ...AlgorithmList.s1 }
+                    break;
+
+                default:
+                    console.log('formda kalma gun getirilemedi.');
                     break;
             }
         }
@@ -685,9 +787,6 @@ const Food = ({ navigation }) => {
         // if (food.besintipi !== undefined && food.besintipi === "Tavuk" || food.besintipi === "Et" || food.besintipi === "Hindi" || food.besintipi === "Balik" || food.besintipi === "Peynir" || food.besintipi === "Ekmek" || food.besintipi === "Salata") {
 
         let caseOgleList = Object.values(aksamList)
-
-        // console.log('salı ogle besinleri: ', caseOgleList);
-        // console.log('salı aksam besinleri: ', caseAksamList);
 
         caseKahvaltiList.forEach((food) => {
             if (food.besinSut <= myValues.Sut && food.besinEkmek <= myValues.Ekmek && food.besinMeyve <= myValues.Meyve && food.besinSebze <= myValues.Sebze && food.besinYag <= myValues.Yag && food.besinEYP <= myValues.EYP) {
@@ -1467,7 +1566,8 @@ const Food = ({ navigation }) => {
 
                             {!Loading && AksamList.length !== 0 && AksamList !== undefined &&
                                 <>
-                                    <FlatList style={{ height: 'auto', paddingHorizontal: 20, marginBottom: 100 }}
+                                    <FlatList style={{ height: 'auto', paddingHorizontal: 20 }}
+                                        contentContainerStyle={{ marginBottom: AraList3.length === 0 ? 100 : 0 }}
                                         scrollEnabled={false}
                                         data={AksamList.sort((a, b) => String(a.name).toLowerCase().localeCompare(String(b.name).toLowerCase()))}
                                         keyExtractor={(item, index) => index.toString()}
@@ -1521,7 +1621,8 @@ const Food = ({ navigation }) => {
 
                             {!Loading && AraList3.length !== 0 && AraList3 !== undefined &&
                                 <>
-                                    <FlatList style={{ height: 'auto', paddingHorizontal: 20, marginBottom: 20 }}
+                                    <FlatList style={{ height: 'auto', paddingHorizontal: 20 }}
+                                        contentContainerStyle={{ marginBottom: AraList3.length === 0 ? 0 : 100 }}
                                         scrollEnabled={false}
                                         data={AraList3.sort((a, b) => String(a.name).toLowerCase().localeCompare(String(b.name).toLowerCase()))}
                                         keyExtractor={(item, index) => index.toString()}

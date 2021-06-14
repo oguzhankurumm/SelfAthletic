@@ -7,17 +7,19 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from 'moment';
 import Input from '../../components/Input';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get("window");
 
 const Info = props => {
-    const userData = props.route.params.userData;
-    const userId = props.route.params.uid;
+    const userData = props.route.params?.userData !== undefined ? props.route.params.userData : useSelector(state => state.user.users);
+    const userId = props.route.params?.uid !== undefined ? props.route.params.uid : useSelector(state => state.user.users.userId);
+
     const [Loading, setLoading] = useState(false);
 
     const [SelectedPage, setSelectedPage] = useState(1);
     const [TotalPage, setTotalPage] = useState(3);
-    const [BirthDate, setBirthDate] = useState(moment('01/01/1990').format("DD/MM/YYYY"));
+    const [BirthDate, setBirthDate] = useState(userData?.birthdate !== undefined && userData?.birthdate !== null ? moment(userData?.birthdate).format("DD/MM/YYYY") : moment('01/01/1990').format("DD/MM/YYYY"));
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
     const [Gender, setGender] = useState([
@@ -36,9 +38,8 @@ const Info = props => {
         { value: 'Pazar', checked: false },
     ])
 
-    const [Boy, setBoy] = useState('0');
-    const [Kilo, setKilo] = useState('0');
-
+    const [Boy, setBoy] = useState(userData.height !== undefined && userData.height !== null ? String(userData.height) : '0');
+    const [Kilo, setKilo] = useState(userData.weight !== undefined && userData.weight !== null ? String(userData.weight) : '0');
 
     const showDatePicker = () => {
         Keyboard.dismiss();
@@ -168,7 +169,11 @@ const Info = props => {
                                             .then((res) => {
                                                 if (res.status === 200) {
                                                     setLoading(false);
-                                                    props.navigation.navigate('Steps', { userData: userData, password: props.route.params.password, uid: userId });
+                                                    if (userId == null) {
+                                                        props.navigation.navigate('Steps', { userData: userData, password: props.route.params.password, uid: userId });
+                                                    } else {
+                                                        props.navigation.navigate('Steps', { userData: userData, uid: userId });
+                                                    }
                                                 } else {
                                                     setLoading(false);
                                                     setTimeout(() => {
