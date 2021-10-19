@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, ImageBackground, StyleSheet, SafeAreaView, TouchableOpacity, Dimensions, StatusBar, Alert } from 'react-native'
+import { View, Text, ImageBackground, StyleSheet, SafeAreaView, TouchableOpacity, Dimensions, StatusBar } from 'react-native'
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import 'moment/locale/tr';
 import { useSelector } from 'react-redux';
-import { database2, auth2 } from '../../config/config';
+import { database, auth } from '../../config/config';
 import { Bar } from 'react-native-progress';
 
 const { height, width } = Dimensions.get("window");
@@ -108,13 +108,13 @@ const SaglikSorunlari = ({ navigation }) => {
                                 if (SelectedPage === 1) {
                                     var checkedList = HealthProblems.filter(tg => tg.checked);
                                     if (checkedList.length === 0) {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/questions').child('healthproblems').remove()
+                                        database().ref('users').child(auth().currentUser.uid + '/questions').child('healthproblems').remove()
                                         setSelectedPage(SelectedPage + 1);
                                     } else if (checkedList[0].value === "Hiçbiri") {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/questions').child('healthproblems').remove()
+                                        database().ref('users').child(auth().currentUser.uid + '/questions').child('healthproblems').remove()
                                         setSelectedPage(SelectedPage + 1);
                                     } else {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/questions/healthproblems').set(checkedList[0].value)
+                                        database().ref('users').child(auth().currentUser.uid + '/questions/healthproblems').set(checkedList[0].value)
                                             .then(() => {
                                                 setSelectedPage(SelectedPage + 1);
                                             })
@@ -127,13 +127,13 @@ const SaglikSorunlari = ({ navigation }) => {
                                 if (SelectedPage === 2) {
                                     var checkedList = CronicProblems.filter(tg => tg.checked);
                                     if (checkedList.length === 0) {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/questions').child('cronicproblems').remove()
+                                        database().ref('users').child(auth().currentUser.uid + '/questions').child('cronicproblems').remove()
                                         navigation.goBack();
                                     } else if (checkedList[0].value === "Hiçbiri") {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/questions').child('cronicproblems').remove()
+                                        database().ref('users').child(auth().currentUser.uid + '/questions').child('cronicproblems').remove()
                                         navigation.goBack();
                                     } else {
-                                        database2.ref('users').child(auth2.currentUser.uid + '/questions/cronicproblems').set(checkedList[0].value)
+                                        database().ref('users').child(auth().currentUser.uid + '/questions/cronicproblems').set(checkedList[0].value)
                                             .then(() => {
                                                 navigation.goBack();
                                             })

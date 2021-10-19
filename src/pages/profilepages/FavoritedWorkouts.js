@@ -5,7 +5,7 @@ import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icon2 from 'react-native-vector-icons/FontAwesome5';
 import Sidebar from '../../components/Sidebar';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import moment from 'moment';
 import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
 
@@ -30,7 +30,7 @@ const FavoritedWorkouts = ({ navigation }) => {
         setLoading(true);
         var workoutList = [];
 
-        await database2.ref(`users/${userData.userId}/favorites/workouts`).once("value")
+        await database().ref(`users/${userData.userId}/favorites/workouts`).once("value")
             .then((snapshot) => {
                 if (snapshot.val() !== undefined && snapshot.val() !== null) {
                     snapshot.forEach((item) => {
@@ -66,7 +66,7 @@ const FavoritedWorkouts = ({ navigation }) => {
     }, [])
 
     const deleteFav = id => {
-        database2.ref(`users/${userData.userId}/favorites/workouts/`).child(id).remove()
+        database().ref(`users/${userData.userId}/favorites/workouts/`).child(id).remove()
             .then(() => {
                 setFavoritedList(FavoritedList.filter(q => q.id !== id))
                 setShowAlert(false);

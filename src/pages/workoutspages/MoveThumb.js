@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, Alert, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, SafeAreaView, Alert, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Video from 'react-native-video';
 import axios from 'axios';
 
 const { height, width } = Dimensions.get("window");
-
 
 const MoveThumb = props => {
 
@@ -24,8 +23,8 @@ const MoveThumb = props => {
                 .then((res) => {
                     if (res.status === 200) {
                         videoList.push({
-                            size: res.data.request.files.progressive[4].width,
-                            url: res.data.request.files.progressive[4].url,
+                            size: res.data.request.files.progressive[2].width,
+                            url: res.data.request.files.progressive[2].url,
                             thumb: res.data.video.thumbs[640],
                             title: res.data.video.title,
                             duration: res.data.video.duration,
@@ -49,7 +48,7 @@ const MoveThumb = props => {
     useEffect(() => {
         if (Thumbs !== undefined && Thumbs.length !== 0) {
             getVideo();
-        } else if (infoText !== undefined){
+        } else if (infoText !== undefined) {
             setLoading(false);
         } else {
             setTimeout(() => {
@@ -87,7 +86,7 @@ const MoveThumb = props => {
                                     borderRadius: 18,
                                     marginBottom: 20
                                 }}>
-                                    <View style={{ width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+                                    <View style={{ width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start', paddingHorizontal: 10 }}>
                                         <Text style={styles.textStyle}>{infoText !== undefined ? infoText : ""}</Text>
                                     </View>
                                 </View>
@@ -106,7 +105,7 @@ const MoveThumb = props => {
                                                     paused={false}
                                                     shouldPlay={false}
                                                     source={{ uri: item.url }}
-                                                    style={{ height: 200, width: '100%', borderWidth: 1, borderColor: '#FFF', marginBottom: 10, borderRadius: 12 }}
+                                                    style={{ height: 200, width: '100%', marginBottom: 10, borderRadius: 12 }}
                                                     playInBackground={false}
                                                     playWhenInactive={false}
                                                     onBuffer={self.onBuffer}

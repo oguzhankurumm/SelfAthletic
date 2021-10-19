@@ -5,8 +5,7 @@ import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import axios from 'axios';
-import { auth2 } from '../../config/config';
-import { CommonActions } from '@react-navigation/native';
+import { auth } from '../../config/config';
 import { useSelector, useDispatch } from 'react-redux';
 import * as actions from '../../redux/actions/profile';
 
@@ -14,13 +13,12 @@ const { height, width } = Dimensions.get("window");
 
 const Steps = props => {
     const dispatch = useDispatch();
+    console.log('propsssss: ', props.route.params)
 
     const { index, routes } = props.navigation.dangerouslyGetState();
     const currentRoute = routes[index].name;
 
     const userData = props.route.params?.userData !== undefined ? props.route.params.userData : useSelector(state => state.user.users);
-    const Password = props.route.params?.password !== undefined ? props.route.params.password : "";
-    const userId = props.route.params?.uid !== undefined ? props.route.params.uid : useSelector(state => state.user.users.userId);
 
     const [UserTarget, setUserTarget] = useState(null);
     const [UserCronicProblems, setUserCronicProblems] = useState(null);
@@ -68,18 +66,18 @@ const Steps = props => {
 
     const CalculateAge = () => {
         if (profileData?.birthdate !== undefined && profileData?.birthdate !== null) {
-            var birthDate = moment(profileData?.birthdate, "DD/MM/YYYY").format("DD-MM-YYYY")
-            return moment().diff(moment(birthDate, 'DD/MM/YYYY'), 'years')
+            var birthDate = moment(profileData?.birthdate, "DD-MM-YYYY").format("DD-MM-YYYY")
+            return moment().diff(moment(birthDate, 'DD-MM-YYYY'), 'years')
         } else {
-            var birthDate = moment(userData?.birthdate, "DD/MM/YYYY").format("DD-MM-YYYY")
-            return moment().diff(moment(birthDate, 'DD/MM/YYYY'), 'years')
+            var birthDate = moment(userData?.birthdate, "DD-MM-YYYY").format("DD-MM-YYYY")
+            return moment().diff(moment(birthDate, 'DD-MM-YYYY'), 'years')
         }
     }
 
     const userAge = CalculateAge();
 
     const fetchData = async () => {
-        await axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/getUserData", { uid: userId })
+        await axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/getUserData", { uid: props.route.params.uid })
             .then((res) => {
                 if (res.status === 200) {
                     setProfileData(res.data.userData);
@@ -231,43 +229,36 @@ const Steps = props => {
                                         }
 
                                         axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/updateUserData", {
-                                            uid: userId,
+                                            uid: props.route.params.uid,
                                             data: {
                                                 ...newData
                                             }
                                         })
                                             .then((res) => {
                                                 if (res.status === 200) {
-                                                    if (auth2.currentUser.uid === null) {
-                                                        auth2.signInWithEmailAndPassword(userData.email, Password)
-                                                            .then((userRes) => {
-                                                                if (userRes.user.uid !== null) {
-                                                                    setLoading(false);
-                                                                    props.navigation.dispatch(
-                                                                        CommonActions.reset({
-                                                                            index: 0,
-                                                                            routes: [
-                                                                                { name: 'Home' }
-                                                                            ],
-                                                                        })
-                                                                    );
-                                                                    dispatch(actions.fetchUserData(userId));
-                                                                }
-                                                            })
-                                                            .catch((err) => {
-                                                                setLoading(false);
-                                                                setTimeout(() => {
-                                                                    Alert.alert('Hata', 'Giriş yapılırken bir problem oluştu.')
-                                                                }, 200)
-                                                            })
-                                                    } else {
-                                                        dispatch(actions.fetchUserData(userId));
-                                                        setLoading(false);
-                                                        setTimeout(() => {
-                                                            props.navigation.navigate('Home');
-                                                        }, 200);
-                                                    }
+                                                    // if (auth().currentUser.uid === null) {
+                                                    //     console.log('burda null:')
+                                                    auth().signInWithEmailAndPassword(userData.email, props.route.params.password)
+                                                        .then((userRes) => {
+                                                            console.log('usss: ', userRes.user)
 
+                                                            if (userRes.user.uid !== null) {
+                                                                dispatch(actions.fetchUserData(auth().currentUser.email));
+                                                                var newInt = setInterval(() => {
+                                                                    if (currentRoute !== "Steps") {
+                                                                        setLoading(false);
+                                                                        clearInterval(newInt);
+                                                                    }
+                                                                }, 500);
+                                                            }
+                                                        })
+                                                        .catch((err) => {
+                                                            console.log('func ici err', err)
+                                                            setLoading(false);
+                                                            setTimeout(() => {
+                                                                Alert.alert('Hata', 'Giriş yapılırken bir problem oluştu.')
+                                                            }, 200)
+                                                        })
                                                 } else {
                                                     setLoading(false);
                                                     setTimeout(() => {
@@ -276,7 +267,7 @@ const Steps = props => {
                                                 }
                                             })
                                             .catch((err) => {
-                                                console.log('err: ', err)
+                                                console.log('err burda: ', err)
                                                 setLoading(false);
                                                 setTimeout(() => {
                                                     Alert.alert('Hata', String(err))

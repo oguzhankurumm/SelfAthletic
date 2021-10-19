@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import axios from 'axios';
 import moment from 'moment';
-import { database2, auth2 } from '../../config/config';
+import { database, auth } from '../../config/config';
 import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get("window");
@@ -20,9 +20,10 @@ const WorkoutDetails = props => {
     const [VideoList, setVideoList] = useState([]);
 
     const [isFavorited, setisFavorited] = useState(false);
+    const [TotalTime, setTotalTime] = useState(0);
 
     const addFavorites = () => {
-        database2.ref('users').child(auth2.currentUser.uid + '/favorites/workouts').child(Workouts.id).set({
+        database().ref('users').child(auth().currentUser.uid + '/favorites/workouts').child(Workouts.id).set({
             date: moment().format("DD/MM/YYYYTHH:mm:ss"),
             id: Workouts.id,
             workouttype: 'wod'
@@ -31,7 +32,7 @@ const WorkoutDetails = props => {
             .catch((err) => setisFavorited(false))
     }
     const removeFavorites = () => {
-        database2.ref('users').child(auth2.currentUser.uid + '/favorites/workouts').child(Workouts.id).remove()
+        database().ref('users').child(auth().currentUser.uid + '/favorites/workouts').child(Workouts.id).remove()
             .then(() => setisFavorited(false))
             .catch((err) => setisFavorited(true))
     }
@@ -57,8 +58,8 @@ const WorkoutDetails = props => {
                 .then((res) => {
                     if (res.status === 200) {
                         videoList.push({
-                            size: res.data.request.files.progressive[4].width,
-                            url: res.data.request.files.progressive[4].url,
+                            size: res.data.request.files.progressive[2].width,
+                            url: res.data.request.files.progressive[2].url,
                             thumb: res.data.video.thumbs[640],
                             title: res.data.video.title,
                             duration: res.data.video.duration,
@@ -77,8 +78,15 @@ const WorkoutDetails = props => {
         const int = setInterval(() => {
             if (videoList.length >= Movements.length) {
                 setVideoList(videoList.sort((a, b) => a.index - b.index))
+                let workoutTime = videoList.reduce(function (prev, current) {
+                    let calcDuration = parseFloat(current.duration) * parseFloat(current.set);
+                    return prev + +calcDuration;
+                }, 0)
+
+                setTotalTime(workoutTime);
                 setLoading(false);
                 clearInterval(int)
+
             }
         }, 500);
 
@@ -111,7 +119,7 @@ const WorkoutDetails = props => {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
-                        <TouchableHighlight onPress={() => props.navigation.navigate('FeedList')}>
+                        <TouchableHighlight onPress={() => props.navigation.navigate('Feed')}>
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
@@ -193,6 +201,20 @@ const WorkoutDetails = props => {
                                             flexDirection: 'row',
                                             justifyContent: 'center',
                                             alignItems: 'center',
+                                        }}>
+                                            <Icon name="timer" color="#FFF" size={20} />
+                                            <Text style={{
+                                                fontFamily: 'SFProDisplay-Medium',
+                                                fontSize: 13,
+                                                color: '#FFF',
+                                                marginLeft: 5
+                                            }}>{moment.utc(TotalTime * 1000).format('mm:ss')} dk.</Text>
+                                        </View>
+
+                                        <View style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
                                             marginRight: 10
                                         }}>
                                             <Icon name="star" color="#FFF" size={20} />
@@ -203,66 +225,6 @@ const WorkoutDetails = props => {
                                                 marginLeft: 5
                                             }}>{String(parseFloat(Workouts.point).toFixed(0))} Puan</Text>
                                         </View>
-
-                                        {/* {Workouts.level === 0 &&
-                                            <View style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}>
-                                                <Icon name="bar-chart" color="#FFF" size={20} />
-                                                <Text style={{
-                                                    fontFamily: 'SFProDisplay-Medium',
-                                                    fontSize: 14,
-                                                    color: '#FFF',
-                                                    marginLeft: 5
-                                                }}>Başlangıç</Text>
-                                            </View>
-                                        }
-
-                                        {Workouts.level === 1 &&
-                                            <View style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}>
-                                                <Icon name="bar-chart" color="#FFF" size={20} />
-                                                <Text style={{
-                                                    fontFamily: 'SFProDisplay-Medium',
-                                                    fontSize: 14,
-                                                    color: '#FFF',
-                                                    marginLeft: 5
-                                                }}>Orta</Text>
-                                            </View>
-                                        }
-
-                                        {Workouts.level === 2 &&
-                                            <View style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}>
-                                                <Icon name="bar-chart" color="#FFF" size={20} />
-                                                <Text style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 14, color: '#FFF', marginLeft: 5 }}>Zor</Text>
-                                            </View>
-                                        }
-
-                                        {Workouts.level === 3 &&
-                                            <View style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}>
-                                                <Icon name="bar-chart" color="#FFF" size={20} />
-                                                <Text style={{
-                                                    fontFamily: 'SFProDisplay-Medium',
-                                                    fontSize: 14,
-                                                    color: '#FFF',
-                                                    marginLeft: 5
-                                                }}>Uzman</Text>
-                                            </View>
-                                        } */}
-
 
                                     </View>
 

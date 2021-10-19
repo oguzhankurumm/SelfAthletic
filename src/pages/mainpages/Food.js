@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react'
 import { View, Text, Image, StyleSheet, StatusBar, TouchableOpacity, TouchableHighlight, Dimensions, ImageBackground, SafeAreaView, ScrollView, FlatList, Alert } from 'react-native';
 import { useSelector } from 'react-redux';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -82,11 +82,11 @@ const Food = ({ navigation }) => {
         var date = moment(SelectedDate).format("DD-MM-YYYY");
         var index = SelectedReplaceFood.food.index;
 
-        await database2.ref('users/' + profileData.userId + `/foods/${String(date)}` + `/${String(category)}`).orderByChild("name").equalTo(food.name).once('value')
+        await database().ref('users/' + profileData.userId + `/foods/${String(date)}` + `/${String(category)}`).orderByChild("name").equalTo(food.name).once('value')
             .then(async (res) => {
                 const path = res.ref.path;
 
-                await database2.ref(`${path}/${index}`).update(newfood)
+                await database().ref(`${path}/${index}`).update(newfood)
                     .then(() => {
                         switch (SelectedReplaceFood.type) {
                             case "KahvaltiList":
@@ -214,12 +214,10 @@ const Food = ({ navigation }) => {
     }, [])
 
     useEffect(() => {
-        database2.ref('users/' + profileData.userId + `/foods/`).on("child_changed", function (snapshot, previousChildKey) {
+        database().ref('users/' + profileData.userId + `/foods/`).on("child_changed", function (snapshot, previousChildKey) {
             getMyFoodList();
         })
     }, [])
-
-
 
     const EatFood = async (food, category) => {
         setSaveLoading(true);
@@ -228,7 +226,7 @@ const Food = ({ navigation }) => {
 
         if (date !== undefined) {
 
-            await database2.ref('users/' + profileData.userId + `/foods/${String(date)}` + `/${String(category)}`).orderByChild("name").equalTo(food.item.name).once('value')
+            await database().ref('users/' + profileData.userId + `/foods/${String(date)}` + `/${String(category)}`).orderByChild("name").equalTo(food.item.name).once('value')
                 .then(async (res) => {
                     const path = res.ref.path;
 
@@ -240,7 +238,7 @@ const Food = ({ navigation }) => {
 
                     let completed = !res.val()[key].completed
 
-                    await database2.ref(`${path}/${key}`).update({
+                    await database().ref(`${path}/${key}`).update({
                         completed: completed
                     })
                         .then(() => {
@@ -332,8 +330,7 @@ const Food = ({ navigation }) => {
 
     const getSelectedDay = async (date) => {
         setLoading(true);
-        let selectedItem = MyFoodList[moment(date).format("DD-MM-YYYY")];
-
+        let selectedItem = MyFoodList[date];
         if (selectedItem !== undefined) {
             setSelectedDate(date);
             setKahvaltiList(selectedItem.kahvalti !== undefined ? selectedItem.kahvalti : [])
@@ -369,24 +366,31 @@ const Food = ({ navigation }) => {
     const addFavorites = async (category) => {
         var date = moment(SelectedDate).format("DD-MM-YYYY")
         let obj = {}
+        let cat = ""
 
         if (category === "kahvalti") {
+            cat = "kahvalti"
             obj = KahvaltiList
         } else if (category === "aralist1") {
+            cat = "aralist1"
             obj = AraList1
         } else if (category === "aralist2") {
+            cat = "aralist2"
             obj = AraList2
         } else if (category === "aralist3") {
+            cat = "aralist3"
             obj = AraList3
         } else if (category === "aksamlist") {
+            cat = "aksamlist"
             obj = AksamList
         } else if (category === "oglelist") {
+            cat = "oglelist"
             obj = OgleList
         } else {
             obj = {}
         }
 
-        await database2.ref(`users/${profileData.userId}/favorites/foods/${date}/${category}`).set(obj)
+        await database().ref(`users/${profileData.userId}/favorites/foods/${date}/${cat}`).set(obj)
             .then(() => {
                 setShowSuccess(true);
             })
@@ -400,7 +404,7 @@ const Food = ({ navigation }) => {
     const getMyFoodList = async () => {
         setLoading(true);
 
-        await database2.ref('users/' + profileData.userId + '/foods').once('value')
+        await database().ref('users/' + profileData.userId + '/foods').once('value')
             .then(async (snapshot) => {
                 if (snapshot.val() !== null) {
                     var MyList = [];
@@ -516,34 +520,10 @@ const Food = ({ navigation }) => {
 
                     let today = MyList[moment().format("DD-MM-YYYY")];
                     if (today !== undefined) {
-                        setKahvaltiList(today.kahvalti !== undefined ? today.kahvalti : [])
-                        setAraList1(today.aralist1 !== undefined ? today.aralist1 : [])
-                        setOgleList(today.oglelist !== undefined ? today.oglelist : [])
-                        setAraList2(today.aralist2 !== undefined ? today.aralist2 : [])
-                        setAksamList(today.aksamlist !== undefined ? today.aksamlist : [])
-                        setAraList3(today.aralist3 !== undefined ? today.aralist3 : [])
-
-                        setTotalKcal(parseFloat(today.totalcalorie).toFixed(0));
-                        setCompletedKcal(parseFloat(today.completedcalorie).toFixed(0));
-                        setChartKcal(parseFloat(parseFloat(parseFloat(today.completedcalorie) / parseFloat(today.totalcalorie)) * 100).toFixed(1))
-
-                        setTotalKrb(parseFloat(today.totalkrb).toFixed(0));
-                        setCompletedKrb(parseFloat(today.completedkrb).toFixed(0));
-                        setChartKrb(parseFloat(parseFloat(parseFloat(today.completedkrb) / parseFloat(today.totalkrb)) * 100).toFixed(1))
-
-                        setTotalPro(parseFloat(today.totalpro).toFixed(0));
-                        setCompletedPro(parseFloat(today.completedpro).toFixed(0));
-                        setChartPro(parseFloat(parseFloat(parseFloat(today.completedpro) / parseFloat(today.totalpro)) * 100).toFixed(1))
-
-                        setYag(parseFloat(today.Yag).toFixed(0));
-                        setCompletedYag(parseFloat(today.completedyag).toFixed(0));
-                        setChartYag(parseFloat(parseFloat(parseFloat(today.completedyag) / parseFloat(today.Yag)) * 100).toFixed(1))
-
-                        setLoading(false);
 
                         let fbFoodsArr = [];
 
-                        await database2.ref('foods').once('value')
+                        await database().ref('foods').once('value')
                             .then((snapshot) => {
                                 snapshot.forEach((item) => {
                                     fbFoodsArr.push({
@@ -559,6 +539,32 @@ const Food = ({ navigation }) => {
                                 setSaveLoading(false);
                                 setLoading(false);
                             })
+
+                            setSelectedDate(moment().format("DD-MM-YYYY"));
+                            setKahvaltiList(today.kahvalti !== undefined ? today.kahvalti : [])
+                            setAraList1(today.aralist1 !== undefined ? today.aralist1 : [])
+                            setOgleList(today.oglelist !== undefined ? today.oglelist : [])
+                            setAraList2(today.aralist2 !== undefined ? today.aralist2 : [])
+                            setAksamList(today.aksamlist !== undefined ? today.aksamlist : [])
+                            setAraList3(today.aralist3 !== undefined ? today.aralist3 : [])
+                
+                            setTotalKcal(parseFloat(today.totalcalorie).toFixed(0));
+                            setCompletedKcal(parseFloat(today.completedcalorie).toFixed(0));
+                            setChartKcal(parseFloat(parseFloat(parseFloat(today.completedcalorie) / parseFloat(today.totalcalorie)) * 100).toFixed(1))
+                
+                            setTotalKrb(parseFloat(today.totalkrb).toFixed(0));
+                            setCompletedKrb(parseFloat(today.completedkrb).toFixed(0));
+                            setChartKrb(parseFloat(parseFloat(parseFloat(today.completedkrb) / parseFloat(today.totalkrb)) * 100).toFixed(1))
+                
+                            setTotalPro(parseFloat(today.totalpro).toFixed(0));
+                            setCompletedPro(parseFloat(today.completedpro).toFixed(0));
+                            setChartPro(parseFloat(parseFloat(parseFloat(today.completedpro) / parseFloat(today.totalpro)) * 100).toFixed(1))
+                
+                            setYag(parseFloat(today.Yag).toFixed(0));
+                            setCompletedYag(parseFloat(today.completedyag).toFixed(0));
+                            setChartYag(parseFloat(parseFloat(parseFloat(today.completedyag) / parseFloat(today.Yag)) * 100).toFixed(1))
+                
+                            setLoading(false);
                     } else {
                         createFoodList();
                     }
@@ -580,7 +586,6 @@ const Food = ({ navigation }) => {
         let Program = profileData.questions?.program !== undefined ? profileData.questions?.program : 'Yok';
 
         let AlgorithmList = [];
-
         let kahvaltiNewList = [];
         let araList1 = [];
         let araList2 = [];
@@ -590,8 +595,6 @@ const Food = ({ navigation }) => {
 
         let fbFoodsArr = [];
         let fbFoods = [];
-        let allList = [];
-
         let myValues = null
 
         //besin degerlerini algoritmadan cek
@@ -599,6 +602,8 @@ const Food = ({ navigation }) => {
 
         if (enerji < 1400) {
             enerji = 1400;
+        } else if (Target === "Formda Kalma" && enerji >= 1900) {
+            enerji = 1900
         }
 
         console.log('enerji : ', enerji)
@@ -606,7 +611,7 @@ const Food = ({ navigation }) => {
         //algoritmadan gelecek olan besin degerleri
 
         if (Target === "Kas Kütlesi Artışı") {
-            await database2.ref(`algorithm/kaskutlesiartisi/${enerji}`).once('value')
+            await database().ref(`algorithm/kaskutlesiartisi/${enerji}`).once('value')
                 .then((snapshot) => {
                     snapshot.forEach((item) => {
                         AlgorithmList[item.key] = {
@@ -654,7 +659,7 @@ const Food = ({ navigation }) => {
         }
 
         if (Target === "Formda Kalma") {
-            await database2.ref(`algorithm/formdakalma/${enerji}`).once('value')
+            await database().ref(`algorithm/formdakalma/${enerji}`).once('value')
                 .then((snapshot) => {
                     snapshot.forEach((item) => {
                         AlgorithmList[item.key] = {
@@ -702,7 +707,7 @@ const Food = ({ navigation }) => {
         }
 
         if (Target === "Yağ Oranı Azaltma") {
-            await database2.ref(`algorithm/dengeli/${enerji}`).once('value')
+            await database().ref(`algorithm/dengeli/${enerji}`).once('value')
                 .then((snapshot) => {
                     console.log('snap: ', snapshot.val())
                     snapshot.forEach((item) => {
@@ -755,7 +760,7 @@ const Food = ({ navigation }) => {
         //algoritma degerleri son
 
 
-        await database2.ref('foods').once('value')
+        await database().ref('foods').once('value')
             .then((snapshot) => {
                 snapshot.forEach((item) => {
                     fbFoodsArr.push({
@@ -775,7 +780,7 @@ const Food = ({ navigation }) => {
 
         const aksamList = filterByValue(fbFoods, 'Ana').sort((a, b) => b.besinYag - a.besinYag || b.besinEYP - a.besinEYP || b.besinEkmek - a.besinEkmek || b.besinSut - a.besinSut || b.besinSebze - a.besinSebze);
         const araList = filterByValue(fbFoods, 'Ara').sort((a, b) => b.besinYag - a.besinYag || b.besinEkmek - a.besinEkmek || b.besinSut - a.besinSut);
-        const kahvaltiList = filterByValue(fbFoods, 'Kahvalti').sort((a, b) => b.besinYag - a.besinYag || b.besinEkmek - a.besinEkmek || b.besinSut - a.besinSut);
+        const kahvaltiList = filterByValue(fbFoods, 'Kahvalti').sort((a, b) => b.besinYag - a.besinYag || b.besinSut - a.besinSut);
 
         let caseAksamList = Object.values(aksamList);
         let caseKahvaltiList = Object.values(kahvaltiList);
@@ -1072,7 +1077,7 @@ const Food = ({ navigation }) => {
         }
 
         var pushDate = moment().format('DD-MM-YYYY')
-        database2.ref(`users/${profileData.userId}/foods/${pushDate}`).set(List)
+        database().ref(`users/${profileData.userId}/foods/${pushDate}`).set(List)
             .then(() => {
                 getMyFoodList();
             })
@@ -1145,65 +1150,89 @@ const Food = ({ navigation }) => {
                             <Icon name="info-outline" size={42} color="#202026" />
                         </View>
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>Demir:</Text>
-                            <Text style={styles.popupText}>{SelectedFood.demir !== undefined ? SelectedFood.demir : 0} mg.</Text>
-                        </View>
+                        {SelectedFood.demir !== 0 && SelectedFood.demir !== undefined && SelectedFood.demir !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>Demir:</Text>
+                                <Text style={styles.popupText}>{SelectedFood.demir !== undefined ? SelectedFood.demir : 0} mg.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>Kalori:</Text>
-                            <Text style={styles.popupText}>{SelectedFood.kalori !== undefined ? SelectedFood.kalori : 0} kcal.</Text>
-                        </View>
+                        {SelectedFood.kalori !== 0 && SelectedFood.kalori !== undefined && SelectedFood.kalori !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>Kalori:</Text>
+                                <Text style={styles.popupText}>{SelectedFood.kalori !== undefined ? SelectedFood.kalori : 0} kcal.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>Kalsiyum:</Text>
-                            <Text style={styles.popupText}>{SelectedFood.kalsiyum !== undefined ? SelectedFood.kalsiyum : 0} mg.</Text>
-                        </View>
+                        {SelectedFood.kalsiyum !== 0 && SelectedFood.kalsiyum !== undefined && SelectedFood.kalsiyum !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>Kalsiyum:</Text>
+                                <Text style={styles.popupText}>{SelectedFood.kalsiyum !== undefined ? SelectedFood.kalsiyum : 0} mg.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>Karbonhidrat:</Text>
-                            <Text style={styles.popupText}>{SelectedFood.karbonhidrat !== undefined ? SelectedFood.karbonhidrat : 0} g.</Text>
-                        </View>
+                        {SelectedFood.karbonhidrat !== 0 && SelectedFood.karbonhidrat !== undefined && SelectedFood.karbonhidrat !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>Karbonhidrat:</Text>
+                                <Text style={styles.popupText}>{SelectedFood.karbonhidrat !== undefined ? SelectedFood.karbonhidrat : 0} g.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>Lif:</Text>
-                            <Text style={styles.popupText}>{SelectedFood.lif !== undefined ? SelectedFood.lif : 0} g.</Text>
-                        </View>
+                        {SelectedFood.lif !== 0 && SelectedFood.lif !== undefined && SelectedFood.lif !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>Lif:</Text>
+                                <Text style={styles.popupText}>{SelectedFood.lif !== undefined ? SelectedFood.lif : 0} g.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>Potasyum:</Text>
-                            <Text style={styles.popupText}>{SelectedFood.potasyum !== undefined ? SelectedFood.potasyum : 0} mg.</Text>
-                        </View>
+                        {SelectedFood.potasyum !== 0 && SelectedFood.potasyum !== undefined && SelectedFood.potasyum !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>Potasyum:</Text>
+                                <Text style={styles.popupText}>{SelectedFood.potasyum !== undefined ? SelectedFood.potasyum : 0} mg.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>Protein:</Text>
-                            <Text style={styles.popupText}>{SelectedFood.protein !== undefined ? SelectedFood.protein : 0} g.</Text>
-                        </View>
+                        {SelectedFood.protein !== 0 && SelectedFood.protein !== undefined && SelectedFood.protein !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>Protein:</Text>
+                                <Text style={styles.popupText}>{SelectedFood.protein !== undefined ? SelectedFood.protein : 0} g.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>Sodyum:</Text>
-                            <Text style={styles.popupText}>{SelectedFood.soydum !== undefined ? SelectedFood.sodyum : 0} mg.</Text>
-                        </View>
+                        {SelectedFood.sodyum !== 0 && SelectedFood.sodyum !== undefined && SelectedFood.sodyum !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>Sodyum:</Text>
+                                <Text style={styles.popupText}>{SelectedFood.soydum !== undefined ? SelectedFood.sodyum : 0} mg.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>Yağ:</Text>
-                            <Text style={styles.popupText}>{SelectedFood.yag !== undefined ? SelectedFood.yag : 0} g.</Text>
-                        </View>
+                        {SelectedFood.yag !== 0 && SelectedFood.yag !== undefined && SelectedFood.yag !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>Yağ:</Text>
+                                <Text style={styles.popupText}>{SelectedFood.yag !== undefined ? SelectedFood.yag : 0} g.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>Fosfor:</Text>
-                            <Text style={styles.popupText}>{SelectedFood.fosfor !== undefined ? SelectedFood.fosfor : 0} mg.</Text>
-                        </View>
+                        {SelectedFood.fosfor !== 0 && SelectedFood.fosfor !== undefined && SelectedFood.fosfor !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>Fosfor:</Text>
+                                <Text style={styles.popupText}>{SelectedFood.fosfor !== undefined ? SelectedFood.fosfor : 0} mg.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>A Vit. :</Text>
-                            <Text style={styles.popupText}>{SelectedFood.avitamin !== undefined ? SelectedFood.avitamin : 0} µg.</Text>
-                        </View>
+                        {SelectedFood.avitamin !== 0 && SelectedFood.avitamin !== undefined && SelectedFood.avitamin !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>A Vit. :</Text>
+                                <Text style={styles.popupText}>{SelectedFood.avitamin !== undefined ? SelectedFood.avitamin : 0} µg.</Text>
+                            </View>
+                        }
 
-                        <View style={styles.modalStyle}>
-                            <Text style={styles.popupText}>C Vit. :</Text>
-                            <Text style={styles.popupText}>{SelectedFood.cvitamin !== undefined ? SelectedFood.cvitamin : 0} µg.</Text>
-                        </View>
+                        {SelectedFood.cvitamin !== 0 && SelectedFood.cvitamin !== undefined && SelectedFood.cvitamin !== "" &&
+                            <View style={styles.modalStyle}>
+                                <Text style={styles.popupText}>C Vit. :</Text>
+                                <Text style={styles.popupText}>{SelectedFood.cvitamin !== undefined ? SelectedFood.cvitamin : 0} µg.</Text>
+                            </View>
+                        }
 
                         {SelectedFood.tarif !== undefined && SelectedFood.tarif !== "" &&
                             <View style={[styles.modalStyle, { marginTop: 20, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }]}>
@@ -1233,7 +1262,7 @@ const Food = ({ navigation }) => {
                             <Image source={require('../../img/suekle.png')} style={{ tintColor: 'lightblue', width: 55, height: 50 }} resizeMode="contain" />
                         </TouchableHighlight>
 
-                        <TouchableHighlight onPress={() => navigation.navigate('FeedList')}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Feed')}>
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 15 }} />
                         </TouchableHighlight>
 
@@ -1261,7 +1290,7 @@ const Food = ({ navigation }) => {
                                     </View>
                                 )}
                             </AnimatedCircularProgress>
-                            <Text style={styles.circleSubText}>{CompletedKcal} / {profileData.gunlukEnerji}{"\n"}Kalori</Text>
+                            <Text style={styles.circleSubText}>{CompletedKcal} / {parseFloat(String(Math.round(profileData.gunlukEnerji)).replace(/\d{2}$/, '00')).toFixed(0)}{"\n"}Kalori</Text>
                         </View>
 
                         <View style={{ width: width / 5, justifyContent: 'center', alignItems: 'center' }}>
@@ -1328,7 +1357,7 @@ const Food = ({ navigation }) => {
                                 selectedDate={SelectedDate}
                                 maxDate={moment()}
                                 minDate={moment().subtract(7, 'days')}
-                                onDateSelected={(val) => getSelectedDay(val)}
+                                onDateSelected={(val) => getSelectedDay(moment(val).format("DD-MM-YYYY"))}
                                 style={{ height: 100, paddingTop: 20, paddingBottom: 10 }}
                                 daySelectionAnimation={{ type: 'background', duration: 200, borderWidth: 1, borderHighlightColor: 'white' }}
                                 calendarHeaderStyle={{ color: 'white' }}
@@ -1359,7 +1388,7 @@ const Food = ({ navigation }) => {
                                             return (
                                                 <View style={{ backgroundColor: '#202026', flexDirection: 'row', borderTopLeftRadius: 12, borderTopRightRadius: 12, paddingHorizontal: 20, paddingVertical: 15, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                                                     <Text style={styles.foodHeader}>Kahvaltı</Text>
-                                                    <Icon onPress={() => addFavorites("kahvalti")} name="favorite-outline" size={20} color="#FFF" />
+                                                    {/* <Icon onPress={() => addFavorites("kahvalti")} name="favorite-outline" size={20} color="#FFF" /> */}
                                                 </View>
                                             )
                                         }}
@@ -1390,10 +1419,10 @@ const Food = ({ navigation }) => {
                                                                 setShowPopup(!ShowPopup)
                                                             }, 200);
                                                         }} name="info-outline" size={20} color="#FFF" />
-                                                        <Icon style={{ marginLeft: 10 }} onPress={() => {
+                                                        {/* <Icon style={{ marginLeft: 10 }} onPress={() => {
                                                             setShowAlert(true);
                                                             setSelectedReplaceFood({ food: food, type: "KahvaltiList" });
-                                                        }} name="replay" size={20} color="#FFF" />
+                                                        }} name="replay" size={20} color="#FFF" /> */}
                                                         <Icon style={{ marginLeft: 10 }} onPress={() => EatFood(food, "kahvalti")} name="check" size={20} color={item.completed === true ? "#00FF00" : "#FFF"} />
                                                     </View>
                                                 </View>
@@ -1414,7 +1443,7 @@ const Food = ({ navigation }) => {
                                             return (
                                                 <View style={{ backgroundColor: '#202026', flexDirection: 'row', borderTopLeftRadius: 12, borderTopRightRadius: 12, paddingHorizontal: 20, paddingVertical: 15, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                                                     <Text style={styles.foodHeader}>Ara Öğün 1</Text>
-                                                    <Icon onPress={() => addFavorites("aralist1")} name="favorite-outline" size={20} color="#FFF" />
+                                                    {/* <Icon onPress={() => addFavorites("aralist1")} name="favorite-outline" size={20} color="#FFF" /> */}
                                                 </View>
                                             )
                                         }}
@@ -1444,10 +1473,10 @@ const Food = ({ navigation }) => {
                                                                 setShowPopup(!ShowPopup)
                                                             }, 200);
                                                         }} name="info-outline" size={20} color="#FFF" />
-                                                        <Icon style={{ marginLeft: 10 }} onPress={() => {
+                                                        {/* <Icon style={{ marginLeft: 10 }} onPress={() => {
                                                             setShowAlert(true);
                                                             setSelectedReplaceFood({ food: food, type: "AraList1" });
-                                                        }} name="replay" size={20} color="#FFF" />
+                                                        }} name="replay" size={20} color="#FFF" /> */}
                                                         <Icon style={{ marginLeft: 10 }} onPress={() => EatFood(food, "aralist1")} name="check" size={20} color={item.completed === true ? "#00FF00" : "#FFF"} />
                                                     </View>
                                                 </View>
@@ -1467,7 +1496,7 @@ const Food = ({ navigation }) => {
                                             return (
                                                 <View style={{ backgroundColor: '#202026', flexDirection: 'row', borderTopLeftRadius: 12, borderTopRightRadius: 12, paddingHorizontal: 20, paddingVertical: 15, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                                                     <Text style={styles.foodHeader}>Öğle Yemeği</Text>
-                                                    <Icon onPress={() => addFavorites("oglelist")} name="favorite-outline" size={20} color="#FFF" />
+                                                    {/* <Icon onPress={() => addFavorites("oglelist")} name="favorite-outline" size={20} color="#FFF" /> */}
                                                 </View>
                                             )
                                         }}
@@ -1497,10 +1526,10 @@ const Food = ({ navigation }) => {
                                                                 setShowPopup(!ShowPopup)
                                                             }, 200);
                                                         }} name="info-outline" size={20} color="#FFF" />
-                                                        <Icon style={{ marginLeft: 10 }} onPress={() => {
+                                                        {/* <Icon style={{ marginLeft: 10 }} onPress={() => {
                                                             setShowAlert(true);
                                                             setSelectedReplaceFood({ food: food, type: "OgleList" });
-                                                        }} name="replay" size={20} color="#FFF" />
+                                                        }} name="replay" size={20} color="#FFF" /> */}
                                                         <Icon style={{ marginLeft: 10 }} onPress={() => EatFood(food, "oglelist")} name="check" size={20} color={item.completed === true ? "#00FF00" : "#FFF"} />
                                                     </View>
                                                 </View>
@@ -1521,7 +1550,7 @@ const Food = ({ navigation }) => {
                                             return (
                                                 <View style={{ backgroundColor: '#202026', flexDirection: 'row', borderTopLeftRadius: 12, borderTopRightRadius: 12, paddingHorizontal: 20, paddingVertical: 15, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                                                     <Text style={styles.foodHeader}>Ara Öğün 2</Text>
-                                                    <Icon onPress={() => addFavorites("aralist2")} name="favorite-outline" size={20} color="#FFF" />
+                                                    {/* <Icon onPress={() => addFavorites("aralist2")} name="favorite-outline" size={20} color="#FFF" /> */}
                                                 </View>
                                             )
                                         }}
@@ -1551,10 +1580,10 @@ const Food = ({ navigation }) => {
                                                                 setShowPopup(!ShowPopup)
                                                             }, 200);
                                                         }} name="info-outline" size={20} color="#FFF" />
-                                                        <Icon style={{ marginLeft: 10 }} onPress={() => {
+                                                        {/* <Icon style={{ marginLeft: 10 }} onPress={() => {
                                                             setShowAlert(true);
                                                             setSelectedReplaceFood({ food: food, type: "AraList2" });
-                                                        }} name="replay" size={20} color="#FFF" />
+                                                        }} name="replay" size={20} color="#FFF" /> */}
                                                         <Icon style={{ marginLeft: 10 }} onPress={() => EatFood(food, "aralist2")} name="check" size={20} color={item.completed === true ? "#00FF00" : "#FFF"} />
                                                     </View>
                                                 </View>
@@ -1575,7 +1604,7 @@ const Food = ({ navigation }) => {
                                             return (
                                                 <View style={{ backgroundColor: '#202026', flexDirection: 'row', borderTopLeftRadius: 12, borderTopRightRadius: 12, paddingHorizontal: 20, paddingVertical: 15, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                                                     <Text style={styles.foodHeader}>Akşam Yemeği</Text>
-                                                    <Icon onPress={() => addFavorites("aksamlist")} name="favorite-outline" size={20} color="#FFF" />
+                                                    {/* <Icon onPress={() => addFavorites("aksamlist")} name="favorite-outline" size={20} color="#FFF" /> */}
                                                 </View>
                                             )
                                         }}
@@ -1605,10 +1634,10 @@ const Food = ({ navigation }) => {
                                                                 setShowPopup(!ShowPopup)
                                                             }, 200);
                                                         }} name="info-outline" size={20} color="#FFF" />
-                                                        <Icon style={{ marginLeft: 10 }} onPress={() => {
+                                                        {/* <Icon style={{ marginLeft: 10 }} onPress={() => {
                                                             setShowAlert(true);
                                                             setSelectedReplaceFood({ food: food, type: "AksamList" });
-                                                        }} name="replay" size={20} color="#FFF" />
+                                                        }} name="replay" size={20} color="#FFF" /> */}
                                                         <Icon style={{ marginLeft: 10 }} onPress={() => EatFood(food, "aksamlist")} name="check" size={20} color={item.completed === true ? "#00FF00" : "#FFF"} />
                                                     </View>
                                                 </View>
@@ -1630,7 +1659,7 @@ const Food = ({ navigation }) => {
                                             return (
                                                 <View style={{ backgroundColor: '#202026', flexDirection: 'row', borderTopLeftRadius: 12, borderTopRightRadius: 12, paddingHorizontal: 20, paddingVertical: 15, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                                                     <Text style={styles.foodHeader}>Ara Öğün 3</Text>
-                                                    <Icon onPress={() => addFavorites("aralist3")} name="favorite-outline" size={20} color="#FFF" />
+                                                    {/* <Icon onPress={() => addFavorites("aralist3")} name="favorite-outline" size={20} color="#FFF" /> */}
                                                 </View>
                                             )
                                         }}
@@ -1660,10 +1689,10 @@ const Food = ({ navigation }) => {
                                                                 setShowPopup(!ShowPopup)
                                                             }, 200);
                                                         }} name="info-outline" size={20} color="#FFF" />
-                                                        <Icon style={{ marginLeft: 10 }} onPress={() => {
+                                                        {/* <Icon style={{ marginLeft: 10 }} onPress={() => {
                                                             setShowAlert(true);
                                                             setSelectedReplaceFood({ food: food, type: "AraList3" });
-                                                        }} name="replay" size={20} color="#FFF" />
+                                                        }} name="replay" size={20} color="#FFF" /> */}
                                                         <Icon style={{ marginLeft: 10 }} onPress={() => EatFood(food, "aralist3")} name="check" size={20} color={item.completed === true ? "#00FF00" : "#FFF"} />
                                                     </View>
                                                 </View>

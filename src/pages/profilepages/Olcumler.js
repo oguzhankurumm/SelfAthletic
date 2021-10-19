@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import moment from 'moment';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import * as actions from '../../redux/actions/profile';
 import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
 import Carousel from 'react-native-snap-carousel';
@@ -26,13 +26,12 @@ const Olcumler = props => {
     const [ShowAlert, setShowAlert] = useState(false);
     const [ShowAlert2, setShowAlert2] = useState(false);
     const [Olcumler, setOlcumler] = useState([
-        { name_val: "gogus", name: "Göğüs", image: "https://i.ibb.co/qFncfM2/gogus.png", index: 0, value: 0 },
-        { name_val: "omuz", name: "Omuz", image: "https://i.ibb.co/qxSTrFq/omuz.png", index: 1, value: 0 },
-        { name_val: "bel", name: "Bel", image: "https://i.ibb.co/Czjzq7y/bel.png", index: 2, value: 0 },
-        { name_val: "karin", name: "Karın", image: "https://i.ibb.co/0MxMVDq/karin.png", index: 3, value: 0 },
-        { name_val: "kol", name: "Kol", image: "https://i.ibb.co/tc6QBz6/kol.png", index: 4, value: 0 },
-        { name_val: "omuz", name: "Omuz", image: "https://i.ibb.co/qxSTrFq/omuz.png", index: 5, value: 0 },
-        { name_val: "kalca", name: "Kalça", image: "https://i.ibb.co/FBw0PvQ/kalca.png", index: 6, value: 0 }
+        { name_val: "gogus", name: "Göğüs", image: "https://i.ibb.co/qFncfM2/gogus.png", index: 0, value: 0, description: 'Ayaktayken kolları yana açınız, normal solunum esnasındayken mezurayı koltuk altından göğüs kafesinin orta noktasına doğru sarıp ve ölçümü yapınız.' },
+        { name_val: "omuz", name: "Omuz", image: "https://i.ibb.co/qxSTrFq/omuz.png", index: 1, value: 0, description: 'Ayakta,kollar yanda serbest durunuz. Omzunuzun olduğu bölgede yer alan kemik noktası ve omuz kaslarınız geniş bölümüne denk gelecek şekilde yapınız.' },
+        { name_val: "bel", name: "Bel", image: "https://i.ibb.co/Czjzq7y/bel.png", index: 2, value: 0, description: 'Kollar yanda, ayaklar bitişik, karın rahat pozisyonda olmalıdır. En alt kaburga kemiğinizin altı ile kalça kemiğinizin üst kısmı arasındaki orta noktaya mezuranızı yerleştirin. Vücudunuzun “en dar kıvrıma” denk gelecek bölgede, dokuyu sıkıştırmadan ölçümüzü yapınız.' },
+        { name_val: "karin", name: "Karın", image: "https://i.ibb.co/0MxMVDq/karin.png", index: 3, value: 0, description: 'Ölçüm, ayakta ve kollar yandayken yapılır. En geniş bölümde “göbek noktası” seviyesinden dokuyu sıkıştırmadan ölçümü alınız.' },
+        { name_val: "kol", name: "Kol", image: "https://i.ibb.co/tc6QBz6/kol.png", index: 4, value: 0, description: 'Dirsek bükülü halde, pazıların en geniş kısmının olduğu noktada mezura ölçümünü yapınız.' },
+        { name_val: "kalca", name: "Kalça", image: "https://i.ibb.co/rFZ5sk5/kalca.png", index: 5, value: 0, description: 'Yan taraftan bakıldığında arka kısımda kalça kaslarına en geniş seviyesine denk gelen bölümde mezura ölçümüzü yapınız.' }
     ].sort((a, b) => a.index - b.index))
 
     const onCarouselItemChange = index => {
@@ -59,7 +58,7 @@ const Olcumler = props => {
             date: dateNow
         };
 
-        await database2.ref(`users/${profileData.userId}/measurements/${dateNow}`).set(data)
+        await database().ref(`users/${profileData.userId}/measurements/${dateNow}`).set(data)
             .then(() => {
                 setShowAlert2(true);
             })
@@ -84,18 +83,27 @@ const Olcumler = props => {
                 }}>
                     {!Loading && !Olcumler[index] !== undefined &&
                         <>
-                            <Text style={{
-                                fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 22,
-                                color: '#FFF',
-                                textAlign: 'center',
-                                marginTop: 10,
-                                marginBottom: 20
-                            }}>{item.name} Ölçüsü</Text>
+                            <View style={{ position: 'absolute', width: '100%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
+                                <Text style={{
+                                    fontFamily: 'SFProDisplay-Medium',
+                                    fontSize: 22,
+                                    color: '#FFF',
+                                    textAlign: 'center',
+                                    marginTop: 10,
+                                    marginBottom: 10
+                                }}>{item.name} Ölçüsü</Text>
 
-                            <Image source={{ uri: item.image }} resizeMode="contain" style={{ width: '100%', height: height / 1.5 }} />
+                                <Text style={{
+                                    fontFamily: 'SFProDisplay-Medium',
+                                    fontSize: 14,
+                                    textAlign: 'justify',
+                                    color: '#FFF'
+                                }}>{item.description}</Text>
+                            </View>
 
-                            <View style={{ position: 'absolute', bottom: 0, width: '100%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 50 }}>
+                            <Image source={{ uri: item.image }} resizeMode="contain" style={{ width: '100%', height: height / 1.5, marginTop: 20 }} />
+
+                            <View style={{ position: 'absolute', bottom: 0, width: '100%', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 }}>
                                 <Text style={{
                                     fontFamily: 'SFProDisplay-Medium',
                                     fontSize: 22,
@@ -104,17 +112,35 @@ const Olcumler = props => {
                                     marginBottom: 20
                                 }}>{Olcumler[index].value} cm.</Text>
 
-                                <Slider
-                                    onSlidingComplete={(val) => {
-                                        Olcumler[index].value = parseFloat(val).toFixed(1);
-                                        setNewValue(parseFloat(val).toFixed(1));
-                                    }}
+                                <TextInput
                                     value={parseFloat(NewValue)}
-                                    style={{ width: width / 1.3 }}
-                                    minimumValue={0}
-                                    maximumValue={200}
-                                    minimumTrackTintColor="yellow"
-                                    maximumTrackTintColor="#FFF"
+                                    style={{
+                                        width: '100%',
+                                        padding: 20,
+                                        color: "#FFF",
+                                        backgroundColor: '#363636',
+                                        fontFamily: 'SFProDisplay-Bold',
+                                        fontSize: 16,
+                                        borderRadius: 12
+                                    }}
+                                    onChangeText={(val) => {
+                                        if (val.length !== 0) {
+                                            Olcumler[index].value = parseFloat(val).toFixed(1);
+                                            setNewValue(parseFloat(val).toFixed(1));
+                                        } else {
+                                            Olcumler[index].value = parseFloat(0);
+                                            setNewValue(parseFloat(0));
+                                        }
+
+                                    }}
+                                    textAlign="center"
+                                    autoCorrect={false}
+                                    autoCapitalize="none"
+                                    allowFontScaling={false}
+                                    maxLength={5}
+                                    placeholder="0 cm."
+                                    returnKeyType={"done"}
+                                    keyboardType={"decimal-pad"}
                                 />
                             </View>
                         </>
@@ -148,6 +174,10 @@ const Olcumler = props => {
                         theme="success"
                         show={ShowAlert2}
                         title="Ölçümler Tamamlandı"
+                        onRequestClose={() => {
+                            setShowAlert2(!ShowAlert2);
+                            props.navigation.goBack();
+                        }}
                         subtitle="Tebrikler, ölçümler tamamlandı ve kaydedildi."
                     >
                         <SCLAlertButton theme="success" onPress={() => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAreaView, Image, ImageBackground, Alert } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAreaView, DevSettings, ImageBackground, Alert } from 'react-native';
 import { Bar } from 'react-native-progress';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -7,6 +7,7 @@ import moment from 'moment';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import * as actions from '../../redux/actions/profile';
+import { database, auth } from '../../config/config';
 
 const { height, width } = Dimensions.get("window");
 
@@ -15,7 +16,7 @@ const HedefAyarlari = props => {
     const dispatch = useDispatch();
 
     const userData = useSelector(state => state.user.users);
-    const userId = useSelector(state => state.user.users.userId);
+    const userId = auth().currentUser.email;
 
     const [UserTarget, setUserTarget] = useState(null);
     const [Program, setProgram] = useState("");
@@ -41,11 +42,11 @@ const HedefAyarlari = props => {
 
     const CalculateAge = () => {
         if (profileData?.birthdate !== undefined && profileData?.birthdate !== null) {
-            var birthDate = moment(profileData?.birthdate, "DD/MM/YYYY").format("DD-MM-YYYY")
-            return moment().diff(moment(birthDate, 'DD/MM/YYYY'), 'years')
+            var birthDate = moment(profileData?.birthdate, "DD-MM-YYYY").format("DD-MM-YYYY")
+            return moment().diff(moment(birthDate, 'DD-MM-YYYY'), 'years')
         } else {
-            var birthDate = moment(userData?.birthdate, "DD/MM/YYYY").format("DD-MM-YYYY")
-            return moment().diff(moment(birthDate, 'DD/MM/YYYY'), 'years')
+            var birthDate = moment(userData?.birthdate, "DD/-MM-YYYY").format("DD-MM-YYYY")
+            return moment().diff(moment(birthDate, 'DD-MM-YYYY'), 'years')
         }
     }
 
@@ -185,33 +186,54 @@ const HedefAyarlari = props => {
                                             gunlukEnerji: gunlukEnerji,
                                         }
 
-                                        axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/updateUserData", {
-                                            uid: userId,
-                                            data: {
-                                                ...newData
-                                            }
-                                        })
-                                            .then((res) => {
-                                                if (res.status === 200) {
-                                                    dispatch(actions.fetchUserData(userId));
-                                                    setTimeout(() => {
-                                                        setLoading(false);
-                                                        props.navigation.goBack();
-                                                    }, 300);
-                                                } else {
-                                                    setLoading(false);
-                                                    setTimeout(() => {
-                                                        Alert.alert('Hata', String(res.data))
-                                                    }, 200);
+                                        Alert.alert('Uyarı', 'Değerleri değiştirirseniz bugünkü beslenme ve antrenman programınız silinecektir.', [
+                                            {
+                                                text: 'Kabul Et', style: 'default', onPress: () => {
+                                                    const dateNow = moment().format("DD-MM-YYYY");
+
+                                                    const updateData = () => {
+                                                        axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/updateUserData", {
+                                                            uid: userId,
+                                                            data: {
+                                                                ...newData
+                                                            }
+                                                        })
+                                                            .then((res) => {
+                                                                if (res.status === 200) {
+                                                                    dispatch(actions.fetchUserData(userId));
+                                                                    setTimeout(() => {
+                                                                        setLoading(false);
+                                                                        DevSettings.reload();
+                                                                    }, 300);
+                                                                } else {
+                                                                    setLoading(false);
+                                                                    setTimeout(() => {
+                                                                        Alert.alert('Hata', String(res.data))
+                                                                    }, 200);
+                                                                }
+                                                            })
+                                                            .catch((err) => {
+                                                                console.log('err: ', err)
+                                                                setLoading(false);
+                                                                setTimeout(() => {
+                                                                    Alert.alert('Hata', String(err))
+                                                                }, 200);
+                                                            })
+                                                    }
+
+                                                    database().ref(`users/${userId}/foods/${dateNow}`).remove()
+                                                        .then(() => {
+                                                            updateData();
+                                                        })
+                                                        .catch(err => {
+                                                            updateData();
+                                                        })
+
                                                 }
-                                            })
-                                            .catch((err) => {
-                                                console.log('err: ', err)
-                                                setLoading(false);
-                                                setTimeout(() => {
-                                                    Alert.alert('Hata', String(err))
-                                                }, 200);
-                                            })
+                                            },
+                                            { text: 'Vazgeç', style: 'default', onPress: () => props.navigation.goBack() }
+                                        ])
+
                                     }
                                 }
                             }

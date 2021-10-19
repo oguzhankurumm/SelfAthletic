@@ -38,8 +38,8 @@ const AntrenmanList = props => {
                 .then((res) => {
                     if (res.status === 200) {
                         videoList.push({
-                            size: res.data.request.files.progressive[4].width,
-                            url: res.data.request.files.progressive[4].url,
+                            size: res.data.request.files.progressive[2].width,
+                            url: res.data.request.files.progressive[2].url,
                             thumb: res.data.video.thumbs[640],
                             title: res.data.video.title,
                             duration: res.data.video.duration,
@@ -188,7 +188,7 @@ const AntrenmanList = props => {
                                                             fontSize: 13,
                                                             color: '#FFF',
                                                             marginLeft: 5
-                                                        }}>{Workout.kcal} kcal</Text>
+                                                        }}>{Workout.kcal !== undefined ? Workout.kcal : 0} kcal</Text>
                                                     </View>
 
                                                     <View style={{
@@ -203,7 +203,7 @@ const AntrenmanList = props => {
                                                             fontSize: 13,
                                                             color: '#FFF',
                                                             marginLeft: 5
-                                                        }}>{Workout.point} puan</Text>
+                                                        }}>{Workout.point !== undefined ? Workout.point : 0} puan</Text>
                                                     </View>
                                                 </View>
 

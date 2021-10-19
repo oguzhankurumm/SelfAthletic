@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, SafeAreaView, Image, ImageBackground, TouchableHighlight, ScrollView } from 'react-native';
-import { database2 } from '../../config/config';
-import SpinnerLoading from '../../components/SpinnerLoading';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import Icon2 from 'react-native-vector-icons/AntDesign';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
+import { database } from '../../config/config';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
 import { Bar } from 'react-native-progress';
-import Sidebar from '../../components/Sidebar';
 import LinearGradient from 'react-native-linear-gradient';
+import ImageLayout from '../../components/image-layout';
+import { changeProfilePicture } from '../../helpers';
 
 LocaleConfig.locales['tr'] = {
     monthNames: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
@@ -22,18 +21,21 @@ LocaleConfig.defaultLocale = 'tr';
 
 const { height, width } = Dimensions.get("window");
 
-const Profile = ({ props, navigation }) => {
+const Profile = ({ navigation }) => {
+
+    let defaultAvatarUrl = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
 
     const [ShowSideModal, setShowSideModal] = useState(false);
 
     const [Loading, setLoading] = useState(false);
+    const [AllLoading, setAllLoading] = useState(false)
     const profileData = useSelector(state => state.user.users);
     const [SelectedPage, setSelectedPage] = useState(0);
     const [AktifGun, setAktifGun] = useState(0);
     const [EgzersizList, setEgzersizList] = useState([]);
+    const [FoodList, setFoodList] = useState([]);
     const [TamamlananCount, setTamamlananCount] = useState(0);
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
-    const [HedefAvg, setHedefAvg] = useState(0);
 
     const [BestDay, setBestDay] = useState("")
 
@@ -42,16 +44,33 @@ const Profile = ({ props, navigation }) => {
     }
 
     const onDayPressed = (day) => {
-        var date = moment(day.dateString).format("DD/MM/YYYY");
-        var newWorkoutObj = EgzersizList.filter(q => q.date === date);
+        var date = moment(day.dateString).format("YYYY-MM-DD");
+        if (markedDatesArray[date]) {
+            let dots = markedDatesArray[date].dots
+            if (dots.length === 1) {
+                if (dots[0].key === 'food') {
+                    let findData = FoodList.find(q => q.date === date);
+                    console.log('find: ', findData)
+                    navigation.navigate('Gecmis', { food: findData, type: 'food' })
+                } else {
+                    let findData = EgzersizList.find(q => q.date === date)
+                    navigation.navigate('Gecmis', { workout: findData, type: 'workout' })
+                }
+            } else {
+                let findFood = FoodList.find(q => q.date === date);
+                let findWorkout = EgzersizList.find(q => q.date === date);
+                navigation.navigate('Gecmis', { food: findFood, workout: findWorkout, type: 'all' })
+            }
+        } else {
+            Alert.alert('Hata', 'Seçtiğiniz tarihe ilişkin kayıt bulunamadı.')
+        }
 
-        navigation.navigate('Gecmis', { workout: newWorkoutObj })
     }
 
     const renderLevel = () => {
-        var level1 = parseFloat(profileData.point) / parseFloat(10000)
-        var level2 = parseFloat(profileData.point) / parseFloat(15000)
-        var level3 = parseFloat(profileData.point) / parseFloat(25000)
+        var level1 = Math.round(parseFloat(parseFloat(10000 - parseFloat(profileData.point)) / 100)) / 100
+        var level2 = Math.round(parseFloat(parseFloat(15000 - parseFloat(profileData.point)) / 150)) / 100
+        var level3 = Math.round(parseFloat(parseFloat(40000 - parseFloat(profileData.point)) / 400)) / 100
 
         if (profileData.point < 10000) {
             return (
@@ -84,9 +103,7 @@ const Profile = ({ props, navigation }) => {
                     </View>
                 </>
             )
-        }
-
-        if (profileData.point >= 10000 && profileData.point !== 15000) {
+        } else if (profileData.point >= 10000 && profileData.point <= 15001) {
             return (
                 <>
                     <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 20 }}>
@@ -117,10 +134,7 @@ const Profile = ({ props, navigation }) => {
                     </View>
                 </>
             )
-        }
-
-
-        if (profileData.point >= 25000) {
+        } else if (profileData.point >= 25000) {
             return (
                 <>
                     <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 20 }}>
@@ -129,7 +143,7 @@ const Profile = ({ props, navigation }) => {
                                 fontFamily: 'SFProDisplay-Medium',
                                 fontSize: 12,
                                 color: 'yellow'
-                            }}>Seviye {String(2)}</Text>
+                            }}>Seviye 3</Text>
                         </View>
 
                         <Bar height={4} style={{ width: '100%' }} width={null} color="yellow" progress={level3} unfilledColor="#9999" borderWidth={0} />
@@ -146,7 +160,7 @@ const Profile = ({ props, navigation }) => {
                                 fontFamily: 'SFProDisplay-Medium',
                                 fontSize: 12,
                                 color: '#9D9D9D'
-                            }}>Seviyeyi tamamlamak için {String(parseFloat(40000) - parseFloat(profileData.point))} puan kaldı</Text>
+                            }}>Seviyeyi tamamlamak için {String(parseFloat(parseFloat(40000) - parseFloat(profileData.point)).toFixed(1))} puan kaldı</Text>
                         </View>
                     </View>
                 </>
@@ -157,419 +171,382 @@ const Profile = ({ props, navigation }) => {
     const getMyWorkouts = async () => {
         let egzList = [];
         let completedList = [];
+        let foodList = [];
+        let testArr = [];
 
-        database2.ref('users/' + profileData.userId + '/workouts').on('value', snapshot => {
-            var arr = [];
-            if (snapshot.val() !== null) {
-                snapshot.forEach((item) => {
-                    egzList.push({
-                        ...item.val(),
-                        id: item.key
-                    });
+        await database().ref('users/' + profileData.userId + '/workouts').once('value')
+            .then(snapshot => {
+                if (snapshot.val() !== null) {
+                    snapshot.forEach((item) => {
+                        egzList.push({
+                            ...item.val(),
+                            id: item.key,
+                            date: moment(item.key, "DD-MM-YYYY").format("YYYY-MM-DD"),
+                            type: 'workout'
+                        });
 
-                    // let completed = null;
-                    let total = 0;
+                        let completed = 0;
+                        let total = 0;
 
-                    // Object.values(item.val().moves).forEach((wrk) => {
-                    //     if (wrk.completed === false) {
-                    //         // completed = false
-                    //     } else if (wrk.completed === true) {
-                    //         // completed = true;
-                    //         wrk.calorie !== undefined && wrk.calorie !== "NaN" ? total += parseFloat(wrk.calorie) : 0
-                    //     }
-                    // })
+                        Object.values(item.val().moves).forEach((wrk) => {
+                            wrk.calorie !== undefined && wrk.calorie !== "NaN" ? total += parseFloat(wrk.calorie) : 0
+                        })
 
-                    // if (completed === true) {
-                    //     completedList.push({
-                    //         ...item.val(),
-                    //         date: item.key,
-                    //         total: parseFloat(total)
-                    //     })
-                    // }
+                        completedList.push({
+                            ...item.val(),
+                            date: item.key,
+                            isCompleted: completed,
+                            total: parseFloat(total)
+                        })
+                    })
+
+                    if (completedList.length >= 1) {
+                        const userBestDay = completedList.sort((a, b) => String(b.total).toLowerCase().localeCompare(String(a.total).toLowerCase()))
+                        setBestDay(moment(userBestDay[0].date, "DD-MM-YYYY").format("LL"));
+                    }
+                    setTamamlananCount(completedList.length)
+                    setEgzersizList(egzList);
 
 
-                    // let workout = { key: 'workout', color: 'green' };
-
-                    // arr[moment(item.key, "DD-MM-YYYY").format("YYYY-MM-DD")] = { dots: [workout], disabled: false }
-                })
-
-                if (completedList.length >= 1) {
-                    const userBestDay = completedList.sort((a, b) => String(b.total).toLowerCase().localeCompare(String(a.total).toLowerCase()))
-                    setBestDay(moment(userBestDay[0].date, "DD/MM/YYYY").format("LL"));
                 }
-                setmarkedDatesArray(arr);
-                setTamamlananCount(completedList.length)
-                setEgzersizList(egzList);
-                setLoading(false);
-            } else {
-                setLoading(false);
-            }
-        })
+            })
+            .catch(err => {
+                console.log('HATA:', err)
+            })
+
+        await database().ref('users/' + profileData.userId + '/foods').once('value')
+            .then(snapshot => {
+                if (snapshot.val() !== null) {
+                    snapshot.forEach((fd) => {
+                        foodList.push({
+                            ...fd.val(),
+                            id: fd.key,
+                            date: moment(fd.key, "DD-MM-YYYY").format("YYYY-MM-DD"),
+                            type: 'food'
+                        });
+                    })
+
+
+                    setFoodList(foodList);
+
+                }
+            })
+            .catch(err => {
+                console.log('FOOD ERR:', err)
+            })
+
+        const mergeResult = [...foodList, ...egzList];
+
+        let food = { key: 'food', color: 'green' };
+        let workout = { key: 'workout', color: 'yellow' };
+
+        let groups = {};
+        var array = Object.keys(mergeResult).map((key) => mergeResult[key])
+
+        if (array.length > 0) {
+            array.forEach(function (o, i) {
+                var dataObj = { ...o.type === 'workout' ? workout : food, disabled: false }
+                if (groups[o.date]) {
+                    groups[o.date]['dots'].push(dataObj);
+                } else {
+                    groups[o.date] = { title: o.date, dots: [dataObj], disabled: false };
+                }
+            });
+
+        }
+
+        setmarkedDatesArray(groups);
+        setAllLoading(false);
     }
 
-    const CalcTargets = async () => {
-        var adimTarget = profileData.targets?.step !== undefined ? profileData.targets.step : 0
-        var kaloriTarget = profileData.targets?.calories !== undefined ? profileData.targets.calories : 0
-
-
-        let CalorieList = [];
-        let AdimList = [];
-        let kaloriCount = 0;
-        let adimCount = 0;
-
-        kaloriAvg = 0;
-        adimAvg = 0;
-
-        await database2.ref('users_points/' + profileData.userId).once('value').then(snapshot => {
-            if (snapshot.val() !== null && snapshot.val() !== undefined) {
-                snapshot.forEach((item) => {
-                    CalorieList.push(item.val());
-                })
-
-                let sum = CalorieList.reduce(function (prev, current) {
-                    return prev + +parseFloat(current.calories)
-                }, 0);
-
-                kaloriCount = sum;
-                kaloriAvg = parseFloat(kaloriTarget) / parseFloat(kaloriCount);
-            }
-        })
-            .catch((err) => console.log('err:', err))
-
-        await database2.ref('steps/' + profileData.userId).once('value').then(snapshot => {
-            if (snapshot.val() !== null && snapshot.val() !== undefined) {
-                snapshot.forEach((item) => {
-                    AdimList.push(item.val());
-                })
-
-                let sum = AdimList.reduce(function (prev, current) {
-                    return prev + +parseFloat(current.value)
-                }, 0);
-
-                adimCount = sum;
-                adimAvg = parseFloat(adimTarget) / parseFloat(adimCount);
-            }
-        })
-            .catch((err) => console.log('err:', err))
-
-        setTimeout(() => {
-            var a = (parseFloat(adimAvg) + parseFloat(kaloriAvg)) / 100
-            setHedefAvg(a)
-        }, 300);
-
-
-    }
 
     useEffect(() => {
-        setLoading(true);
+        setAllLoading(true);
         var start = moment(profileData.registerDate, "DD/MM/YYYY");
         var end = moment(moment(), "DD/MM/YYYY");
 
         setAktifGun(parseFloat(moment.duration(end.diff(start)).asDays()).toFixed(0));
-
         getMyWorkouts();
-        CalcTargets();
     }, [])
 
     return (
-        <ImageBackground style={{ height: height, width: width }} resizeMode="cover" source={require('../../img/bg.jpg')}>
-            <SafeAreaView style={styles.container}>
-                <StatusBar barStyle="light-content" />
-                <SpinnerLoading Loading={Loading} />
+        <ImageLayout
+            title="Profilim"
+            isScrollable
+            Loading={Loading}
+        >
+            <TouchableOpacity onPress={() => changeProfilePicture(profileData.email).then(res => console.log(res)).catch(err => console.log(err))} activeOpacity={0.8} style={styles.profileView}>
+                <Image style={styles.imageView} resizeMode="cover" source={{ uri: profileData.profile_picture !== '' && profileData.profile_picture !== undefined ? profileData.profile_picture : defaultAvatarUrl }} />
 
-                <Sidebar navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
-
-                <View style={styles.header} >
-                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-                        <TouchableOpacity onPress={() => setShowSideModal(!ShowSideModal)}>
-                            <Icon name="menu" color="#FFF" size={32} style={{ marginRight: 15 }} />
-                        </TouchableOpacity>
-                        <Text style={styles.headerText}>Profil</Text>
-                    </View>
-
-                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-
-                        <TouchableHighlight onPress={() => navigation.navigate('FeedList')}>
-                            <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
-                        </TouchableHighlight>
-
-                        <TouchableHighlight onPress={() => navigation.navigate('Settings')}>
-                            <Icon name="settings" color="#FFF" size={28} />
-                        </TouchableHighlight>
-
+                <View style={{ width: '100%', position: 'absolute', right: 0, left: 40, bottom: 40, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ height: 30, width: 30, borderRadius: 100, backgroundColor: 'yellow', justifyContent: 'center', alignItems: 'center' }}>
+                        <AntDesign name="plus" size={20} color="#202026" />
                     </View>
                 </View>
 
-                <ScrollView style={{ width: '100%' }}>
-                    <View style={styles.profileView}>
-                        <Image style={styles.imageView} resizeMode="cover" source={{ uri: profileData.avatar !== '' && profileData.avatar !== undefined ? profileData.avatar : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }} />
-                        <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                            <Text style={styles.nameText}>{profileData.name}</Text>
+                <View style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                    <Text style={styles.nameText}>{profileData.firstName + ' ' + profileData.lastName}</Text>
+                </View>
+            </TouchableOpacity>
+
+            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-evenly', marginTop: 30 }}>
+                <TouchableOpacity onPress={() => setSelectedPage(0)} style={{ justifyContent: 'flex-start', alignItems: 'center' }}>
+                    <Text style={SelectedPage === 0 ? styles.TabsTextActive : styles.TabsTextDisabled}>Seviye</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => setSelectedPage(1)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={SelectedPage === 1 ? styles.TabsTextActive : styles.TabsTextDisabled}>Geçmiş</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => setSelectedPage(2)} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={SelectedPage === 2 ? styles.TabsTextActive : styles.TabsTextDisabled}>Ölçümler</Text>
+                </TouchableOpacity>
+            </View>
+
+            {SelectedPage === 0 &&
+                <>
+                    {renderLevel()}
+
+                    <View style={styles.iconsContainer}>
+                        <View style={styles.iconsView}>
+                            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                <AntDesign name="user" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                <Text style={styles.iconsText}>Aktif</Text>
+                                <Text style={styles.iconsText}>Gün</Text>
+                                <Text style={styles.iconsText}>Sayısı</Text>
+                                <Text style={styles.iconsNumber}>{AktifGun !== undefined && AktifGun !== "NaN" ? AktifGun : 0}</Text>
+                            </View>
+
+                            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                <AntDesign name="clockcircleo" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                <Text style={styles.iconsText}>Tamamlanan</Text>
+                                <Text style={styles.iconsText}>Beslenme</Text>
+                                <Text style={styles.iconsText}>Sayısı</Text>
+                                <Text style={styles.iconsNumber}>{TamamlananCount}</Text>
+                            </View>
+
+                            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                <AntDesign name="Trophy" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                <Text style={styles.iconsText}>Tamamlanan</Text>
+                                <Text style={styles.iconsText}>Egzersiz</Text>
+                                <Text style={styles.iconsText}>Sayısı</Text>
+                                <Text style={styles.iconsNumber}>{TamamlananCount}</Text>
+                            </View>
+                        </View>
+
+
+                        <View style={styles.iconsView}>
+                            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                <AntDesign name="checksquareo" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                <Text style={styles.iconsText}>En İyi Gün</Text>
+                                {BestDay !== "" ?
+                                    <>
+                                        <Text style={styles.iconsNumber}>{String(BestDay).slice(0, 2) !== "NaN" ? String(BestDay).slice(0, 2) : 0}</Text>
+                                        <Text style={styles.iconsDate}>{String(BestDay).slice(2) !== "NaN" ? String(BestDay).slice(2) : 0}</Text>
+                                    </>
+                                    :
+                                    <Text style={styles.iconsNumber}>Yok</Text>
+                                }
+                            </View>
+
+                            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                <AntDesign name="checksquareo" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                <Text style={styles.iconsText}>En İyi Hafta</Text>
+                                {BestDay !== "" ?
+                                    <>
+                                        <Text style={styles.iconsNumber}>{String(moment(BestDay).week()) !== "NaN" ? String(moment(BestDay).week()) : 1}. Hafta</Text>
+                                        <Text style={styles.iconsDate}>{String(BestDay).split(' ')[1] !== "NaN" ? String(BestDay).split(' ')[1] : '-'}</Text>
+                                    </>
+                                    :
+                                    <Text style={styles.iconsNumber}>Yok</Text>
+                                }
+
+                            </View>
+
+                            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
+                                <AntDesign name="checksquareo" color="yellow" size={32} style={{ marginBottom: 10 }} />
+                                <Text style={styles.iconsText}>En İyi Ay</Text>
+                                {BestDay !== "" ?
+                                    <>
+                                        <Text style={styles.iconsNumber}>{String(BestDay).split(' ')[1] !== "NaN" ? String(BestDay).split(' ')[1] : 0}</Text>
+                                        <Text style={styles.iconsDate}>{String(BestDay).split(' ')[2] !== "NaN" ? String(BestDay).split(' ')[2] : "-"}</Text>
+                                    </>
+                                    :
+                                    <Text style={styles.iconsNumber}>Yok</Text>
+                                }
+                            </View>
                         </View>
                     </View>
+                </>
+            }
+
+            {SelectedPage === 1 &&
+                <View style={styles.gecmisContainer}>
 
 
-                    <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-evenly', marginTop: 30 }}>
+                    <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
 
-                        <TouchableOpacity onPress={() => setSelectedPage(0)} style={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-                            <Text style={SelectedPage === 0 ? styles.TabsTextActive : styles.TabsTextDisabled}>Seviye</Text>
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 15 }}>
+                            <View style={{ backgroundColor: 'green', borderRadius: 50, height: 4, width: 4 }} />
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 13,
+                                color: 'green',
+                                marginLeft: 8
+                            }}>Beslenme</Text>
+                        </View>
 
-                        <TouchableOpacity onPress={() => setSelectedPage(1)} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={SelectedPage === 1 ? styles.TabsTextActive : styles.TabsTextDisabled}>Geçmiş</Text>
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 15 }}>
+                            <View style={{ backgroundColor: 'yellow', borderRadius: 50, height: 4, width: 4 }} />
+                            <Text style={{
+                                fontFamily: 'SFProDisplay-Medium',
+                                fontSize: 13,
+                                color: 'yellow',
+                                marginLeft: 8
+                            }}>Antrenman</Text>
+                        </View>
 
-                        <TouchableOpacity onPress={() => setSelectedPage(2)} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={SelectedPage === 2 ? styles.TabsTextActive : styles.TabsTextDisabled}>Ölçümler</Text>
-                        </TouchableOpacity>
                     </View>
 
-                    {SelectedPage === 0 &&
-                        <>
-                            {renderLevel()}
+                    {!AllLoading &&
+                        <Calendar
+                            style={{
+                                width: width / 1.2
+                            }}
+                            markedDates={markedDatesArray}
+                            enableSwipeMonths={true}
+                            maxDate={moment().format('YYYY-MM-DD')}
+                            scrollEnabled={true}
+                            hideDayNames={true}
+                            markingType={'multi-dot'}
+                            onDayPress={(day) => onDayPressed(day)}
+                            hideExtraDays={false}
+                            theme={{
+                                backgroundColor: 'rgba(0,0,0,0)',
+                                calendarBackground: 'rgba(0,0,0,0)',
+                                textSectionTitleColor: '#b6c1cd',
+                                textSectionTitleDisabledColor: '#d9e1e8',
+                                selectedDayBackgroundColor: '#00adf5',
+                                selectedDayTextColor: '#ffffff',
+                                todayTextColor: 'yellow',
+                                dayTextColor: 'white',
+                                textDisabledColor: '#d9e1e8',
+                                dotColor: '#00adf5',
+                                selectedDotColor: '#ffffff',
+                                arrowColor: 'white',
+                                disabledArrowColor: '#d9e1e8',
+                                monthTextColor: 'white',
+                                indicatorColor: 'white',
+                                textDayFontFamily: 'SFProDisplay-Medium',
+                                textMonthFontFamily: 'SFProDisplay-Medium',
+                                textDayHeaderFontFamily: 'SFProDisplay-Medium',
+                                textDayFontWeight: '300',
+                                textMonthFontWeight: 'bold',
+                                textDayHeaderFontWeight: '300',
+                                textDayFontSize: 16,
+                                textMonthFontSize: 16,
+                                textDayHeaderFontSize: 16
+                            }}
+                        />}
+                </View>
+            }
 
-                            <View style={styles.iconsContainer}>
-                                <View style={styles.iconsView}>
-                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon2 name="user" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                                        <Text style={styles.iconsText}>Aktif</Text>
-                                        <Text style={styles.iconsText}>Gün</Text>
-                                        <Text style={styles.iconsText}>Sayısı</Text>
-                                        <Text style={styles.iconsNumber}>{AktifGun !== undefined && AktifGun !== "NaN" ? AktifGun : 0}</Text>
-                                    </View>
+            {SelectedPage === 2 &&
+                <>
+                    <View style={[styles.iconsContainer, { paddingHorizontal: 20, paddingBottom: 100 }]}>
 
-                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon2 name="linechart" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                                        <Text style={styles.iconsText}>Hedef</Text>
-                                        <Text style={styles.iconsText}>Tutturma</Text>
-                                        <Text style={styles.iconsText}>Yüzdesi</Text>
-                                        <Text style={styles.iconsNumber}>%{parseFloat(HedefAvg !== undefined && String(HedefAvg) !== "NaN" ? HedefAvg : 0).toFixed(2)}</Text>
-                                    </View>
-
-                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon2 name="Trophy" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                                        <Text style={styles.iconsText}>Tamamlanan</Text>
-                                        <Text style={styles.iconsText}>Egzersiz</Text>
-                                        <Text style={styles.iconsText}>Sayısı</Text>
-                                        <Text style={styles.iconsNumber}>{TamamlananCount}</Text>
-                                    </View>
-                                </View>
-
-
-                                <View style={styles.iconsView}>
-                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon2 name="checksquareo" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                                        <Text style={styles.iconsText}>En İyi Gün</Text>
-                                        {BestDay !== "" ?
-                                            <>
-                                                <Text style={styles.iconsNumber}>{String(BestDay).slice(0, 2) !== "NaN" ? String(BestDay).slice(0, 2) : 0}</Text>
-                                                <Text style={styles.iconsDate}>{String(BestDay).slice(2) !== "NaN" ? String(BestDay).slice(2) : 0}</Text>
-                                            </>
-                                            :
-                                            <Text style={styles.iconsNumber}>Yok</Text>
-                                        }
-                                    </View>
-
-                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon2 name="checksquareo" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                                        <Text style={styles.iconsText}>En İyi Hafta</Text>
-                                        {BestDay !== "" ?
-                                            <>
-                                                <Text style={styles.iconsNumber}>{String(moment(BestDay).week()) !== "NaN" ? String(moment(BestDay).week()) : 0}. Hafta</Text>
-                                                <Text style={styles.iconsDate}>{String(BestDay).split(' ')[1] !== "NaN" ? String(BestDay).split(' ')[1] : '-'}</Text>
-                                            </>
-                                            :
-                                            <Text style={styles.iconsNumber}>Yok</Text>
-                                        }
-
-                                    </View>
-
-                                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: width / 3 }}>
-                                        <Icon2 name="checksquareo" color="yellow" size={32} style={{ marginBottom: 10 }} />
-                                        <Text style={styles.iconsText}>En İyi Ay</Text>
-                                        {BestDay !== "" ?
-                                            <>
-                                                <Text style={styles.iconsNumber}>{String(BestDay).split(' ')[1] !== "NaN" ? String(BestDay).split(' ')[1] : 0}</Text>
-                                                <Text style={styles.iconsDate}>{String(BestDay).split(' ')[2] !== "NaN" ? String(BestDay).split(' ')[2] : "-"}</Text>
-                                            </>
-                                            :
-                                            <Text style={styles.iconsNumber}>Yok</Text>
-                                        }
-                                    </View>
-                                </View>
-                            </View>
-                        </>
-                    }
-
-                    {SelectedPage === 1 &&
-                        <View style={styles.gecmisContainer}>
-
-
-                            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', marginBottom: 10 }}>
-
-                                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 15 }}>
-                                    <View style={{ backgroundColor: 'green', borderRadius: 50, height: 4, width: 4 }} />
-                                    <Text style={{
-                                        fontFamily: 'SFProDisplay-Medium',
-                                        fontSize: 13,
-                                        color: 'green',
-                                        marginLeft: 8
-                                    }}>Beslenme</Text>
-                                </View>
-
-                                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', paddingHorizontal: 15 }}>
-                                    <View style={{ backgroundColor: 'yellow', borderRadius: 50, height: 4, width: 4 }} />
-                                    <Text style={{
-                                        fontFamily: 'SFProDisplay-Medium',
-                                        fontSize: 13,
-                                        color: 'yellow',
-                                        marginLeft: 8
-                                    }}>Antrenman</Text>
-                                </View>
-
-                            </View>
-
-                            <Calendar
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('TestList')}
+                            style={{
+                                height: 'auto',
+                                width: '100%',
+                                borderRadius: 18,
+                                marginTop: 10,
+                                marginBottom: 10
+                            }}>
+                            <Image
+                                resizeMode="cover"
+                                source={{ uri: 'https://www.lanochefithall.com/assets/img/usenme.jpg' }}
                                 style={{
-                                    width: width / 1.2
-                                }}
-                                markedDates={markedDatesArray}
-                                enableSwipeMonths={true}
-                                maxDate={moment().format('YYYY-MM-DD')}
-                                scrollEnabled={true}
-                                hideDayNames={true}
-                                markingType={'multi-dot'}
-                                onDayPress={(day) => onDayPressed(day)}
-                                hideExtraDays={true}
-                                theme={{
-                                    backgroundColor: 'rgba(0,0,0,0)',
-                                    calendarBackground: 'rgba(0,0,0,0)',
-                                    textSectionTitleColor: '#b6c1cd',
-                                    textSectionTitleDisabledColor: '#d9e1e8',
-                                    selectedDayBackgroundColor: '#00adf5',
-                                    selectedDayTextColor: '#ffffff',
-                                    todayTextColor: 'yellow',
-                                    dayTextColor: 'white',
-                                    textDisabledColor: '#d9e1e8',
-                                    dotColor: '#00adf5',
-                                    selectedDotColor: '#ffffff',
-                                    arrowColor: 'white',
-                                    disabledArrowColor: '#d9e1e8',
-                                    monthTextColor: 'white',
-                                    indicatorColor: 'white',
-                                    textDayFontFamily: 'SFProDisplay-Medium',
-                                    textMonthFontFamily: 'SFProDisplay-Medium',
-                                    textDayHeaderFontFamily: 'SFProDisplay-Medium',
-                                    textDayFontWeight: '300',
-                                    textMonthFontWeight: 'bold',
-                                    textDayHeaderFontWeight: '300',
-                                    textDayFontSize: 16,
-                                    textMonthFontSize: 16,
-                                    textDayHeaderFontSize: 16
+                                    width: '100%',
+                                    height: 200,
+                                    borderRadius: 18
                                 }}
                             />
-                        </View>
-                    }
+                            <LinearGradient
+                                start={{ x: 1, y: 1 }}
+                                end={{ x: 1, y: 1 }}
+                                colors={['rgba(0,0,0,0.6)', 'transparent']}
+                                style={{
+                                    position: 'absolute',
+                                    borderRadius: 18,
+                                    width: '100%',
+                                    height: 200
+                                }}
+                            />
 
-                    {SelectedPage === 2 &&
-                        <>
-                            <View style={[styles.iconsContainer, { paddingHorizontal: 20, paddingBottom: 100 }]}>
-
-                                <TouchableOpacity
-                                    onPress={() => navigation.navigate('TestList')}
-                                    style={{
-                                        height: 'auto',
-                                        width: '100%',
-                                        borderRadius: 18,
-                                        marginTop: 10,
-                                        marginBottom: 10
-                                    }}>
-                                    <Image
-                                        resizeMode="cover"
-                                        source={{ uri: 'https://www.lanochefithall.com/assets/img/usenme.jpg' }}
-                                        style={{
-                                            width: '100%',
-                                            height: 200,
-                                            borderRadius: 18
-                                        }}
-                                    />
-                                    <LinearGradient
-                                        start={{ x: 1, y: 1 }}
-                                        end={{ x: 1, y: 1 }}
-                                        colors={['rgba(0,0,0,0.6)', 'transparent']}
-                                        style={{
-                                            position: 'absolute',
-                                            borderRadius: 18,
-                                            width: '100%',
-                                            height: 200
-                                        }}
-                                    />
-
-                                    <View style={{ position: 'absolute', top: 20, bottom: 20, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
-                                        <Text style={{
-                                            fontFamily: 'SFProDisplay-Bold',
-                                            fontSize: 16,
-                                            textAlign: 'center',
-                                            color: 'yellow',
-                                            marginRight: 10
-                                        }}
-                                        >Testleri Gör</Text>
-                                        <Icon2 name="arrowright" color="yellow" size={22} />
-                                    </View>
-
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    onPress={() => navigation.navigate('Olcumler')}
-                                    style={{
-                                        height: 'auto',
-                                        width: '100%',
-                                        borderRadius: 18,
-                                        marginTop: 10,
-                                        marginBottom: 10
-                                    }}>
-                                    <Image
-                                        resizeMode="cover"
-                                        source={{ uri: 'https://thumbs.dreamstime.com/b/active-young-excited-happy-woman-posing-centimeter-over-isolated-over-pastel-blue-studio-background-sport-fitness-healthy-170036983.jpg' }}
-                                        style={{
-                                            width: '100%',
-                                            height: 200,
-                                            borderRadius: 18
-                                        }}
-                                    />
-                                    <LinearGradient
-                                        start={{ x: 1, y: 1 }}
-                                        end={{ x: 1, y: 1 }}
-                                        colors={['rgba(0,0,0,0.6)', 'transparent']}
-                                        style={{
-                                            position: 'absolute',
-                                            borderRadius: 18,
-                                            width: '100%',
-                                            height: 200
-                                        }}
-                                    />
-
-                                    <View style={{ position: 'absolute', top: 20, bottom: 20, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
-                                        <Text style={{
-                                            fontFamily: 'SFProDisplay-Bold',
-                                            fontSize: 16,
-                                            textAlign: 'center',
-                                            color: 'yellow',
-                                            marginRight: 10
-                                        }}
-                                        >Mezura Ölçümleri</Text>
-                                        <Icon2 name="arrowright" color="yellow" size={22} />
-                                    </View>
-
-                                </TouchableOpacity>
-
+                            <View style={{ position: 'absolute', top: 20, bottom: 20, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
+                                <Text style={{
+                                    fontFamily: 'SFProDisplay-Bold',
+                                    fontSize: 16,
+                                    textAlign: 'center',
+                                    color: 'yellow',
+                                    marginRight: 10
+                                }}
+                                >Testleri Gör</Text>
+                                <AntDesign name="arrowright" color="yellow" size={22} />
                             </View>
-                        </>
-                    }
 
-                </ScrollView>
-            </SafeAreaView>
-        </ImageBackground >
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('Olcumler')}
+                            style={{
+                                height: 'auto',
+                                width: '100%',
+                                borderRadius: 18,
+                                marginTop: 10,
+                                marginBottom: 10
+                            }}>
+                            <Image
+                                resizeMode="cover"
+                                source={require('../../img/mezura.jpeg')}
+                                style={{
+                                    width: '100%',
+                                    height: 200,
+                                    borderRadius: 18
+                                }}
+                            />
+                            <LinearGradient
+                                start={{ x: 1, y: 1 }}
+                                end={{ x: 1, y: 1 }}
+                                colors={['rgba(0,0,0,0.6)', 'transparent']}
+                                style={{
+                                    position: 'absolute',
+                                    borderRadius: 18,
+                                    width: '100%',
+                                    height: 200
+                                }}
+                            />
+
+                            <View style={{ position: 'absolute', top: 20, bottom: 20, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
+                                <Text style={{
+                                    fontFamily: 'SFProDisplay-Bold',
+                                    fontSize: 16,
+                                    textAlign: 'center',
+                                    color: 'yellow',
+                                    marginRight: 10
+                                }}
+                                >Mezura Ölçümleri</Text>
+                                <AntDesign name="arrowright" color="yellow" size={22} />
+                            </View>
+
+                        </TouchableOpacity>
+
+                    </View>
+                </>
+            }
+        </ImageLayout>
     )
 }
 

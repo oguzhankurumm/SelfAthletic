@@ -7,7 +7,7 @@ import 'moment/locale/tr';
 import { useSelector } from 'react-redux';
 import { Card } from 'native-base';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
-import { database2, auth2 } from '../../config/config';
+import { database } from '../../config/config';
 
 const { height, width } = Dimensions.get("window");
 
@@ -25,22 +25,22 @@ const BildirimAyarlari = ({ navigation }) => {
 
     const setWaterFunc = (val) => {
         setWater(!Water)
-        database2.ref('users').child(profileData.userId + '/settings/water').set(val)
+        database().ref('users').child(profileData.userId + '/settings/water').set(val)
     }
 
     const setWorkoutFunc = (val) => {
         setWorkout(!Workout)
-        database2.ref('users').child(profileData.userId + '/settings/workout').set(val)
+        database().ref('users').child(profileData.userId + '/settings/workout').set(val)
     }
 
     const setFoodFunc = (val) => {
         setFood(!Food)
-        database2.ref('users').child(profileData.userId + '/settings/food').set(val)
+        database().ref('users').child(profileData.userId + '/settings/food').set(val)
     }
 
     const setTargetFunc = (val) => {
         setTarget(!Target)
-        database2.ref('users').child(profileData.userId + '/settings/target').set(val)
+        database().ref('users').child(profileData.userId + '/settings/target').set(val)
     }
 
     return (

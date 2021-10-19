@@ -5,13 +5,15 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import 'moment/locale/tr';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
-import { database2, auth2 } from '../../config/config';
+import { auth } from '../../config/config';
+import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert';
 
 const { height, width } = Dimensions.get("window");
 
 const Settings = ({ navigation }) => {
     moment.locale('tr');
 
+    const [ShowWarning, setShowWarning] = useState(false);
     const [Loading, setLoading] = useState(false);
 
     return (
@@ -19,6 +21,25 @@ const Settings = ({ navigation }) => {
             <KeyboardAwareView animated={true} style={{ flex: 1 }} >
 
                 <SafeAreaView style={styles.container}>
+
+                    <SCLAlert
+                        theme="warning"
+                        show={ShowWarning}
+                        title="Çıkış Yap"
+                        subtitle="Hesabınızdan çıkılsın mı?"
+                    >
+                        <SCLAlertButton theme="warning" onPress={() => {
+                            setLoading(true);
+                            auth().signOut()
+                                .then(() => {
+                                    setLoading(false);
+                                })
+                                .catch((err) => {
+                                    console.log('Hata: ', err)
+                                })
+                        }}>Çıkış Yap</SCLAlertButton>
+                        <SCLAlertButton theme="default" onPress={() => setShowWarning(false)}>Vazgeç</SCLAlertButton>
+                    </SCLAlert>
 
                     <SpinnerLoading Loading={Loading} />
 
@@ -57,23 +78,7 @@ const Settings = ({ navigation }) => {
                             <Icon name="keyboard-arrow-right" size={28} color="#FFF" />
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => {
-                            Alert.alert('Çıkış Yap', 'Hesabınızdan çıkılsın mı?', [
-                                {
-                                    text: 'Evet', onPress: () => {
-                                        setLoading(true);
-                                        auth2.signOut()
-                                            .then(() => {
-                                                setLoading(false);
-                                            })
-                                            .catch((err) => {
-                                                console.log('Hata: ', err)
-                                            })
-                                    }, style: 'default'
-                                },
-                                { text: 'Vazgeç', onPress: () => null, style: 'cancel' }
-                            ])
-                        }} style={[styles.textContainer, { backgroundColor: '#202026', marginTop: 10, height: 70 }]}>
+                        <TouchableOpacity onPress={() => setShowWarning(true)} style={[styles.textContainer, { backgroundColor: '#202026', marginTop: 10, height: 70 }]}>
                             <Text style={styles.textStyleHeader}>Çıkış Yap</Text>
                             <Icon name="lock-outline" size={25} color="#FFF" />
                         </TouchableOpacity>

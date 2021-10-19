@@ -5,7 +5,7 @@ import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import { useSelector } from 'react-redux';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import moment from 'moment';
 
 const { height, width } = Dimensions.get("window");
@@ -31,9 +31,9 @@ const SliderDetails = props => {
         if (profileData.usedFreePremium === false) {
             var nextWeek = moment(moment().add(7, 'd').format('DD/MM/YYYY')).unix();
 
-            database2.ref('users').child(profileData.userId).update({ usedFreePremium: true })
+            database().ref('users').child(profileData.userId).update({ usedFreePremium: true })
                 .then(() => {
-                    database2.ref('userSubscriptions').child(profileData.userId).set({ expireDate: nextWeek })
+                    database().ref('userSubscriptions').child(profileData.userId).set({ expireDate: nextWeek })
                         .then(() => {
                             setLoading(false);
                             setTimeout(() => {
@@ -43,7 +43,7 @@ const SliderDetails = props => {
                             }, 200);
                         })
                         .catch((err) => {
-                            database2.ref('users').child(profileData.userId).update({ usedFreePremium: false })
+                            database().ref('users').child(profileData.userId).update({ usedFreePremium: false })
                             setLoading(false);
                             setTimeout(() => {
                                 Alert.alert('Hata', 'Bir hata oluştu, lütfen daha sonra tekrar deneyin.', [{
@@ -166,7 +166,7 @@ const SliderDetails = props => {
                                         </TouchableOpacity>
 
                                         <TouchableOpacity onPress={() => {
-                                            var url = 'https://www.facebook.com/selfathletic/'
+                                            var url = 'https://www.twitter.com/selfathletic/'
                                             Linking.canOpenURL(url).then(supported => {
                                                 if (supported) {
                                                     Linking.openURL(url);
@@ -180,7 +180,7 @@ const SliderDetails = props => {
                                         </TouchableOpacity>
 
                                         <TouchableOpacity onPress={() => {
-                                            var url = 'https://www.twitter.com/selfathletic/'
+                                            var url = 'https://www.facebook.com/selfathletic/'
                                             Linking.canOpenURL(url).then(supported => {
                                                 if (supported) {
                                                     Linking.openURL(url);

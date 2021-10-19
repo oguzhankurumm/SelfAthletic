@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, SafeAreaView, Platform, Alert } from 'react-native';
 import { Button } from 'native-base';
 import messaging from '@react-native-firebase/messaging';
-import { database2, auth2 } from '../../config/config';
+import { database, auth } from '../../config/config';
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
 var PushNotification = require("react-native-push-notification");
 import { request, PERMISSIONS, openSettings } from 'react-native-permissions';
@@ -55,7 +55,7 @@ const Notify = (props) => {
     const getFcmToken = async () => {
         const fcmToken = await messaging().getToken();
         if (fcmToken) {
-            await database2.ref('tokens').child(auth2.currentUser.uid).set(fcmToken)
+            await database().ref('tokens').child(auth().currentUser.uid).set(fcmToken)
                 .then(() => {
                     configNtf();
                     checkLocation();

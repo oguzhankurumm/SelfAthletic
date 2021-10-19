@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 const { height, width } = Dimensions.get("window");
 
 const Info = props => {
+    console.log('props: ', props.route.params)
     const userData = props.route.params?.userData !== undefined ? props.route.params.userData : useSelector(state => state.user.users);
     const userId = props.route.params?.uid !== undefined ? props.route.params.uid : useSelector(state => state.user.users.userId);
 
@@ -19,7 +20,7 @@ const Info = props => {
 
     const [SelectedPage, setSelectedPage] = useState(1);
     const [TotalPage, setTotalPage] = useState(3);
-    const [BirthDate, setBirthDate] = useState(userData?.birthdate !== undefined && userData?.birthdate !== null ? moment(userData?.birthdate).format("DD/MM/YYYY") : moment('01/01/1990').format("DD/MM/YYYY"));
+    const [BirthDate, setBirthDate] = useState(userData?.birthdate !== undefined && userData?.birthdate !== null ? moment(userData?.birthdate).format("DD-MM-YYYY") : moment('01-01-1990').format("DD-MM-YYYY"));
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
     const [Gender, setGender] = useState([
@@ -51,8 +52,7 @@ const Info = props => {
     };
 
     const handleConfirm = (date) => {
-        const selectedDate = moment(date).format('DD-MM-YYYY')
-        setBirthDate(selectedDate)
+        setBirthDate(moment(date).format('DD-MM-YYYY'))
         hideDatePicker();
     };
 
@@ -127,7 +127,7 @@ const Info = props => {
                                         setLoading(true);
                                         axios.post("https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/updateUserData", {
                                             uid: userId, data: {
-                                                birthdate: moment(BirthDate).format('DD/MM/YYYY'),
+                                                birthdate: BirthDate,
                                                 weight: parseFloat(Kilo),
                                                 height: parseFloat(Boy)
                                             }
@@ -169,10 +169,17 @@ const Info = props => {
                                             .then((res) => {
                                                 if (res.status === 200) {
                                                     setLoading(false);
-                                                    if (userId == null) {
-                                                        props.navigation.navigate('Steps', { userData: userData, password: props.route.params.password, uid: userId });
+                                                    if (props.route.params.uid !== null) {
+                                                        props.navigation.navigate('Steps', {
+                                                            userData: {
+                                                                ...userData,
+                                                                birthdate: BirthDate,
+                                                                weight: parseFloat(Kilo),
+                                                                height: parseFloat(Boy)
+                                                            }, password: props.route.params.password, uid: props.route.params.uid
+                                                        });
                                                     } else {
-                                                        props.navigation.navigate('Steps', { userData: userData, uid: userId });
+                                                        props.navigation.navigate('Steps', { userData: userData, password: props.route.params.password, uid: props.route.params.uid });
                                                     }
                                                 } else {
                                                     setLoading(false);

@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Sidebar from '../../components/Sidebar';
-import { database2 } from '../../config/config';
 import moment from 'moment';
 
 const { height, width } = Dimensions.get("window");

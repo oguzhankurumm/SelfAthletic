@@ -2,15 +2,19 @@ import React, { useState } from 'react'
 import { View, SafeAreaView, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Alert, ScrollView } from 'react-native'
 import { useSelector } from 'react-redux';
 import Modal from 'react-native-modal';
-import { auth2 } from '../config/config';
+import { auth } from '../config/config';
 import SpinnerLoading from '../components/SpinnerLoading';
+import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert';
+import { useNavigation } from '@react-navigation/core';
 
 const { height, width } = Dimensions.get("window");
 
-const Sidebar = ({ navigation, opened, onClose }) => {
+const Sidebar = ({ opened, onClose }) => {
+    const navigation = useNavigation();
     const profileData = useSelector(state => state.user.users);
     const [ShowSideModal, setShowSideModal] = useState(opened)
     const [Loading, setLoading] = useState(false);
+    const [ShowWarning, setShowWarning] = useState(false);
 
     const { index, routes } = navigation.dangerouslyGetState();
     const currentRoute = routes[index].name;
@@ -38,6 +42,24 @@ const Sidebar = ({ navigation, opened, onClose }) => {
             }}
         >
             <SafeAreaView style={styles.safeAreaView}>
+                <SCLAlert
+                    theme="warning"
+                    show={ShowWarning}
+                    title="Çıkış Yap"
+                    subtitle="Hesabınızdan çıkılsın mı?"
+                >
+                    <SCLAlertButton theme="warning" onPress={() => {
+                        setLoading(true);
+                        auth().signOut()
+                            .then(() => {
+                                setLoading(false);
+                            })
+                            .catch((err) => {
+                                console.log('Hata: ', err)
+                            })
+                    }}>Çıkış Yap</SCLAlertButton>
+                    <SCLAlertButton theme="default" onPress={() => setShowWarning(false)}>Vazgeç</SCLAlertButton>
+                </SCLAlert>
                 <ScrollView
                     style={{
                         margin: 0,
@@ -47,7 +69,7 @@ const Sidebar = ({ navigation, opened, onClose }) => {
                         <SpinnerLoading Loading={Loading} />
 
                         <View style={styles.itemStyle}>
-                            <Image style={styles.imageView} resizeMode="cover" source={{ uri: profileData.avatar !== '' && profileData.avatar !== undefined ? profileData.avatar : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }} />
+                            <Image style={styles.imageView} resizeMode="cover" source={{ uri: profileData.profile_picture !== '' && profileData.profile_picture !== undefined ? profileData.profile_picture : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }} />
                             <Text style={styles.textName}>{profileData.name}</Text>
                         </View>
 
@@ -99,6 +121,19 @@ const Sidebar = ({ navigation, opened, onClose }) => {
                         }} style={styles.itemStyle}>
                             <Text style={styles.text}>Profil</Text>
                             {currentRoute === "PROFİLİM" &&
+                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
+                            }
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => {
+                            onClose();
+                            setShowSideModal(!ShowSideModal);
+                            setTimeout(() => {
+                                navigation.navigate('TumGecmisler');
+                            }, 100);
+                        }} style={styles.itemStyle}>
+                            <Text style={styles.text2}>Geçmiş</Text>
+                            {currentRoute === "Gecmis" &&
                                 <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
                             }
                         </TouchableOpacity>
@@ -165,33 +200,7 @@ const Sidebar = ({ navigation, opened, onClose }) => {
                             }
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => {
-                            onClose();
-                            setShowSideModal(!ShowSideModal);
-                            setTimeout(() => {
-                                navigation.navigate('OlcumGecmisi');
-                            }, 100);
-                        }} style={styles.itemStyle}>
-                            <Text style={styles.text2}>Ölçüm Geçmişi</Text>
-                            {currentRoute === "OlcumGecmisi" &&
-                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                            }
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => {
-                            onClose();
-                            setShowSideModal(!ShowSideModal);
-                            setTimeout(() => {
-                                navigation.navigate('SuGecmisi');
-                            }, 100);
-                        }} style={styles.itemStyle}>
-                            <Text style={styles.text2}>Su Geçmişi</Text>
-                            {currentRoute === "SuGecmisi" &&
-                                <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
-                            }
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => {
+                        {/* <TouchableOpacity onPress={() => {
                             onClose();
                             setShowSideModal(!ShowSideModal);
                             setTimeout(() => {
@@ -202,7 +211,7 @@ const Sidebar = ({ navigation, opened, onClose }) => {
                             {currentRoute === "Premium" &&
                                 <View style={{ marginTop: 5, height: 5, width: 5, borderRadius: 100, backgroundColor: 'yellow' }} />
                             }
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                         <TouchableOpacity onPress={() => {
                             onClose();
@@ -218,25 +227,7 @@ const Sidebar = ({ navigation, opened, onClose }) => {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity onPress={() => {
-                        Alert.alert('Çıkış Yap', 'Hesabınızdan çıkılsın mı?', [
-                            {
-                                text: 'Evet', onPress: () => {
-                                    setLoading(true);
-                                    auth2.signOut()
-                                        .then(() => {
-                                            setLoading(false);
-                                        })
-                                        .catch((err) => {
-                                            setLoading(false);
-                                            Alert.alert('Hata', 'Çıkış yapılırken bir hata oluştu.');
-                                            console.log('Hata: ', err)
-                                        })
-                                }, style: 'default'
-                            },
-                            { text: 'Vazgeç', onPress: () => null, style: 'cancel' }
-                        ])
-                    }} style={styles.itemStyle}>
+                    <TouchableOpacity onPress={() => setShowWarning(true)} style={styles.itemStyle}>
                         <Text style={styles.text2}>Çıkış Yap</Text>
                     </TouchableOpacity>
                 </ScrollView>

@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import 'moment/locale/tr';
 import { useSelector } from 'react-redux';
-import { database2, auth2 } from '../../config/config';
+import { database, auth } from '../../config/config';
 
 const { height, width } = Dimensions.get("window");
 
@@ -39,7 +39,7 @@ const AntrenmanGunleri = ({ navigation }) => {
                     selectedDays.push(days.value)
                 }
             })
-            database2.ref('users').child(auth2.currentUser.uid + '/workoutDays').set(selectedDays)
+            database().ref('users').child(auth().currentUser.uid + '/workoutDays').set(selectedDays)
                 .then(() => {
                     setLoading(false);
                     setTimeout(() => {

@@ -1,34 +1,36 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, TouchableOpacity, ImageBackground, Dimensions, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, TouchableOpacity, ImageBackground, Dimensions, FlatList, Alert, Pressable } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import { database2, auth2 } from '../../config/config';
+import { database, auth } from '../../config/config';
 import { Textarea } from 'native-base';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import moment from 'moment';
 import 'moment/locale/tr';
 moment.locale('tr');
+import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get("window");
 
 const FeedDetails = props => {
-
     const [Loading, setLoading] = useState(false);
+    const [SaveLoading, setSaveLoading] = useState(false);
     const [Comments, setComments] = useState(props.route.params.item.comments !== undefined ? Object.values(props.route.params.item.comments) : [])
     const [Likes, setLikes] = useState(props.route.params.item.likes !== undefined ? Object.values(props.route.params.item.likes) : [])
     const [isLiked, setisLiked] = useState(false);
     const [MyComment, setMyComment] = useState("");
+    const profileData = useSelector(state => state.user.users);
 
     const getComments = async () => {
         let commentList = [];
         if (Comments.length !== 0) {
             Comments.forEach(async (cm) => {
-                console.log('cm: ', cm)
-                await database2.ref('users').child(cm.ownerid).once('value')
+                // console.log('cm: ', cm)
+                await database().ref('users').child(cm.ownerId).once('value')
                     .then((res) => {
                         if (Likes.length > 0) {
                             Object.values(Likes).forEach((like) => {
-                                if (like === auth2.currentUser.uid) {
+                                if (like === auth().currentUser.uid) {
                                     setisLiked(true)
                                 } else {
                                     setisLiked(false);
@@ -37,13 +39,13 @@ const FeedDetails = props => {
                         }
                         commentList.push({
                             name: res.val().name,
-                            avatar: res.val().avatar,
-                            userId: cm.ownerid,
+                            avatar: res.val().profile_picture,
+                            userId: cm.ownerId,
                             likeCount: Likes.length,
+                            likeList: Likes,
                             date: cm.date,
                             comment: cm.comment
                         })
-                        console.log('cmL  : ', cm)
                         setComments(commentList);
                         setLoading(false);
                     })
@@ -58,30 +60,37 @@ const FeedDetails = props => {
 
     const sendComment = async () => {
 
-        if (MyComment !== "") {
+        let postId = props.route.params.item.postId;
+        let myObj = {
+            comment: MyComment,
+            name: profileData.name,
+            avatar: profileData.profile_picture,
+            ownerId: profileData.userId,
+            date: moment().format("DD/MM/YYYYTHH:mm:ss"),
+        }
 
+        if (MyComment !== "") {
+            setSaveLoading(true);
+            await database().ref(`feed/${postId}/comments`).push(myObj)
+                .then(() => {
+                    let cArr = [];
+                    cArr = Comments;
+                    cArr.unshift(myObj);
+                    setComments(cArr)
+                    setMyComment("")
+                    setSaveLoading(false);
+                })
+                .catch((err) => {
+                    setSaveLoading(false);
+                    setTimeout(() => {
+                        Alert.alert('Hata', String(err));
+                    }, 200);
+                })
         } else {
             Alert.alert('Hata', 'Yorum boş olamaz.')
         }
 
 
-    }
-
-    const removeLike = () => {
-
-    }
-
-    const addLike = async (item) => {
-
-        console.log('item : ', item);
-
-        // await database2.ref(`feed/${userid}/${id}`).once('value')
-        //     .then((res) => {
-        //         console.log('res:', res.val())
-        //     })
-        //     .catch((err) => {
-        //         console.log('err: ', err)
-        //     })
     }
 
 
@@ -93,10 +102,11 @@ const FeedDetails = props => {
         <ImageBackground style={{ height: height, width: width }} resizeMode="cover" source={require('../../img/bg.jpg')}>
             <StatusBar barStyle="light-content" />
 
-            <KeyboardAwareScrollView style={styles.container}>
+            <KeyboardAwareScrollView bounces={false} style={styles.container}>
 
                 <SafeAreaView style={styles.container}>
                     <SpinnerLoading Loading={Loading} />
+                    <SpinnerLoading Loading={SaveLoading} />
 
                     <View style={styles.header} >
                         <TouchableOpacity onPress={() => props.navigation.goBack()} style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
@@ -105,13 +115,45 @@ const FeedDetails = props => {
                         </TouchableOpacity>
                     </View>
 
-                    {!Loading && Comments.length >= 1 &&
-                        <FlatList style={{ paddingHorizontal: 20, width: '100%' }}
+                    {!Loading &&
+                        <FlatList style={{ height: '100%', padding: 15, width: '100%' }}
                             scrollEnabled={true}
+                            ListHeaderComponent={() => {
+                                return (
+                                    <>
+                                        <View style={{ width: '100%' }}>
+                                            {props.route.params.item.type === 'text' ?
+                                                <View style={{ width: '100%', padding: 20, backgroundColor: '#202026', height: 150, borderRadius: 18 }}>
+                                                    <Text style={{
+                                                        fontFamily: 'SFProDisplay-Bold',
+                                                        fontSize: 16,
+                                                        color: '#FFF',
+                                                        marginBottom: 8
+                                                    }}>{props.route.params.item.title}</Text>
+                                                </View>
+                                                :
+                                                <View style={{ width: '100%', height: 200, borderRadius: 18 }}>
+                                                    <Image style={{ width: '100%', height: 200, borderRadius: 18 }} resizeMode="cover" source={{ uri: props.route.params.item.image }} />
+                                                </View>
+                                            }
+                                        </View>
+                                        <Pressable onPress={() => Object.values(Likes).length !== 0 ? props.navigation.navigate('LikedList', { users: Object.values(Likes) }) : Alert.alert('Hata', 'Hiç Beğeni Yok.')} style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, marginTop: 20 }}>
+                                            <Icon name="favorite" size={20} color='white' />
+                                            <Text style={{
+                                                fontFamily: 'SFProDisplay-Medium',
+                                                fontSize: 16,
+                                                color: '#FFF',
+                                                marginBottom: 8
+                                            }}>{Object.values(Likes).length} Kişi Beğendi</Text>
+                                        </Pressable>
+                                    </>
+                                )
+                            }}
+                            contentContainerStyle={{ paddingBottom: 100 }}
                             data={Comments}
                             keyExtractor={(item, index) => index.toString()}
                             renderItem={(comment) => {
-                                return (comment.item && !Loading &&
+                                return (comment.item && !Loading && Comments.length >= 1 &&
                                     <View style={{
                                         justifyContent: 'center',
                                         padding: 10,
@@ -120,7 +162,7 @@ const FeedDetails = props => {
                                         marginTop: 20
                                     }}>
                                         <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-                                            <Image source={{ uri: comment.item.avatar }} style={styles.avatar} resizeMode="cover" />
+                                            <Image source={{ uri: comment.item.profile_picture !== "" && comment.item.profile_picture !== undefined ? comment.item.profile_picture : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }} style={styles.avatar} resizeMode="cover" />
                                             <Text style={styles.nameText}>{comment.item.name}</Text>
                                         </View>
                                         <View style={{ marginTop: 10, width: '100%', backgroundColor: 'rgba(0,0,0,0.3)', padding: 10, borderRadius: 8 }}>
@@ -128,12 +170,12 @@ const FeedDetails = props => {
 
                                             <View style={{ marginTop: 15, flexDirection: 'row', width: '100%', justifyContent: 'flex-start', alignItems: 'center' }}>
                                                 <Text numberOfLines={1} style={styles.commentButtonText}>{comment.item.date !== '' && comment.item.date !== null ? moment(comment.item.date, "DD/MM/YYYYTHH:mm:ss").fromNow() : ''}</Text>
-                                                <Text numberOfLines={1} style={[styles.commentButtonText, { marginLeft: 10 }]}>{String(comment.item.likeCount)} beğenme</Text>
+                                                {/* <Text numberOfLines={1} style={[styles.commentButtonText, { marginLeft: 10 }]}>{comment.item.likeCount !== undefined ? String(comment.item.likeCount) : 0} beğenme</Text> */}
                                             </View>
 
-                                            <TouchableOpacity onPress={() => isLiked ? removeLike(comment.item.id) : addLike(comment.item)} style={{ position: 'absolute', right: 10, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }}>
+                                            {/* <TouchableOpacity onPress={() => isLiked ? removeLike(comment.item.id) : addLike(comment.item)} style={{ position: 'absolute', right: 10, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }}>
                                                 <Icon name={isLiked ? "favorite" : "favorite-outline"} size={20} color='white' />
-                                            </TouchableOpacity>
+                                            </TouchableOpacity> */}
                                         </View>
                                     </View>
                                 )
@@ -188,7 +230,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 20
+        paddingHorizontal: 10
     },
     headerText: {
         fontFamily: 'SFProDisplay-Medium',

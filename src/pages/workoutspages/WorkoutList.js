@@ -36,7 +36,7 @@ const WorkoutList = props => {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
-                        <TouchableHighlight onPress={() => props.navigation.navigate('FeedList')}>
+                        <TouchableHighlight onPress={() => props.navigation.navigate('Feed')}>
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 

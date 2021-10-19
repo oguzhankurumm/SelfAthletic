@@ -6,7 +6,7 @@ import Video from 'react-native-video';
 import Modal from 'react-native-modal';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import moment from 'moment';
-import { database2, auth2 } from '../../config/config';
+import { database, auth } from '../../config/config';
 
 const { height, width } = Dimensions.get("window");
 
@@ -85,7 +85,7 @@ const WorkoutVideo = props => {
             workoutid: Workouts.id
         }
 
-        await database2.ref('users_points').child(auth2.currentUser.uid).push(data)
+        await database().ref('users_points').child(auth().currentUser.uid).push(data)
             .then(() => {
                 setLoadingSave(false);
                 setTimeout(() => {

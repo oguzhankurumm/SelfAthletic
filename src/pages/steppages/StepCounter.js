@@ -3,7 +3,7 @@ import { View, Text, ImageBackground, SafeAreaView, StyleSheet, Dimensions, Stat
 import SpinnerLoading from '../../components/SpinnerLoading';
 import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import { ListItem, Body, Left, Right } from 'native-base';
 
 const { height, width } = Dimensions.get("window");
@@ -16,10 +16,10 @@ const StepCounter = ({ props, navigation }) => {
 
     useEffect(() => {
         let allSteps = []
-        database2.ref('steps').once('value').then((snapshot) => {
+        database().ref('steps').once('value').then((snapshot) => {
             snapshot.forEach((item) => {
                 item.forEach((newitem) => {
-                    database2.ref('users').child(item.key).once('value')
+                    database().ref('users').child(item.key).once('value')
                         .then((userData) => {
 
                             allSteps.push({
@@ -69,7 +69,7 @@ const StepCounter = ({ props, navigation }) => {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
-                        <TouchableHighlight onPress={() => navigation.navigate('FeedList')}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Feed')}>
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 

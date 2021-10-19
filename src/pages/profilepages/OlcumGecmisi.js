@@ -4,9 +4,10 @@ import { useSelector } from 'react-redux';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icon2 from 'react-native-vector-icons/FontAwesome5';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import moment from 'moment';
 import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
+import Modal from 'react-native-modal';
 
 const { height, width } = Dimensions.get("window");
 
@@ -18,13 +19,16 @@ const OlcumGecmisi = ({ navigation }) => {
 
     const [ShowAlert, setShowAlert] = useState(false);
     const [ShowSuccessAlert, setShowSuccessAlert] = useState(false);
-    const [SelectedKey, setSelectedKey] = useState("")
+    const [SelectedKey, setSelectedKey] = useState("");
+
+    const [SelectedOlcum, setSelectedOlcum] = useState([])
+    const [ShowPopup, setShowPopup] = useState(false);
 
     const getFavorites = async () => {
         setLoading(true);
         var measurementsList = [];
 
-        await database2.ref(`users/${userData.userId}/measurements`).once("value")
+        await database().ref(`users/${userData.userId}/measurements`).once("value")
             .then((snapshot) => {
                 if (snapshot.val() !== undefined && snapshot.val() !== null) {
                     snapshot.forEach((item) => {
@@ -53,7 +57,7 @@ const OlcumGecmisi = ({ navigation }) => {
     }, [])
 
     const deleteFav = id => {
-        database2.ref(`users/${userData.userId}/measurements/`).child(id).remove()
+        database().ref(`users/${userData.userId}/measurements/`).child(id).remove()
             .then(() => {
                 setOlcumList(OlcumList.filter(q => q.id !== id))
                 setShowAlert(false);
@@ -67,116 +71,127 @@ const OlcumGecmisi = ({ navigation }) => {
     }
 
     return (
-        <ImageBackground style={{ height: height, width: width }} resizeMode="cover" source={require('../../img/bg.jpg')}>
-            <SafeAreaView style={styles.container}>
-                <StatusBar barStyle="light-content" />
-                <SpinnerLoading Loading={Loading} />
+        <>
+            <Modal style={{ marginTop: 'auto' }}
+                animationIn="fadeIn"
+                animationOut="fadeOut"
+                isVisible={ShowPopup}
+                onBackButtonPress={() => setShowPopup(false)}
+                onBackdropPress={() => setShowPopup(false)}
+                animationInTiming={500}
+                animationOutTiming={500}
+                backdropOpacity={0.7}
+            >
+                <View style={{ backgroundColor: "#202026", justifyContent: 'center', alignItems: 'center', padding: 30, borderRadius: 12 }}>
+                    {
+                        Object.values(SelectedOlcum.values) !== undefined && Object.values(SelectedOlcum.values).map((opt) => {
+                            return (
+                                <View style={{ flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                    <Text style={{
+                                        textAlign: 'left',
+                                        fontFamily: 'SFProDisplay-Bold',
+                                        fontSize: 18,
+                                        color: '#FFF'
+                                    }}>{opt.name}:</Text>
+                                    <Text style={{
+                                        textAlign: 'left',
+                                        fontFamily: 'SFProDisplay-Medium',
+                                        fontSize: 18,
+                                        color: '#FFF'
+                                    }}>{opt.value} cm.</Text>
 
-                <View style={styles.header} >
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-                        <Icon name="keyboard-arrow-left" color="#FFF" size={42} style={{ marginRight: 15 }} />
-                        <Text style={styles.headerText}>Ölçüm Geçmişi</Text>
+                                </View>
+                            )
+                        })
+                    }
+                    <TouchableOpacity onPress={() => setShowPopup(!ShowPopup)} style={{ paddingTop: 20 }}>
+                        <Text style={{
+                            textAlign: 'center',
+                            fontFamily: 'SFProDisplay-Medium',
+                            fontSize: 18,
+                            color: '#FFF'
+                        }}>Kapat</Text>
                     </TouchableOpacity>
                 </View>
+            </Modal>
 
-                <SCLAlert
-                    onRequestClose={() => setShowAlert(false)}
-                    theme="danger"
-                    show={ShowAlert}
-                    title="Ölçümü Sil"
-                    subtitle="Ölçüm silinsin mı?"
-                >
-                    <SCLAlertButton theme="danger" onPress={() => deleteFav(SelectedKey)}>Evet</SCLAlertButton>
-                    <SCLAlertButton theme="default" onPress={() => setShowAlert(!ShowAlert)}>Vazgeç</SCLAlertButton>
-                </SCLAlert>
+            <SCLAlert
+                onRequestClose={() => setShowAlert(false)}
+                theme="danger"
+                show={ShowAlert}
+                title="Ölçümü Sil"
+                subtitle="Ölçüm silinsin mı?"
+            >
+                <SCLAlertButton theme="danger" onPress={() => deleteFav(SelectedKey)}>Evet</SCLAlertButton>
+                <SCLAlertButton theme="default" onPress={() => setShowAlert(!ShowAlert)}>Vazgeç</SCLAlertButton>
+            </SCLAlert>
 
-                <SCLAlert
-                    onRequestClose={() => setShowSuccessAlert(false)}
-                    theme="success"
-                    show={ShowSuccessAlert}
-                    title="Başarılı"
-                    subtitle="Ölçüm başarıyla silindi."
-                >
-                    <SCLAlertButton theme="success" onPress={() => setShowSuccessAlert(false)}>Tamam</SCLAlertButton>
-                </SCLAlert>
+            <SCLAlert
+                onRequestClose={() => setShowSuccessAlert(false)}
+                theme="success"
+                show={ShowSuccessAlert}
+                title="Başarılı"
+                subtitle="Ölçüm başarıyla silindi."
+            >
+                <SCLAlertButton theme="success" onPress={() => setShowSuccessAlert(false)}>Tamam</SCLAlertButton>
+            </SCLAlert>
 
-                <View style={{ width: '100%', marginTop: 20, paddingHorizontal: 20 }}>
-                    {!Loading && OlcumList.length >= 1 ?
-                        <FlatList
-                            style={{ paddingBottom: 20, width: '100%', height: '100%' }}
-                            scrollEnabled={true}
-                            showsHorizontalScrollIndicator={false}
-                            showsVerticalScrollIndicator={false}
-                            data={OlcumList}
-                            keyExtractor={(item, index) => index.toString()}
-                            renderItem={({ item, index }) => {
-                                return (
-                                    <View
-                                        style={{
-                                            backgroundColor: '#202026',
-                                            padding: 15,
-                                            marginBottom: 10,
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            height: 'auto',
-                                            width: '100%',
-                                            borderRadius: 18
-                                        }}>
+            <View style={{ width: '100%', marginTop: 20, paddingHorizontal: 20 }}>
+                {!Loading && OlcumList.length >= 1 ?
+                    <FlatList
+                        style={{ paddingBottom: 20, width: '100%', height: '100%' }}
+                        scrollEnabled={true}
+                        showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
+                        data={OlcumList}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({ item, index }) => {
+                            return (
+                                <View
+                                    style={{
+                                        backgroundColor: '#202026',
+                                        padding: 15,
+                                        marginBottom: 10,
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        height: 'auto',
+                                        width: '100%',
+                                        borderRadius: 18
+                                    }}>
 
-                                        <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-
-                                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                                <View>
-                                                    <Text style={{
-                                                        fontFamily: 'SFProDisplay-Bold',
-                                                        fontSize: 18,
-                                                        color: '#FFF',
-                                                        marginBottom: 10
-                                                    }}>{moment(item.date, "DD/MM/YYYYTHH:mm:ss").format('lll')}</Text>
-
-                                                    {item.values !== undefined && item.values.map((opt) => {
-                                                        return (
-                                                            <View style={{ flexDirection: 'row', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F1F1F1', justifyContent: 'flex-start', alignItems: 'flex-start', width: width / 1.6 }}>
-                                                                <Text style={{
-                                                                    textAlign: 'left',
-                                                                    fontFamily: 'SFProDisplay-Bold',
-                                                                    fontSize: 16,
-                                                                    color: '#FFF'
-                                                                }}>{opt.name}:</Text>
-                                                                <Text style={{
-                                                                    textAlign: 'left',
-                                                                    fontFamily: 'SFProDisplay-Medium',
-                                                                    fontSize: 16,
-                                                                    color: '#FFF'
-                                                                }}>{opt.value} cm.</Text>
-                                                            </View>
-                                                        )
-                                                    })}
-
-                                                </View>
-                                            </View>
-
-                                            <View style={{ flexDirection: 'row' }}>
-                                                <Icon2 onPress={() => {
-                                                    setSelectedKey(item.id);
-                                                    setShowAlert(!ShowAlert);
-                                                }} size={20} color="#F1F1F1" name="minus-circle" />
-                                            </View>
-
+                                    <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10 }}>
+                                        <Image source={require('../../img/mezuraicon.png')} width={50} height={50} resizeMode="contain" style={{ width: 50, height: 50 }} />
+                                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                            <Text style={{
+                                                fontFamily: 'SFProDisplay-Bold',
+                                                fontSize: 18,
+                                                color: '#FFF'
+                                            }}>{moment(item.date, "DD/MM/YYYYTHH:mm:ss").format('ll')}</Text>
                                         </View>
-
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Icon2 onPress={() => {
+                                                setSelectedKey(item.id);
+                                                setShowAlert(!ShowAlert);
+                                            }} size={22} color="#F1F1F1" name="minus-circle" />
+                                            <Icon2 onPress={() => {
+                                                setSelectedOlcum(item);
+                                                setTimeout(() => {
+                                                    setShowPopup(true);
+                                                }, 200);
+                                            }} size={22} color="#F1F1F1" name="info-circle" style={{ marginLeft: 10 }} />
+                                        </View>
                                     </View>
-                                )
-                            }}
-                        />
-                        : <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={styles.headerText}>Henüz ölçüm eklenmemiş.</Text>
-                        </View>
-                    }
-                </View>
-            </SafeAreaView >
-        </ImageBackground >
+                                </View>
+                            )
+                        }}
+                    />
+                    : <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 50 }}>
+                        <Text style={styles.headerText}>Henüz ölçüm eklenmemiş.</Text>
+                    </View>
+                }
+            </View>
+        </>
     )
 }
 

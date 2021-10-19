@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, Image, StatusBar, TouchableOpacity, TouchableHighlight, Dimensions, ImageBackground, SafeAreaView, ScrollView, FlatList, Alert } from 'react-native';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import { useSelector } from 'react-redux';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import SpinnerLoading from '../../components/SpinnerLoading';
@@ -18,10 +18,10 @@ const { height, width } = Dimensions.get("window");
 
 const Antrenman = ({ navigation }) => {
     const profileData = useSelector(state => state.user.users);
+    const fitnessData = useSelector(state => state.health.health);
 
     const [Loading, setLoading] = useState(true);
     const [SaveLoading, setSaveLoading] = useState(false);
-    const [TotalProgress, setTotalProgress] = useState(0); //hedeflerin ortalaması alınacak
 
     const [ShowSideModal, setShowSideModal] = useState(false);
     const [VideoList, setVideoList] = useState([]);
@@ -34,8 +34,6 @@ const Antrenman = ({ navigation }) => {
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
     const [SelectedDate, setSelectedDate] = useState(moment());
 
-    const [Calories, setCalories] = useState(0);
-    const [CaloriesChart, setCaloriesChart] = useState(0);
 
     const [totalKcal, settotalKcal] = useState(0);
     const [TotalPoint, setTotalPoint] = useState(0);
@@ -44,20 +42,30 @@ const Antrenman = ({ navigation }) => {
     const [ShowAlert, setShowAlert] = useState(false);
     const [AlertSuccessTitle, setAlertSuccessTitle] = useState("");
     const [AlertSuccessSubTitle, setAlertSuccessSubTitle] = useState("");
-    const [ShowAlert2, setShowAlert2] = useState(false);
-    const [ShowTestAlert, setShowTestAlert] = useState(false);
 
     let datesBlacklist = [{
         start: moment().add(1, 'days'),
         end: moment().add(10, 'days')
     }];
 
+    const CreateNewOne = async () => {
+        const dateNow = moment().format("DD-MM-YYYY");
+
+        await database().ref(`users/${profileData.userId}/workouts/${dateNow}`).remove()
+            .then(() => {
+                createWorkout();
+            })
+            .catch(err => {
+                createWorkout();
+            })
+    }
+
     const getVideo = async (newWorkouts) => {
         let videoList = [];
         let getL = newWorkouts;
         let newL = []
 
-        getL.map((item, i) => {
+        Object.values(getL).forEach((item, i) => {
             newL.push({ ...item, index: i })
         })
 
@@ -66,8 +74,8 @@ const Antrenman = ({ navigation }) => {
                 .then((res) => {
                     if (res.status === 200) {
                         videoList.push({
-                            size: res.data.request.files.progressive[4].width,
-                            url: res.data.request.files.progressive[4].url,
+                            size: res.data.request.files.progressive[2].width,
+                            url: res.data.request.files.progressive[2].url,
                             thumb: res.data.video.thumbs[640],
                             title: res.data.video.title,
                             duration: res.data.video.duration,
@@ -94,7 +102,7 @@ const Antrenman = ({ navigation }) => {
     const getFavorites = async () => {
         var workoutList = [];
 
-        await database2.ref(`users/${profileData.userId}/favorites/workouts`).once("value")
+        await database().ref(`users/${profileData.userId}/favorites/workouts`).once("value")
             .then((snapshot) => {
                 if (snapshot.val() !== undefined && snapshot.val() !== null) {
                     snapshot.forEach((item) => {
@@ -120,26 +128,6 @@ const Antrenman = ({ navigation }) => {
             })
     }
 
-    const getMyCalories = async () => {
-        let CalorieList = [];
-        database2.ref('users_points/' + profileData.userId).on('value', snapshot => {
-            if (snapshot.val() !== null && snapshot.val() !== undefined) {
-                snapshot.forEach((item) => {
-                    CalorieList.push(item.val());
-                })
-
-                let sum = CalorieList.reduce(function (prev, current) {
-                    return prev + +parseFloat(current.calories)
-                }, 0);
-
-                setCalories(sum);
-                setCaloriesChart(parseFloat(profileData.targets?.calorie !== undefined && parseFloat(profileData.targets.calorie) / parseFloat(sum)).toFixed(2))
-            } else {
-                setCalories(0);
-            }
-        })
-    }
-
     const addFavorites = (item) => {
         const myMoveList = VideoList;
         setSaveLoading(true);
@@ -156,7 +144,7 @@ const Antrenman = ({ navigation }) => {
                 case "Yağ Oranı Azaltma":
                     BannerDescription = "Metabolik olarak daha hızlı ve daha ince bir görünüşe sahip olmak için dizayn edilen bu programda yağ oranınız azalırken aynı zamanda daha fonksiyonel ve fit bir fiziksel yapıya da sahip olacaksınız.";
                     break;
-                case "Fit Olma":
+                case "Formda Kalma":
                     BannerDescription = "Daha sıkı ve atletik bir fiziksel görünüm kazanmanız için dizayn edilen bu antrenman programı, mevcut yağ oranınız düşmesini sağlarken, aynı zamanda da daha kuvvetli ve dayanıklı olmanızı sağlayacaktır.";
                     break;
                 default:
@@ -164,7 +152,7 @@ const Antrenman = ({ navigation }) => {
                     break;
             }
 
-            database2.ref('users').child(profileData.userId + '/favorites/workouts/' + nowDate).set({
+            database().ref('users').child(profileData.userId + '/favorites/workouts/' + nowDate).set({
                 date: moment().format("DD/MM/YYYYTHH:mm:ss"),
                 bannerDescription: BannerDescription,
                 moves: myMoveList,
@@ -186,7 +174,7 @@ const Antrenman = ({ navigation }) => {
                     }, 200);
                 })
         } else {
-            database2.ref('users').child(profileData.userId + '/favorites/workouts/' + item.id).remove()
+            database().ref('users').child(profileData.userId + '/favorites/workouts/' + item.id).remove()
                 .then(() => {
                     setFavoritedList(FavoritedList.filter(q => q.id !== Workout.id))
                     setSaveLoading(false);
@@ -205,39 +193,10 @@ const Antrenman = ({ navigation }) => {
         }
     }
 
-    const CheckExams = () => {
-        if (profileData?.exams !== undefined && profileData.exams.length !== 0) {
-            getMyWorkouts();
-        } else {
-            setLoading(false);
-            setTimeout(() => {
-                setShowTestAlert(true);
-            }, 500);
-        }
-    }
-
-    const GoExam = () => {
-        setLoading(false);
-        setShowTestAlert(false);
-        navigation.navigate("TestList");
-    }
-
-    const PassExam = async () => {
-        setShowTestAlert(false);
-        setLoading(true);
-        await database2.ref(`users/${profileData.userId}/exams/`).update({ "-Test1": "-Test1" })
-            .then(() => {
-                getMyWorkouts();
-            })
-            .catch((err) => {
-                getMyWorkouts();
-            })
-    }
 
     useEffect(() => {
-        getMyCalories();
+        getMyWorkouts();
         getFavorites();
-        CheckExams();
     }, [])
 
     const getSelectedDay = async (date) => {
@@ -314,7 +273,7 @@ const Antrenman = ({ navigation }) => {
             case "Yağ Oranı Azaltma":
                 BannerDescription = "Metabolik olarak daha hızlı ve daha ince bir görünüşe sahip olmak için dizayn edilen bu programda yağ oranınız azalırken aynı zamanda daha fonksiyonel ve fit bir fiziksel yapıya da sahip olacaksınız.";
                 break;
-            case "Fit Olma":
+            case "Formda Kalma":
                 BannerDescription = "Daha sıkı ve atletik bir fiziksel görünüm kazanmanız için dizayn edilen bu antrenman programı, mevcut yağ oranınız düşmesini sağlarken, aynı zamanda da daha kuvvetli ve dayanıklı olmanızı sağlayacaktır.";
                 break;
 
@@ -327,7 +286,6 @@ const Antrenman = ({ navigation }) => {
         if (selectedDays !== 'Yok') {
             var wd = selectedDays.filter(q => q === dayName);
             if (wd.length !== 0) {
-
                 let StatikList = [];
                 let MobiliteList = [];
                 let KuvvetList = [];
@@ -348,8 +306,7 @@ const Antrenman = ({ navigation }) => {
 
                 let allWorkoutArr = [];
                 let workoutArr = []
-
-                await database2.ref('workouts').once('value')
+                await database().ref('workouts').once('value')
                     .then((snapshot) => {
                         snapshot.forEach((item) => {
                             allWorkoutArr.push({
@@ -365,26 +322,25 @@ const Antrenman = ({ navigation }) => {
                         setLoading(false);
                     })
 
-                let filteredA = workoutArr.filter(item => !Object.values(item.notfor).includes(cronicProblems))
-
-                await database2.ref('users/' + profileData.userId + '/workouts').once('value')
+                let filteredA = cronicProblems !== "Yok" ? workoutArr.filter(item => !Object.values(item.notfor).includes(cronicProblems)) : workoutArr;
+                await database().ref('users/' + profileData.userId + '/workouts').once('value')
                     .then(snapshot => {
                         var ind = 0;
                         snapshot.forEach((work) => {
-                            mevcutList[ind] = {
-                                ...work.val()
+                            if (work.val().moves !== undefined) {
+                                mevcutList[ind] = {
+                                    ...work.val()
+                                }
+                                ind = ind + 1
                             }
-                            ind = ind + 1
                         })
-                        if (Object.values(mevcutList[mevcutList.length - 1].moves.includes("Alt Vücut"))) {
+                        if (Object.values(mevcutList[mevcutList.length - 1].moves) !== undefined && Object.values(mevcutList[mevcutList.length - 1].moves.includes("Alt Vücut"))) {
                             oncekiGun = "Alt Vücut"
-                            console.log('alt')
                         } else {
                             oncekiGun = "Üst Vücut"
-                            console.log('üst')
                         }
                     })
-                    .catch((err) => console.log('err'))
+                    .catch((err) => console.log('errorrr', err))
 
                 filteredA.forEach((item) => {
                     var move = item;
@@ -578,7 +534,7 @@ const Antrenman = ({ navigation }) => {
                     // SEVİYE 1 İÇİN YAĞ ORANI AZALTMA SON
 
                     // SEVİYE 1 İÇİN FİT OLMA BAŞLANGIÇ
-                    if (profileData.point < 10000 && Target === "Fit Olma") {
+                    if (profileData.point < 10000 && Target === "Formda Kalma") {
                         if (move.category === "Core Egzersizi" && CoreList.length < 5) {
                             if (move.category === "Core Egzersizi" && move.type === "time") {
                                 CoreList.push({
@@ -858,7 +814,7 @@ const Antrenman = ({ navigation }) => {
                     // SEVİYE 2 İÇİN YAĞ ORANI AZALTMA SON
 
                     // SEVİYE 2 İÇİN FİT OLMA BAŞLANGIÇ
-                    if (profileData.point >= 10001 && profileData.point <= 15000 && Target === "Fit Olma") {
+                    if (profileData.point >= 10001 && profileData.point <= 15000 && Target === "Formda Kalma") {
                         if (move.category === "Core Egzersizi" && CoreList.length < 5) {
                             if (move.category === "Core Egzersizi" && move.type === "time") {
                                 CoreList.push({
@@ -954,7 +910,7 @@ const Antrenman = ({ navigation }) => {
 
                     /// KAS KÜTLES ARTIŞI SEVİYE 3 BAŞLANGIÇ
 
-                    if (profileData.point >= 15001 && profileData.point <= 25000 && Target === "Kas Kütlesi Artışı") {
+                    if (profileData.point >= 15001 && Target === "Kas Kütlesi Artışı") {
                         if (move.category === "Core Egzersizi" && CoreList.length < 3) {
                             if (move.category === "Core Egzersizi" && move.type === "time") {
                                 CoreList.push({
@@ -1047,7 +1003,7 @@ const Antrenman = ({ navigation }) => {
                     //SEVİYE 3 İÇİN KAS KÜTLESİ SON
 
                     // SEVİYE 3 İÇİN YAĞ ORANI AZALTMA BAŞLANGIÇ
-                    if (profileData.point >= 15001 && profileData.point <= 25000 && Target === "Yağ Oranı Azaltma") {
+                    if (profileData.point >= 15001 && Target === "Yağ Oranı Azaltma") {
                         if (move.category === "Core Egzersizi" && CoreList.length < 3) {
                             if (move.category === "Core Egzersizi" && move.type === "time") {
                                 CoreList.push({
@@ -1139,7 +1095,7 @@ const Antrenman = ({ navigation }) => {
                     // SEVİYE 2 İÇİN YAĞ ORANI AZALTMA SON
 
                     // SEVİYE 2 İÇİN FİT OLMA BAŞLANGIÇ
-                    if (profileData.point >= 15001 && profileData.point <= 25000 && Target === "Fit Olma") {
+                    if (profileData.point >= 15001 && Target === "Formda Kalma") {
                         if (move.category === "Core Egzersizi" && CoreList.length < 6) {
                             if (move.category === "Core Egzersizi" && move.type === "time") {
                                 CoreList.push({
@@ -1236,15 +1192,18 @@ const Antrenman = ({ navigation }) => {
                 let indAlt = 0;
                 let indUst = 1;
 
-                KuvvetList.forEach(item => {
-                    if (item.category === "Alt Vücut") {
-                        newKL.push({ ...item, index: indAlt });
-                        indAlt = indAlt + 1
-                    } else {
-                        newKL.push({ ...item, index: indUst });
-                        indUst = indUst + 1
-                    }
-                })
+                if (KuvvetList.length !== 0) {
+                    KuvvetList.forEach(item => {
+                        if (item.category === "Alt Vücut") {
+                            newKL.push({ ...item, index: indAlt });
+                            indAlt = indAlt + 1
+                        } else {
+                            newKL.push({ ...item, index: indUst });
+                            indUst = indUst + 1
+                        }
+                    })
+                }
+
 
                 var statikLen = StatikList.length;
 
@@ -1253,14 +1212,13 @@ const Antrenman = ({ navigation }) => {
 
                 setSaveLoading(true);
 
-                await database2.ref('users/' + profileData.userId + '/workouts/' + String(pushDate)).set({
+                await database().ref('users/' + profileData.userId + '/workouts/' + String(pushDate)).set({
                     bannerDescription: BannerDescription,
                     moves: newList
                 })
                     .then((response) => {
-                        database2.ref('users/' + profileData.userId + '/workouts/' + String(pushDate)).once('value')
+                        database().ref('users/' + profileData.userId + '/workouts/' + String(pushDate)).once('value')
                             .then((res) => {
-                                console.log('res: ', res)
                                 getVideo(res.val().moves);
                                 setWorkout(res.val());
                                 setWorkoutKey(res.key);
@@ -1302,15 +1260,39 @@ const Antrenman = ({ navigation }) => {
     const getMyWorkouts = async () => {
         setLoading(true);
 
-        await database2.ref('users/' + profileData.userId + '/workouts').once('value')
+        await database().ref('users/' + profileData.userId + '/workouts').once('value')
             .then(snapshot => {
                 if (snapshot.val() !== null && snapshot.val() !== undefined) {
                     var MyList = [];
                     snapshot.forEach((work) => {
+                        if (work.val().length !== 0 && work.val() !== undefined && work.val().moves !== undefined) {
+                            MyList[work.key] = {
+                                ...work.val(),
+                                completed: work.val().completed !== undefined ? work.val().completed : false,
+                                id: work.key
+                            }
+
+                            markedDatesArray.push({
+                                date: moment(work.key, "DD-MM-YYYY").format("YYYY-MM-DD"),
+                                completed: work.val().completed !== undefined && work.val().completed === true ? true : false,
+                                dots: [
+                                    {
+                                        color: work.val().completed !== undefined && work.val().completed === true ? '#00FF00' : '#9D9D9D',
+                                    },
+                                ],
+                            });
+                        }
+                    })
+
+                    setMyHistory(MyList);
+
+                    var isWd = MyList[moment().format("DD-MM-YYYY")];
+
+                    if (isWd !== undefined && isWd.moves !== undefined) {
                         let point = 0;
                         var kcal = 0;
 
-                        Object.values(work.val().moves).forEach((wrk) => {
+                        Object.values(isWd.moves).forEach((wrk) => {
 
                             if (wrk.type === "reps") {
                                 if (wrk.set && wrk.reps !== undefined) {
@@ -1327,35 +1309,9 @@ const Antrenman = ({ navigation }) => {
                                     kcal += parseFloat(wrk.calorie);
                                 }
                             }
-
                         })
-
                         settotalKcal(kcal);
                         setTotalPoint(point)
-
-                        MyList[work.key] = {
-                            ...work.val(),
-                            completed: work.val().completed !== undefined ? work.val().completed : false,
-                            id: work.key
-                        }
-
-                        markedDatesArray.push({
-                            date: moment(work.key, "DD-MM-YYYY").format("YYYY-MM-DD"),
-                            completed: work.val().completed !== undefined && work.val().completed === true ? true : false,
-                            dots: [
-                                {
-                                    color: work.val().completed !== undefined && work.val().completed === true ? '#00FF00' : '#9D9D9D',
-                                },
-                            ],
-                        });
-
-                    })
-
-                    setMyHistory(MyList);
-
-                    var isWd = MyList[moment().format("DD-MM-YYYY")];
-
-                    if (isWd !== undefined) {
                         getVideo(isWd.moves);
                         setWorkout(isWd);
                         setWorkoutKey(isWd.id);
@@ -1368,7 +1324,7 @@ const Antrenman = ({ navigation }) => {
 
             })
             .catch((err) => {
-                console.log('err: ', err)
+                console.log('null workouts: ', err)
                 setLoading(false);
             })
     }
@@ -1387,38 +1343,13 @@ const Antrenman = ({ navigation }) => {
                 <Sidebar navigation={navigation} opened={ShowSideModal} onClose={() => closeModal()} />
 
                 <SCLAlert
-                    cancellable={false}
-                    theme="warning"
-                    show={ShowTestAlert}
-                    onRequestClose={() => {
-                        setShowTestAlert(false);
-                        setLoading(true);
-                        getMyWorkouts();
-                    }}
-                    title="Teste Girilmemiş"
-                    subtitle="Seviyenizi belirlemek için şimdi teste girmek iseter misiniz?"
-                >
-                    <SCLAlertButton theme="warning" onPress={GoExam}>Testi Başlat</SCLAlertButton>
-                    <SCLAlertButton theme="default" onPress={PassExam}>Daha Sonra</SCLAlertButton>
-                </SCLAlert>
-
-                <SCLAlert
                     theme="success"
                     show={ShowAlert}
                     title={AlertSuccessTitle}
                     subtitle={AlertSuccessSubTitle}
+                    onRequestClose={() => setShowAlert(!ShowAlert)}
                 >
                     <SCLAlertButton theme="success" onPress={() => setShowAlert(!ShowAlert)}>Tamam</SCLAlertButton>
-                </SCLAlert>
-
-                <SCLAlert
-                    theme="warning"
-                    show={ShowAlert2}
-                    title=""
-                    subtitle=""
-                >
-                    <SCLAlertButton theme="warning" onPress={null}>Testten Çık</SCLAlertButton>
-                    <SCLAlertButton theme="default" onPress={() => setShowAlert2(!ShowAlert2)}>Vazgeç</SCLAlertButton>
                 </SCLAlert>
 
                 <View style={styles.header} >
@@ -1431,7 +1362,7 @@ const Antrenman = ({ navigation }) => {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
-                        <TouchableHighlight onPress={() => navigation.navigate('FeedList')}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Feed')}>
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
@@ -1455,7 +1386,8 @@ const Antrenman = ({ navigation }) => {
                                 backgroundColor="#4D4D4D">
                                 {(fill) => (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={styles.circleHeaderText}>0</Text>
+                                        <Text style={styles.headerText}>Bugün</Text>
+                                        <Text style={styles.circleHeaderText}>{fitnessData.calories.length !== 0 ? parseFloat(fitnessData.calories[0].quantity).toFixed(0) : 0}</Text>
                                         <Text style={styles.targetHeader}>Kalori</Text>
                                     </View>
                                 )}
@@ -1472,8 +1404,9 @@ const Antrenman = ({ navigation }) => {
                                 backgroundColor="#4D4D4D">
                                 {(fill) => (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={styles.circleHeaderText}>{parseFloat(TotalProgress).toFixed(0)}</Text>
-                                        <Text style={styles.targetHeader}>Adım Sayısı</Text>
+                                        <Text style={styles.headerText}>Bugün</Text>
+                                        <Text style={styles.circleHeaderText}>{fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[7].quantity).toFixed(0) : 0}</Text>
+                                        <Text style={styles.targetHeader}>Adım</Text>
                                     </View>
                                 )}
                             </AnimatedCircularProgress>
@@ -1481,7 +1414,7 @@ const Antrenman = ({ navigation }) => {
                     </View>
 
                     <View style={{ width: '100%', paddingHorizontal: 10 }}>
-                        {!Loading && !ShowTestAlert &&
+                        {!Loading &&
                             <CalendarStrip
                                 scrollable={true}
                                 datesBlacklist={datesBlacklist}
@@ -1509,7 +1442,7 @@ const Antrenman = ({ navigation }) => {
                         }
                     </View>
 
-                    {!Loading && !ShowTestAlert && !isCompleted ?
+                    {!Loading && !isCompleted ?
                         <>
                             <View style={{ paddingHorizontal: 20, flexDirection: 'row', paddingVertical: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                 {!Loading &&
@@ -1528,7 +1461,7 @@ const Antrenman = ({ navigation }) => {
                                 }
 
                                 {!Loading &&
-                                    <TouchableOpacity onPress={() => getMyWorkouts()}
+                                    <TouchableOpacity onPress={() => CreateNewOne()}
                                         style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
                                         <Icon name="refresh" color="yellow" size={26} />
                                         <Text style={{
@@ -1537,21 +1470,22 @@ const Antrenman = ({ navigation }) => {
                                             color: 'yellow',
                                             marginLeft: 10
                                         }}
-                                        >Yenile</Text>
+                                        >Yeni Antrenman Oluştur</Text>
                                     </TouchableOpacity>
                                 }
 
                             </View>
 
-                            {!Loading && !ShowTestAlert && VideoList.length > 1 &&
+                            {!Loading && VideoList.length > 1 &&
                                 <>
                                     <FlatList style={{ flex: 1, flexGrow: 1, paddingHorizontal: 20 }}
                                         scrollEnabled={false}
-                                        contentContainerStyle={{ flexGrow: 1, paddingBottom: 300 }}
+                                        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
                                         data={VideoList}
                                         ListHeaderComponent={() => {
                                             let workoutTime = VideoList.reduce(function (prev, current) {
-                                                return prev + +parseFloat(current.duration)
+                                                let calcDuration = parseFloat(current.duration) * parseFloat(current.set);
+                                                return prev + +calcDuration;
                                             }, 0)
                                             return (
                                                 <>
@@ -1733,7 +1667,7 @@ const Antrenman = ({ navigation }) => {
                                 </>
                             }
                         </> : <>
-                            {!Loading && !ShowTestAlert &&
+                            {!Loading &&
                                 <View style={{ height: 'auto', paddingHorizontal: 40, marginBottom: 20, marginTop: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                     <Icon name="tag-faces" size={64} color="#4D4D4D" />
                                     <Text style={[styles.headerText, { color: '#4D4D4D', fontSize: 16, textAlign: 'center', marginTop: 10 }]}>Tebrikler! Seçili günün antrenmanını tamamladınız.</Text>

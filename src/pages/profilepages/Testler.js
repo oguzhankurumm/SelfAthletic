@@ -6,7 +6,7 @@ import SpinnerLoading from '../../components/SpinnerLoading';
 import Video from 'react-native-video';
 import axios from 'axios';
 import moment from 'moment';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import * as actions from '../../redux/actions/profile';
 import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
 import Carousel from 'react-native-snap-carousel';
@@ -15,6 +15,7 @@ const { height, width } = Dimensions.get("window");
 
 
 const Testler = props => {
+    const profileData = useSelector(state => state.user.users);
     const dispatch = useDispatch()
 
     const _carousel = useRef(null);
@@ -31,9 +32,6 @@ const Testler = props => {
     const [playVideo, setplayVideo] = useState(false);
 
     const [Yapilan, setYapilan] = useState(0);
-    const profileData = useSelector(state => state.user.users);
-    const [TotalPoint, setTotalPoint] = useState(0);
-    const [TotalTime, setTotalTime] = useState(0);
 
     const [ShowAlert, setShowAlert] = useState(false);
     const [ShowAlert2, setShowAlert2] = useState(false);
@@ -49,14 +47,14 @@ const Testler = props => {
 
             _carousel.current.snapToItem(index + 1);
             setisReady(!isReady);
-            // console.log('index: ', SelectedIndex)
 
             if (Testler[index].type === "time") {
                 Testler[index].completedTime = parseFloat(Yapilan);
+                Testler[index].tTime = parseFloat(initialTime);
             } else {
                 Testler[index].completedReps = parseFloat(Yapilan);
+                Testler[index].tTime = parseFloat(initialTime);
             }
-
             setTimeout(() => {
                 setYapilan(0);
             }, 200);
@@ -75,8 +73,9 @@ const Testler = props => {
                             width: '100%',
                             fontFamily: 'SFProDisplay-Medium',
                             fontSize: 16,
-                            color: '#FFF'
-                        }}>Üç farklı testin ilk ikisinde (squat ve push up) 1 dakika içerisinde yapabildiğiniz en yüksek sayıda tekrar sayısına ulaşmanız gerekmektedir. Testi başlattıktan sonra sayaç sona erene kadar hareketi uygulamaya devam edin. Sayaç sonlandığında ise yaptığınız tekrar sayısını testin karşısındaki kutucuğa yazınız. İlk testi bitirdikten sonra kendinizi hazır hissedene kadar dinleniniz. Ardından diğer testi başlatarak aynı şekilde 1 dakika boyunca yapabildiğiniz en yüksek sayıdaki tekrar sayısına ulaşınız. Testin karşısında kutucuğa işaretledikten sonra son test olan plank testine geçiniz. Plank testinde maksimum süreniz 2 dakikadır. 2 dakika boyunca sabit olarak pozisyonunuzu korumaya çalışınız. Pozisyonunuz bozulduğunda süreyi durdurunuz. Üç testi de bu şekilde tamamlayınız.</Text>
+                            color: '#FFF',
+                            lineHeight: 20
+                        }}>• Üç farklı testin ilk ikisinde (squat ve push up) 1 dakika içerisinde yapabildiğiniz en yüksek sayıda tekrar sayısına ulaşmanız gerekmektedir.{"\n"}• Testi başlattıktan sonra sayaç sona erene kadar hareketi uygulamaya devam edin.{"\n"}• Sayaç sonlandığında ise yaptığınız tekrar sayısını testin karşısındaki kutucuğa yazınız.{"\n"}• İlk testi bitirdikten sonra kendinizi hazır hissedene kadar dinleniniz. Ardından diğer testi başlatarak aynı şekilde 1 dakika boyunca yapabildiğiniz en yüksek sayıdaki tekrar sayısına ulaşınız.{"\n"}• Testin karşısında kutucuğa işaretledikten sonra son test olan plank testine geçiniz. Plank testinde maksimum süreniz 2 dakikadır. 2 dakika boyunca sabit olarak pozisyonunuzu korumaya çalışınız. Pozisyonunuz bozulduğunda süreyi durdurunuz.{"\n"}•	Üç testi de bu şekilde tamamlayınız. </Text>
                     }
 
                     <Text style={{
@@ -88,7 +87,8 @@ const Testler = props => {
                         color: '#FFF'
                     }}>Kendinizi hazır hissettiğiniz zaman testi başlat butonuna basın.</Text>
 
-                    {!Loading && Testler.length > 0 &&
+                    {
+                        !Loading && Testler.length > 0 &&
                         <>
                             <Text style={{
                                 width: '100%',
@@ -268,8 +268,8 @@ const Testler = props => {
                         if (res.status === 200) {
                             videoList.push({
                                 video: {
-                                    size: res.data.request.files.progressive[4].width,
-                                    url: res.data.request.files.progressive[4].url,
+                                    size: res.data.request.files.progressive[2].width,
+                                    url: res.data.request.files.progressive[2].url,
                                     thumb: res.data.video.thumbs[640]
                                 },
                                 ...ex
@@ -288,33 +288,37 @@ const Testler = props => {
                         }
                     })
                     .catch((err) => {
-                        console.log('err: ', err)
                         setLoading(false);
-                        Alert.alert('Hata', 'Videolar yüklenemedi, lütfen internet bağlantınızı kontrol edin.')
+                        setTimeout(() => {
+                            Alert.alert('Hata', 'Videolar yüklenemedi, lütfen internet bağlantınızı kontrol edin.')
+                        }, 200);
                     })
             })
         })
     }
 
-    const CompleteTest = () => {
+    const CompleteTest = async () => {
 
         let tPoint = 0;
+        let tTime = 0;
 
         Testler.forEach((item) => {
             const Type = item.type
-
             if (Type === "time") {
                 tPoint = parseFloat(tPoint) + parseFloat(parseFloat(item.completedTime).toFixed(0) / 10);
+                tTime = parseFloat(tTime) + parseFloat(item.tTime);
             } else {
                 tPoint = parseFloat(tPoint) + parseFloat(1 * parseFloat(item.completedReps).toFixed(0));
+                tTime = parseFloat(tTime) + parseFloat(item.tTime);
             }
         })
 
-
-        FinishTest(tPoint);
+        console.log({ tTime })
+        console.log({ Testler })
+        // FinishTest(tPoint);
     }
 
-    const FinishTest = async (tPoint) => {
+    const FinishTest = async (tPoint, tTime) => {
         setplayVideo(false);
         setStartTimer(false);
 
@@ -323,75 +327,72 @@ const Testler = props => {
         let newP = 0;
 
         if (tPoint < 50) {
-            if (profilePoint <= 10000) {
-                newP = 99999 - parseFloat(profilePoint);
-            }
-            if (profilePoint >= 10001 && profilePoint <= 15000) {
-                newP = 15001 - parseFloat(profilePoint);
-            }
-            if (profilePoint >= 15001 && profilePoint <= 25000) {
-                newP = 25001 - parseFloat(profilePoint);
-            }
+            // if (profilePoint <= 10000) {
+            // newP = 99999 - parseFloat(profilePoint);
+            newP = 9999
+            // }
+            // if (profilePoint >= 10001 && profilePoint <= 15000) {
+            //     newP = 15001 - parseFloat(profilePoint);
+            // }
+            // if (profilePoint >= 15001 && profilePoint <= 25000) {
+            //     newP = 25001 - parseFloat(profilePoint);
+            // }
 
         } else if (tPoint >= 50 && tPoint <= 100) {
-            if (profilePoint <= 10000) {
-                newP = 99999 - parseFloat(profilePoint);
-            }
-            if (profilePoint >= 10001 && profilePoint <= 15000) {
-                newP = 15001 - parseFloat(profilePoint);
-            }
-            if (profilePoint >= 15001 && profilePoint <= 25000) {
-                newP = 25001 - parseFloat(profilePoint);
-            }
+            newP = 15001
+            // if (profilePoint <= 10000) {
+            //     newP = 99999 - parseFloat(profilePoint);
+            // }
+            // if (profilePoint >= 10001 && profilePoint <= 15000) {
+            //     newP = 15001 - parseFloat(profilePoint);
+            // }
+            // if (profilePoint >= 15001 && profilePoint <= 25000) {
+            //     newP = 25001 - parseFloat(profilePoint);
+            // }
         } else if (tPoint >= 101) {
-            if (profilePoint <= 10000) {
-                newP = 99999 - parseFloat(profilePoint);
-            }
-            if (profilePoint >= 10001 && profilePoint <= 15000) {
-                newP = 15001 - parseFloat(profilePoint);
-            }
-            if (profilePoint >= 15001 && profilePoint <= 25000) {
-                newP = 25001 - parseFloat(profilePoint);
-            }
+            newP = 25001
+            // if (profilePoint <= 10000) {
+            //     newP = 99999 - parseFloat(profilePoint);
+            // }
+            // if (profilePoint >= 10001 && profilePoint <= 15000) {
+            //     newP = 15001 - parseFloat(profilePoint);
+            // }
+            // if (profilePoint >= 15001 && profilePoint <= 25000) {
+            //     newP = 25001 - parseFloat(profilePoint);
+            // }
         }
 
         let dataModel = {
             calories: 0,
             date: moment().format("DD/MM/YYYYTHH:mm:ss"),
             point: parseFloat(newP),
-            time: TotalTime,
-            reps: parseFloat(Yapilan)
+            time: parseFloat(tTime),
+            reps: parseFloat(Yapilan),
+            dataType: 'exam'
         }
 
 
-        // await database2.ref('users_points/' + profileData.userId).push(dataModel)
-        //     .then(async () => {
-        //         await database2.ref(`users/${profileData.userId}/exams`).push(Exams.id)
-        //             .then(() => {
-        //                 setLoadingSave(false);
-        //                 dispatch(actions.fetchUserData(profileData.userId));
-        //                 props.navigation.goBack();
-        //                 setTimeout(() => {
-        //                     setTimeout(() => {
-        //                         setShowAlert2(!ShowAlert2);
-        //                     }, 200);
-        //                 }, 200);
-        //             })
-        //             .catch((err) => {
-        //                 setLoadingSave(false);
-        //                 setTimeout(() => {
-        //                     Alert.alert('Hata', String(err.message));
-        //                 }, 300);
-        //             })
-        //     })
-        //     .catch((err) => {
-        //         setLoadingSave(false);
-        //         setTimeout(() => {
-        //             Alert.alert('Hata', String(err.message));
-        //         }, 300);
-        //     })
-
-        console.log('data:', dataModel)
+        await database().ref('users_points/' + profileData.userId).push(dataModel)
+            .then(async () => {
+                await database().ref(`users/${profileData.userId}/exams`).push(Exams.id)
+                    .then(() => {
+                        setLoadingSave(false);
+                        dispatch(actions.fetchUserData(profileData.userId));
+                        setShowAlert2(true);
+                    })
+                    .catch((err) => {
+                        setLoadingSave(false);
+                        setTimeout(() => {
+                            Alert.alert('Hata', String(err.message));
+                        }, 300);
+                    })
+            })
+            .catch((err) => {
+                setLoadingSave(false);
+                setTimeout(() => {
+                    Alert.alert('Hata', String(err.message));
+                }, 300);
+            })
 
     }
 
@@ -471,7 +472,9 @@ const Testler = props => {
                     >
                         <SCLAlertButton theme="success" onPress={() => {
                             setShowAlert2(!ShowAlert2);
-                            props.navigation.goBack();
+                            setTimeout(() => {
+                                props.navigation.goBack();
+                            }, 200);
                         }}>Tamam</SCLAlertButton>
                     </SCLAlert>
 

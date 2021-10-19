@@ -7,7 +7,7 @@ import 'moment/locale/tr';
 import { useSelector } from 'react-redux';
 import { Card, Picker } from 'native-base';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import Input from '../../components/Input';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
@@ -45,7 +45,7 @@ const KisiselBilgiler = ({ navigation }) => {
 
     const onSave = () => {
         setLoading(true);
-        database2.ref('users/' + profileData.userId).update({
+        database().ref('users/' + profileData.userId).update({
             name: Name,
             birthdate: BirthDate,
             gender: cinsiyet,
@@ -164,10 +164,10 @@ const KisiselBilgiler = ({ navigation }) => {
                             <Text style={styles.textStyleHeader}>Doğum Tarihi</Text>
                             <Card style={styles.textContainer}>
                                 <TouchableOpacity style={styles.textContainer} onPress={() => setDatePickerVisibility(!isDatePickerVisible)}>
-                                    <Text style={styles.registerTextInput}>{moment(BirthDate).format("DD/MM/YYYY")}</Text>
+                                    <Text style={styles.registerTextInput}>{BirthDate !== undefined ? moment(BirthDate).format("DD-MM-YYYY") : moment().format("DD-MM-YYYY")}</Text>
                                 </TouchableOpacity>
                                 <DateTimePickerModal
-                                    minimumDate={new Date("01/01/1940")}
+                                    minimumDate={new Date("01-01-1940")}
                                     maximumDate={Date.now()}
                                     date={new Date(BirthDate)}
                                     cancelTextIOS="Vazgeç"

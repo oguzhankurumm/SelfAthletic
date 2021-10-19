@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, ImageBackground, SafeAreaView, FlatList, Image, Alert, ScrollView } from 'react-native';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
@@ -15,43 +15,10 @@ const WorkoutLib = props => {
         getWorkouts();
     }, [])
 
-    const getVideo = async (newWorkouts) => {
-        let videoList = [];
-        newWorkouts.forEach((move) => {
-            axios.get(`https://player.vimeo.com/video/${move.video}/config`)
-                .then((res) => {
-                    if (res.status === 200) {
-                        videoList.push({
-                            size: res.data.request.files.progressive[4].width,
-                            url: res.data.request.files.progressive[4].url,
-                            thumb: res.data.video.thumbs[640],
-                            title: res.data.video.title,
-                            duration: res.data.video.duration,
-                            id: res.data.video.id,
-                            ...move
-                        })
-                    }
-                })
-                .catch((err) => {
-                    setLoading(false);
-                    setTimeout(() => {
-                        Alert.alert('Hata', 'Bazı videolar yüklenemedi, lütfen internet bağlantınızı kontrol edin.');
-                    }, 200);
-                })
-        })
-        const int = setInterval(() => {
-            if (videoList.length === newWorkouts.length) {
-                setVideoList(videoList.sort((a, b) => a.title.localeCompare(b.title)))
-                setLoading(false);
-                clearInterval(int)
-            }
-        }, 500);
-    }
-
     const getWorkouts = async () => {
         setLoading(true);
         var wList = [];
-        await database2.ref('workouts').once('value')
+        await database().ref('workouts').once('value')
             .then((snapshot) => {
                 snapshot.forEach((item) => {
                     wList.push({
@@ -59,7 +26,8 @@ const WorkoutLib = props => {
                         id: item.key
                     })
                 })
-                getVideo(wList)
+                setVideoList(wList.sort((a, b) => a.name.localeCompare(b.name)))
+                setLoading(false)
             })
             .catch((err) => {
                 setLoading(false);
@@ -79,7 +47,7 @@ const WorkoutLib = props => {
                 </View>
 
                 <ScrollView style={{ width: '100%', marginTop: 20 }}>
-                    {!Loading && VideoList.length > 0 ?
+                    {!Loading && VideoList.length !== 0 ?
                         <FlatList style={{ height: 'auto', paddingHorizontal: 20, marginBottom: 50, marginTop: 10 }}
                             scrollEnabled={false}
                             showsVerticalScrollIndicator={true}
@@ -90,7 +58,9 @@ const WorkoutLib = props => {
                                 return (item &&
                                     <TouchableOpacity key={item.id} onPress={() => props.navigation.navigate('MoveThumb', { item: item })}
                                         style={{
-                                            paddingVertical: 8,
+                                            marginBottom: 10,
+                                            backgroundColor: 'rgba(0,0,0,0.3)',
+                                            padding: 20,
                                             flexDirection: 'row',
                                             justifyContent: 'space-between',
                                             alignItems: 'center',
@@ -99,21 +69,12 @@ const WorkoutLib = props => {
                                             borderRadius: 18
                                         }}>
                                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                            <Image
-                                                resizeMode="cover"
-                                                source={{ uri: item.thumb }}
-                                                style={{
-                                                    width: 60,
-                                                    height: 60,
-                                                    borderRadius: 8
-                                                }}
-                                            />
-                                            <View style={{ marginLeft: 20 }}>
+                                            <View>
                                                 <Text style={{
                                                     fontFamily: 'SFProDisplay-Bold',
                                                     fontSize: 16,
                                                     color: '#FFF'
-                                                }}>{item.title}</Text>
+                                                }}>{item.name}</Text>
                                                 <View style={{ marginTop: 5, flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'flex-start' }}>
                                                     <Icon name="arrow-right" color="#FFF" size={20} style={{ marginLeft: -8 }} />
                                                     <Text numberOfLines={2} style={{

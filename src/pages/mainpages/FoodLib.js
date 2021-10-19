@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Dimensions, ImageBackground, SafeAreaView, FlatList, Image, Alert } from 'react-native';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Modal from 'react-native-modal';
@@ -21,7 +21,7 @@ const FoodLib = props => {
         let fbFoodsArr = [];
         let newFoodList = [];
 
-        await database2.ref('foods').once('value')
+        await database().ref('foods').once('value')
             .then((snapshot) => {
                 snapshot.forEach((item) => {
                     fbFoodsArr.push({
@@ -89,7 +89,6 @@ const FoodLib = props => {
                         } else if (newitem.birim3 === "Sebze") {
                             besinSebze = parseFloat(besinSebze) + parseFloat(newitem.deger1);
                         }
-
 
                         var newBesin = {
                             ...item,

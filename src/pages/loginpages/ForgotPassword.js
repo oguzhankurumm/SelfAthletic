@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Keyboard, Alert, Text, ImageBackground, Dimensions } from 'react-native';
-import { auth2 } from '../../config/config';
+import { auth } from '../../config/config';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import Style from '../../styles/Style';
@@ -23,7 +23,7 @@ function ForgotPassword({ navigation }) {
         setLoading(true);
 
         if (Email != '') {
-            auth2.sendPasswordResetEmail(Email).then(function (user) {
+            auth().sendPasswordResetEmail(Email).then(function (user) {
                 Alert.alert("Tebrikler!", "Parola sıfırlama bağlantısı e-posta adresinize gönderildi. Lütfen e-postanızı kontrol edin. Sıfırladıktan sonra yeni parolanızla giriş yapabilirsiniz.");
             }).catch((e) => {
                 if (e.code == "auth/invalid-email") {
@@ -62,7 +62,7 @@ function ForgotPassword({ navigation }) {
 
                     <View style={Style.registerItemProfile}>
                         <Input
-                            style={[Style.registerTextInput, { backgroundColor: '#202026' }]}
+                            style={[Style.registerTextInput, { backgroundColor: '#202026', color:'#FFF' }]}
                             autoCapitalize="none"
                             allowFontScaling={false}
                             blurOnSubmit={true}

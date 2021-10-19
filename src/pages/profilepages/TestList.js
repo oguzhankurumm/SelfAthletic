@@ -4,7 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Icon2 from 'react-native-vector-icons/Feather';
 import SpinnerLoading from '../../components/SpinnerLoading';
-import { database2 } from '../../config/config';
+import { database } from '../../config/config';
 import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get("window");
@@ -18,7 +18,7 @@ const TestList = props => {
 
     const GetTestData = async () => {
         let exList = [];
-        await database2.ref("exams").once("value")
+        await database().ref("exams").once("value")
             .then((examsRes) => {
                 if (examsRes.val() !== null) {
                     examsRes.forEach((t) => {
@@ -29,11 +29,7 @@ const TestList = props => {
 
                         if (examsRes.numChildren() === exList.length) {
                             setTestler(exList);
-                            if (profileData.exams !== undefined && Object.values(profileData.exams).indexOf(t.key) < 1 === true) {
-                                setTestler(exList.filter(q => q.id !== t.key));
-                            } else {
-                                setTestler(exList);
-                            }
+                            setTestler(exList);
                             setLoading(false);
                         }
                     })
@@ -72,7 +68,7 @@ const TestList = props => {
 
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
-                        <TouchableHighlight onPress={() => props.navigation.navigate('FeedList')}>
+                        <TouchableHighlight onPress={() => props.navigation.navigate('Feed')}>
                             <Icon name="comment" color="#FFF" size={28} style={{ marginRight: 20 }} />
                         </TouchableHighlight>
 
