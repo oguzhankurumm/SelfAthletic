@@ -40,7 +40,6 @@ const Post = ({ post }) => {
                 <Caption post={post} />
                 <CommentsSection post={post} />
                 <Comments post={post} />
-                <ShareDate date={post} />
             </View>
         </View>
     )
@@ -63,12 +62,13 @@ const PostHeader = ({ post }) => (
                 borderWidth: 1.6,
                 borderColor: '#ff8501'
             }} />
-            <Text style={{
-                color: '#FFF',
-                marginLeft: 5,
-                fontWeight: '700'
-            }}>{post.user}
-            </Text>
+
+            <View style={{
+                marginLeft: 10
+            }}>
+                <Text style={{ color: '#FFF', fontWeight: '700' }}>{post.user}</Text>
+                <Text style={{ color: 'gray' }}>{post?.createdAt?.seconds !== undefined ? moment(post?.createdAt?.seconds * 1000).fromNow() : moment().fromNow()}</Text>
+            </View>
         </View>
 
         <TouchableOpacity style={{
@@ -83,21 +83,25 @@ const PostHeader = ({ post }) => (
 const PostImage = ({ post }) => (
     <View style={{
         width: '100%',
+        paddingHorizontal: 20,
         height: 300
     }}>
         <Image
             source={{ uri: post.imageUrl }}
-            style={{ height: '100%', resizeMode: 'cover' }}
+            style={{ height: '100%', resizeMode: 'cover', borderRadius: 12 }}
         />
     </View>
 )
 
-const PostFooter = ({ handleLike, post }) => (
-    <View style={styles.leftFooterIconsContainer}>
-        <Icon onPressButton={() => handleLike(post)} iconName={post.likes_by_users.includes(auth().currentUser.email) ? "heart" : "hearto"} iconSize={24} />
-        <Icon iconName="message1" iconSize={24} />
-    </View>
-)
+const PostFooter = ({ handleLike, post }) => {
+    const navigation = useNavigation();
+    return (
+        <View style={styles.leftFooterIconsContainer}>
+            <Icon onPressButton={() => handleLike(post)} iconName={post.likes_by_users.includes(auth().currentUser.email) ? "heart" : "hearto"} iconSize={24} />
+            <Icon onPressButton={() => navigation.navigate('PostComments', { comments: post.comments })} style={{ marginTop: 5 }} iconName="message1" iconSize={24} />
+        </View>
+    )
+}
 
 const Icon = ({ iconName, iconSize, onPressButton, iconColor }) => (
     <TouchableOpacity onPress={onPressButton} >
@@ -156,13 +160,6 @@ const Comments = ({ post }) => (
     </>
 )
 
-const ShareDate = ({ date }) => {
-    return (
-        <View style={{ marginTop: 5 }}>
-            <Text style={{ color: 'gray' }}>{date?.createdAt?.seconds !== undefined ? moment(date?.createdAt?.seconds * 1000).fromNow() : moment().fromNow()}</Text>
-        </View>
-    )
-}
 
 const styles = StyleSheet.create({
     leftFooterIconsContainer: {

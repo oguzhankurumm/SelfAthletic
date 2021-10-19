@@ -1,6 +1,5 @@
 import React from 'react'
 import { Image } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome5';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Welcome from '../pages/loginpages/Welcome';
@@ -19,7 +18,6 @@ import WorkoutVideo from '../pages/workoutspages/WorkoutVideo';
 import WorkoutSpecial from '../pages/workoutspages/WorkoutSpecial';
 import WorkoutList from '../pages/workoutspages/WorkoutList';
 import Feed from '../pages/mainpages/Feed';
-import FeedDetails from '../pages/mainpages/FeedDetails';
 import Calories from '../pages/caloriespages/Calories';
 import StepCounter from '../pages/steppages/StepCounter';
 import Premium from '../pages/profilepages/Premium';
@@ -184,11 +182,6 @@ export function Root() {
                 }}
             />
             <RootStack.Screen name="Feed" component={Feed}
-                options={{
-                    headerShown: false
-                }}
-            />
-            <RootStack.Screen name="FeedDetails" component={FeedDetails}
                 options={{
                     headerShown: false
                 }}
