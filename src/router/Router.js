@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Welcome from '../pages/loginpages/Welcome';
 import ForgotPassword from '../pages/loginpages/ForgotPassword';
 import Home from '../pages/mainpages/Home';
-import Antrenman from '../pages/mainpages/Antrenman';
+import Workout from '../pages/mainpages/Workout';
 import AntrenmanList from '../pages/profilepages/AntrenmanList';
 import Food from '../pages/mainpages/Food';
 import FoodLib from '../pages/mainpages/FoodLib';
@@ -118,7 +118,7 @@ function HomeTabBar() {
             }}
         >
             <Tab.Screen name="ANASAYFA" component={Home} />
-            <Tab.Screen name="ANTRENMAN" component={Antrenman} />
+            <Tab.Screen name="ANTRENMAN" component={Workout} />
             <Tab.Screen name="AKIŞ" component={Feed} />
             <Tab.Screen name="BESLENME" component={Food} />
             <Tab.Screen name="PROFİL" component={Profile} />

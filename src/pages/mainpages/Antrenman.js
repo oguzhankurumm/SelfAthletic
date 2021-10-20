@@ -1421,7 +1421,7 @@ const Antrenman = ({ navigation }) => {
                                 selectedDate={SelectedDate}
                                 maxDate={moment()}
                                 minDate={moment().subtract(31, 'days')}
-                                // showMonth={false}
+                                showMonth={false}
                                 onDateSelected={(val) => getSelectedDay(val)}
                                 // datesWhitelist={datesWhitelist}
                                 // iconStyle={{ padding: 10 }}
@@ -1666,13 +1666,16 @@ const Antrenman = ({ navigation }) => {
                                     />
                                 </>
                             }
-                        </> : <>
+                        </>
+                        :
+                        <>
                             {!Loading &&
                                 <View style={{ height: 'auto', paddingHorizontal: 40, marginBottom: 20, marginTop: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                                     <Icon name="tag-faces" size={64} color="#4D4D4D" />
                                     <Text style={[styles.headerText, { color: '#4D4D4D', fontSize: 16, textAlign: 'center', marginTop: 10 }]}>Tebrikler! Seçili günün antrenmanını tamamladınız.</Text>
                                 </View>
-                            }</>
+                            }
+                        </>
                     }
                 </ScrollView>
             </SafeAreaView>
