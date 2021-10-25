@@ -1,4 +1,6 @@
 import { StyleSheet } from "react-native"
+import themeColors from '../../styles/colors';
+import themeFonts from '../../styles/fonts';
 
 const styles = StyleSheet.create({
     CardStyle: {
@@ -6,15 +8,15 @@ const styles = StyleSheet.create({
         borderRadius: 18,
     },
     textStyle: {
-        fontFamily: 'SFProDisplay-Bold',
+        fontFamily: themeFonts.boldText,
         fontSize: 15,
-        color: '#FFF',
+        color: themeColors.white,
         marginLeft: 10
     },
     postText: {
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 16,
-        color: '#000',
+        color: themeColors.ultraDark,
     }
 })
 

@@ -1,4 +1,6 @@
-import { StyleSheet } from "react-native"
+import { StyleSheet } from "react-native";
+import themeFonts from '../../styles/fonts';
+import themeColors from '../../styles/colors';
 
 const styles = StyleSheet.create({
     header: {
@@ -10,9 +12,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20
     },
     headerText: {
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.boldText,
         fontSize: 18,
-        color: '#FFF'
+        color: themeColors.white
     }
 })
 

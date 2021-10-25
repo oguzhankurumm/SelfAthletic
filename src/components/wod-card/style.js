@@ -1,4 +1,6 @@
 import { StyleSheet } from "react-native"
+import themeColors from '../../styles/colors';
+import themeFonts from '../../styles/fonts';
 
 const styles = StyleSheet.create({
     container: {
@@ -14,13 +16,13 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     titleStyle: {
-        fontFamily: 'SFProDisplay-Bold',
+        fontFamily: themeFonts.boldText,
         justifyContent: 'flex-start',
         fontSize: 22,
-        color: '#FFF'
+        color: themeColors.white
     },
     subTitleStyle: {
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         justifyContent: 'flex-start',
         fontSize: 16,
         color: 'yellow'
@@ -67,21 +69,21 @@ const styles = StyleSheet.create({
         marginRight: 10
     },
     itemTitle: {
-        fontFamily: 'SFProDisplay-Bold',
+        fontFamily: themeFonts.boldText,
         fontSize: 20,
-        color: '#FFF',
+        color: themeColors.white,
         marginBottom: 8
     },
     pointText: {
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 13,
-        color: '#FFF',
+        color: themeColors.white,
         marginLeft: 5
     },
     caloriesText: {
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 14,
-        color: '#FFF',
+        color: themeColors.white,
         marginLeft: 5
     }
 })

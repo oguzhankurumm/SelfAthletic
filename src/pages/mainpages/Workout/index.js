@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { View, Text, Image, TouchableOpacity, Dimensions, FlatList, Alert } from 'react-native';
 import { firestore, auth } from '../../../config/config';
 import { useSelector } from 'react-redux';
-import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import 'moment/locale/tr';

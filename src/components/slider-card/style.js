@@ -1,4 +1,6 @@
 import { StyleSheet } from "react-native"
+import themeColors from '../../styles/colors';
+import themeFonts from '../../styles/fonts';
 
 const styles = StyleSheet.create({
     container: {
@@ -21,15 +23,15 @@ const styles = StyleSheet.create({
         height: 200
     },
     title: {
-        fontFamily: 'SFProDisplay-Bold',
+        fontFamily: themeFonts.boldText,
         fontSize: 20,
-        color: '#FFF',
+        color: themeColors.white,
         marginBottom: 8
     },
     subtitle: {
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 13,
-        color: '#FFF' 
+        color: themeColors.white
     }
 })
 

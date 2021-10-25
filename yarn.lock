@@ -6792,6 +6792,11 @@ react-native-easy-grid@0.2.2:
   dependencies:
     lodash "^4.17.15"
 
+react-native-element-timer@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/react-native-element-timer/-/react-native-element-timer-1.2.1.tgz#6607398f3f0749bd1c73becb644a279c18d65081"
+  integrity sha512-TmwHLXs9AGw8gNOPOnlTizti7lC15OXbfWUdnEuCk/Ssc9KNx9DKKtf9+0Ifk7SjH4CYsGbnueTSu+b8GNkMCw==
+
 react-native-elements@^3.4.2:
   version "3.4.2"
   resolved "https://registry.yarnpkg.com/react-native-elements/-/react-native-elements-3.4.2.tgz#66602be9c5e0e0a2a831913adec80ff6518d1ee2"

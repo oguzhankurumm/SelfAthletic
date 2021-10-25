@@ -6,6 +6,8 @@ import { auth } from '../config/config';
 import SpinnerLoading from '../components/SpinnerLoading';
 import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert';
 import { useNavigation } from '@react-navigation/core';
+import themeColors from '../styles/colors';
+import themeFonts from '../styles/fonts';
 
 const { height, width } = Dimensions.get("window");
 
@@ -250,19 +252,19 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     text: {
-        color: 'yellow',
-        fontFamily: 'SFProDisplay-Medium',
+        color: themeColors.yellow,
+        fontFamily: themeFonts.mediumText,
         fontSize: 16
     },
     text2: {
-        color: '#D1D1D1',
-        fontFamily: 'SFProDisplay-Medium',
+        color: themeColors.lightGray,
+        fontFamily: themeFonts.mediumText,
         fontSize: 16
     },
     textName: {
         marginTop: 20,
-        color: 'white',
-        fontFamily: 'SFProDisplay-Bold',
+        color: themeColors.white,
+        fontFamily: themeFonts.boldText,
         fontSize: 18
     },
     imageView: {
