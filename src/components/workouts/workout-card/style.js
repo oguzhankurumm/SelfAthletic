@@ -2,34 +2,47 @@ import { StyleSheet } from "react-native"
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
-        height: 'auto',
-        marginVertical: 9
+        height: 250,
+        padding: 20
     },
-    image: {
-        width: 50,
-        height: 50,
-        borderRadius: 8
+    linear: {
+        position: 'absolute',
+        borderRadius: 12,
+        width: '100%',
+        height: 250
     },
-    headerTitle: {
-        fontFamily: 'SFProDisplay-Bold',
-        fontSize: 16,
-        color: '#FFF',
-        marginTop: 5
+    viewContainer: {
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'space-between',
     },
-    subTitle: {
+    iconContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 10
+    },
+    bannerTitle: {
         fontFamily: 'SFProDisplay-Medium',
-        fontSize: 14,
-        color: 'yellow'
+        fontSize: 12,
+        textAlign: 'justify',
+        color: '#FFF',
     },
-    moveText: {
+    iconText: {
         fontFamily: 'SFProDisplay-Medium',
         fontSize: 13,
         color: '#FFF',
-        marginTop: 5
+        marginLeft: 5
+    },
+    bottomIconText: {
+        fontFamily: 'SFProDisplay-Medium',
+        fontSize: 11,
+        color: '#FFF',
+        marginLeft: 5
     }
 })
 

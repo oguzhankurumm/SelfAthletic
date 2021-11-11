@@ -12,7 +12,7 @@ import FoodLib from '../pages/mainpages/FoodLib';
 import WorkoutLib from '../pages/mainpages/WorkoutLib';
 import AddNewPost from '../components/newPost/AddNewPost';
 import Profile from '../pages/profilepages/Profile';
-import WorkoutDetails from '../pages/workoutspages/WorkoutDetails';
+import WorkoutDetails from '../pages/mainpages/WorkoutDetails';
 import SliderDetails from '../pages/workoutspages/SliderDetails';
 import WorkoutVideo from '../pages/workoutspages/WorkoutVideo';
 import WorkoutSpecial from '../pages/workoutspages/WorkoutSpecial';

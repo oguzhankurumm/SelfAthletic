@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Image, TouchableOpacity, FlatList, Alert, Pressable } from 'react-native';
-import { firestore, auth } from '../../../config/config';
+import { View, Text, FlatList, Alert, Pressable } from 'react-native';
+import { firestore } from '../../../config/config';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import 'moment/locale/tr';
 import WorkoutTodayChart from '../../../components/workouts/workout-today-chart';
 import CalendarStrip from 'react-native-calendar-strip';
 import ImageLayout from '../../../components/image-layout';
-import WorkoutListCard from '../../../components/workouts/workout-list-card';
-import styles from './style';
+import WorkoutCard from '../../../components/workouts/workout-card';
 import { increaseMuscle10kVariables, increaseMuscle15kVariables, increaseMuscle20kVariables, fatReduction10kVariables, fatReduction15kVariables, fatReduction20kVariables, keepingFit10kVariables, keepingFit15kVariables, keepingFit20kVariables } from '../../../data/workout-variables';
 import { increaseMuscle10k, increaseMuscle15k, increaseMuscle20k, fatReduction10k, fatReduction15k, fatReduction20k, keepingFit10k, keepingFit15k, keepingFit20k } from '../../../data/workout-types';
 import axios from 'axios';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import styles from './style';
 
 const Workout = ({ navigation }) => {
     const profileData = useSelector(state => state.user.users);
+    const userTarget = profileData.values.target;
     const fitnessData = useSelector(state => state.health.health);
     const [Loading, setLoading] = useState(false);
-    const [Workouts, setWorkouts] = useState([]);
     const [WorkoutList, setWorkoutList] = useState([]);
 
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
@@ -33,13 +34,13 @@ const Workout = ({ navigation }) => {
         const date = moment().format('DD-MM-YYYY');
         const workouts = await firestore().collection('users').doc(profileData.userId).collection('workouts').where('date', '==', date).get();
         if (!workouts.empty) {
-            const workoutData = workouts.docs.map(doc => {
+            const allWorkouts = workouts.docs.map(doc => {
                 return {
                     ...doc.data(),
                     id: doc.id
                 }
             });
-            setWorkoutList(workoutData);
+            setWorkoutList(allWorkouts);
             setLoading(false);
         } else {
             createWorkout();
@@ -110,13 +111,51 @@ const Workout = ({ navigation }) => {
                 const staticMovesStart = moves.filter(q => q.category === "Statik Stretching").slice(0, 4);
                 const staticMovesEnd = moves.filter(q => q.category === "Statik Stretching").slice(4, 8);
                 const newMoves = [];
-                newMoves.push(...staticMovesStart, ...otherMoves, ...staticMovesEnd)
-                setWorkouts(newMoves);
+                newMoves.push(...staticMovesStart, ...otherMoves, ...staticMovesEnd);
+
+                let description = "-"
+
+                switch (userTarget) {
+                    case "Kas Kütlesi Artışı":
+                        description = "Dizayn edilen bu antrenman programı mevcut kas kütlesi ve kuvvetin geliştirilmesini sağlamaktadır. Programlamada yer alan egzersizlerin sıralaması maksimum oranda kas kütlesi gelişiminin sağlanması için bir gün tamamen üst vücut egzersizlerinden oluşurken, diğer gün tamamen alt vücut egzersizlerinden oluşmaktadır.";
+                        break;
+                    case "Yağ Oranı Azaltma":
+                        description = "Metabolik olarak daha hızlı ve daha ince bir görünüşe sahip olmak için dizayn edilen bu programda yağ oranınız azalırken aynı zamanda daha fonksiyonel ve fit bir fiziksel yapıya da sahip olacaksınız.";
+                        break;
+                    case "Formda Kalma":
+                        description = "Daha sıkı ve atletik bir fiziksel görünüm kazanmanız için dizayn edilen bu antrenman programı, mevcut yağ oranınız düşmesini sağlarken, aynı zamanda da daha kuvvetli ve dayanıklı olmanızı sağlayacaktır.";
+                        break;
+                    default:
+                        description = "";
+                        break;
+                }
+
+                const point = Object.values(newMoves).reduce(function (prev, current) {
+                    return prev + +parseFloat(current.type === "time" ? current.values.time / 10 : current.values.repeat) * parseFloat(current.values.set);
+                }, 0)
+                const kcal = Object.values(newMoves).reduce(function (prev, current) {
+                    return prev + +parseFloat(current.values.calorie) * parseFloat(current.values.set);
+                }, 0)
+                const duration = Object.values(newMoves).reduce(function (prev, current) {
+                    return prev + +parseFloat(current.videoData.duration) * parseFloat(current.values.set);
+                }, 0)
+
+                const workoutData = [{
+                    description,
+                    completed: false,
+                    date: moment().format('DD-MM-YYYY'),
+                    duration,
+                    kcal,
+                    point,
+                    workout: newMoves
+                }];
+
+                setWorkoutList(workoutData);
                 setLoading(false);
             })
             .catch(error => {
                 setLoading(false);
-                Alert.alert('HAta', 'Bir hata oluştu. Lütfen tekrar deneyiniz.');
+                Alert.alert('Hata', 'Bir hata oluştu, lütfen tekrar deneyin.');
                 console.log('promise error', error)
             })
     }
@@ -125,7 +164,6 @@ const Workout = ({ navigation }) => {
         setLoading(true);
         const profilePoint = profileData.point;
         const gender = profileData.gender === "male" ? "Erkek" : "Kadin";
-        const userTarget = profileData.values.target;
 
         const targetData = () => {
             if (userTarget === "Kas Kütlesi Artışı" && profilePoint < 10000) return { variable: increaseMuscle10kVariables, data: increaseMuscle10k };
@@ -186,48 +224,52 @@ const Workout = ({ navigation }) => {
                     data={WorkoutList}
                     keyExtractor={(item, index) => index.toString()}
                     ListHeaderComponent={() => (
-                        <View style={{ width: '100%' }}>
+                        <>
+                            <View style={{ width: '100%' }}>
+                                {!Loading &&
+                                    <>
+                                        <WorkoutTodayChart
+                                            stepCount={fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[7].quantity).toFixed(0) : 0}
+                                            calorieCount={parseFloat(fitnessData.calories).toFixed(0)}
+                                        />
+                                        <CalendarStrip
+                                            scrollable={true}
+                                            datesBlacklist={datesBlacklist}
+                                            selectedDate={SelectedDate}
+                                            maxDate={moment()}
+                                            minDate={moment().subtract(31, 'days')}
+                                            // onDateSelected={(val) => getSelectedDay(val)}
+                                            showMonth={false}
+                                            style={{ padding: 10 }}
+                                            daySelectionAnimation={{ type: 'background', duration: 200, borderWidth: 1, borderHighlightColor: 'white' }}
+                                            calendarHeaderStyle={{ color: 'white' }}
+                                            dateNumberStyle={{ color: 'white' }}
+                                            dateNameStyle={{ color: 'white' }}
+                                            highlightDateNumberStyle={{ color: 'yellow' }}
+                                            highlightDateNameStyle={{ color: 'yellow' }}
+                                            disabledDateNameStyle={{ color: 'grey' }}
+                                            disabledDateNumberStyle={{ color: 'grey' }}
+                                            markedDates={markedDatesArray}
+                                            iconRight={null}
+                                            iconLeft={null}
+                                        />
+                                    </>
+                                }
+                            </View>
                             {!Loading &&
-                                <>
-                                    <WorkoutTodayChart
-                                        stepCount={fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[7].quantity).toFixed(0) : 0}
-                                        calorieCount={parseFloat(fitnessData.calories).toFixed(0)}
-                                    />
-                                    <CalendarStrip
-                                        scrollable={true}
-                                        datesBlacklist={datesBlacklist}
-                                        selectedDate={SelectedDate}
-                                        maxDate={moment()}
-                                        minDate={moment().subtract(31, 'days')}
-                                        // onDateSelected={(val) => getSelectedDay(val)}
-                                        showMonth={false}
-                                        style={{ padding: 10 }}
-                                        daySelectionAnimation={{ type: 'background', duration: 200, borderWidth: 1, borderHighlightColor: 'white' }}
-                                        calendarHeaderStyle={{ color: 'white' }}
-                                        dateNumberStyle={{ color: 'white' }}
-                                        dateNameStyle={{ color: 'white' }}
-                                        highlightDateNumberStyle={{ color: 'yellow' }}
-                                        highlightDateNameStyle={{ color: 'yellow' }}
-                                        disabledDateNameStyle={{ color: 'grey' }}
-                                        disabledDateNumberStyle={{ color: 'grey' }}
-                                        markedDates={markedDatesArray}
-                                        iconRight={null}
-                                        iconLeft={null}
-                                    />
-
-                                    <Pressable
-                                        onPress={() => navigation.navigate('StartWorkout', { data: Workouts })}
-                                        style={styles.startButton}
-                                    >
-                                        <Text style={styles.startButtonText}>Antrenmanı Başlat</Text>
-                                    </Pressable>
-                                </>
+                                <Pressable
+                                    onPress={createWorkout}
+                                    style={styles.addButtonContainer}>
+                                    <Icon name="refresh" color="#222" size={20} />
+                                    <Text style={styles.addButtonText}
+                                    >Antrenmanı Değiştir</Text>
+                                </Pressable>
                             }
-                        </View>
+                        </>
                     )}
                     renderItem={(workouts) => {
                         return (workouts.item &&
-                            <WorkoutListCard data={workouts.item.workout} />
+                            <WorkoutCard data={workouts} navigation={navigation} />
                         )
                     }}
                 />

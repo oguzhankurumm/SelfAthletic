@@ -10,6 +10,7 @@ import WorkoutLayout from '../../../components/workout-layout';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import styles from './style';
 import * as actions from '../../../redux/actions/profile';
+import * as healthActions from '../../../redux/actions/health';
 
 const EndWorkout = (props) => {
     const dispatch = useDispatch()
@@ -42,9 +43,9 @@ const EndWorkout = (props) => {
         })
 
         try {
-            const date = moment().format("DD-MM-YYYYTHH:mm:ss");
+            const date = moment().format("DD-MM-YYYY");
             const workoutData = {
-                workout: Data,
+                workouts: Data,
                 completed: true,
                 date,
                 time: Values.initialTime,
@@ -52,11 +53,18 @@ const EndWorkout = (props) => {
                 kcal: totalKcal
             }
             await firestore().collection('users').doc(profileData.userId).collection('workouts').add(workoutData);
-            await dispatch(actions.fetchUserData(profileData.email));
             setLoading(false);
-            props.navigation.navigate('Home');
+            dispatch(actions.fetchUserData(profileData.email));
+            dispatch(healthActions.fetchHealth());
             setTimeout(() => {
-                Alert.alert('Başarılı', 'Antrenman kaydedildi.')
+                Alert.alert('Başarılı', 'Antrenman kaydedildi.', [
+                    {
+                        text: 'Tamam', onPress: () => {
+
+                            props.navigation.navigate('Home');
+                        }
+                    }
+                ])
             }, 1000);
         } catch (error) {
             setLoading(false);

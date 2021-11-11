@@ -3,21 +3,24 @@ import themeColors from "../../../styles/colors";
 import themeFonts from "../../../styles/fonts";
 
 const styles = StyleSheet.create({
-    addButtonContainer: {
+    container: {
+        flex: 1,
+        alignItems: 'center'
+    },
+    startButton: {
         width: '100%',
-        flexDirection: 'row',
+        backgroundColor: 'yellow',
+        padding: 12,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: themeColors.yellow,
-        padding: 10,
-        marginVertical: 10,
-        borderRadius: 8
+        borderRadius: 12,
+        marginBottom: 10
     },
-    addButtonText: {
+    startButtonText: {
+        textAlign: 'center',
         fontFamily: themeFonts.mediumText,
-        fontSize: 15,
+        fontSize: 16,
         color: themeColors.ultraDark,
-        marginLeft: 5
     }
 })
 
