@@ -22,10 +22,7 @@ LocaleConfig.defaultLocale = 'tr';
 const { height, width } = Dimensions.get("window");
 
 const Profile = ({ navigation }) => {
-
     let defaultAvatarUrl = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
-
-    const [ShowSideModal, setShowSideModal] = useState(false);
 
     const [Loading, setLoading] = useState(false);
     const [AllLoading, setAllLoading] = useState(false)
@@ -39,10 +36,6 @@ const Profile = ({ navigation }) => {
 
     const [BestDay, setBestDay] = useState("")
 
-    const closeModal = () => {
-        setShowSideModal(!ShowSideModal);
-    }
-
     const onDayPressed = (day) => {
         var date = moment(day.dateString).format("YYYY-MM-DD");
         if (markedDatesArray[date]) {
@@ -50,7 +43,6 @@ const Profile = ({ navigation }) => {
             if (dots.length === 1) {
                 if (dots[0].key === 'food') {
                     let findData = FoodList.find(q => q.date === date);
-                    console.log('find: ', findData)
                     navigation.navigate('Gecmis', { food: findData, type: 'food' })
                 } else {
                     let findData = EgzersizList.find(q => q.date === date)
@@ -68,9 +60,9 @@ const Profile = ({ navigation }) => {
     }
 
     const renderLevel = () => {
-        var level1 = Math.round(parseFloat(parseFloat(10000 - parseFloat(profileData.point)) / 100)) / 100
-        var level2 = Math.round(parseFloat(parseFloat(15000 - parseFloat(profileData.point)) / 150)) / 100
-        var level3 = Math.round(parseFloat(parseFloat(40000 - parseFloat(profileData.point)) / 400)) / 100
+        var level1 = parseFloat(profileData.point) / 10000;
+        var level2 = parseFloat(profileData.point) / 15000;
+        var level3 = parseFloat(profileData.point) / 40000;
 
         if (profileData.point < 10000) {
             return (
@@ -172,7 +164,6 @@ const Profile = ({ navigation }) => {
         let egzList = [];
         let completedList = [];
         let foodList = [];
-        let testArr = [];
 
         await database().ref('users/' + profileData.userId + '/workouts').once('value')
             .then(snapshot => {

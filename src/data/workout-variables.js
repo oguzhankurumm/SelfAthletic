@@ -7,11 +7,11 @@ const increaseMuscle10kVariables = {
             pause: 60,
             time: 15
         },
-        reps: {
+        repeat: {
             calorie: 10 * 3,
             set: 3,
             pause: 60,
-            reps: 10
+            repeat: 10
         }
     },
     mobilite: {
@@ -20,11 +20,11 @@ const increaseMuscle10kVariables = {
             set: 3,
             pause: 60,
         },
-        reps: {
+        repeat: {
             calorie: 10 * 3,
             set: 3,
             pause: 60,
-            reps: 10
+            repeat: 10
         }
     },
     alt: {
@@ -32,7 +32,7 @@ const increaseMuscle10kVariables = {
             calorie: 10 * 4,
             set: 4,
             pause: 60,
-            reps: 10
+            repeat: 10
         }
     },
     ust: {
@@ -40,7 +40,7 @@ const increaseMuscle10kVariables = {
             calorie: 10 * 4,
             set: 4,
             pause: 60,
-            reps: 10
+            repeat: 10
         }
     },
     statik: {
@@ -60,11 +60,11 @@ const fatReduction10kVariables = {
             pause: 30,
             time: 15
         },
-        reps: {
+        repeat: {
             calorie: 10 * 3,
             set: 3,
             pause: 30,
-            reps: 10
+            repeat: 10
         }
     },
     mobilite: {
@@ -74,11 +74,11 @@ const fatReduction10kVariables = {
             pause: 30,
             time: 10
         },
-        reps: {
+        repeat: {
             calorie: 10 * 2,
             set: 2,
             pause: 30,
-            reps: 10
+            repeat: 10
         }
     },
     alt: {
@@ -86,7 +86,7 @@ const fatReduction10kVariables = {
             calorie: 15 * 2,
             set: 2,
             pause: 30,
-            reps: 15
+            repeat: 15
         }
     },
     ust: {
@@ -94,7 +94,7 @@ const fatReduction10kVariables = {
             calorie: 15 * 2,
             set: 2,
             pause: 30,
-            reps: 15
+            repeat: 15
         }
     },
     statik: {
@@ -114,7 +114,7 @@ const keepingFit10kVariables = {
             pause: 45,
             time: 15
         },
-        reps: {
+        repeat: {
             calorie: 10 * 3,
             set: 3,
             pause: 45,
@@ -127,11 +127,11 @@ const keepingFit10kVariables = {
             pause: 45,
             time: 10
         },
-        reps: {
+        repeat: {
             calorie: 10 * 3,
             set: 3,
             pause: 45,
-            reps: 10
+            repeat: 10
         }
     },
     alt: {
@@ -139,14 +139,14 @@ const keepingFit10kVariables = {
             calorie: 10 * 4,
             set: 4,
             pause: 45,
-            reps: 10
+            repeat: 10
         }
     },
     ust: {
         calorie: 15 * 4,
         set: 4,
         pause: 45,
-        reps: 15
+        repeat: 15
     },
     statik: {
         all: {
@@ -168,11 +168,11 @@ const increaseMuscle15kVariables = {
             pause: 60,
             time: 15
         },
-        reps: {
+        repeat: {
             calorie: 15 * 3,
             set: 3,
             pause: 60,
-            reps: 15
+            repeat: 15
         }
     },
     mobilite: {
@@ -182,11 +182,11 @@ const increaseMuscle15kVariables = {
             pause: 60,
             time: 10
         },
-        reps: {
+        repeat: {
             calorie: 10 * 3,
             set: 3,
             pause: 60,
-            reps: 10
+            repeat: 10
         }
     },
     alt: {
@@ -194,7 +194,7 @@ const increaseMuscle15kVariables = {
             calorie: 10 * 4,
             set: 4,
             pause: 60,
-            reps: 10
+            repeat: 10
         }
     },
     ust: {
@@ -202,7 +202,7 @@ const increaseMuscle15kVariables = {
             calorie: 10 * 4,
             set: 4,
             pause: 60,
-            reps: 10
+            repeat: 10
         }
     },
     statik: {
@@ -222,11 +222,11 @@ const fatReduction15kVariables = {
             pause: 30,
             time: 15
         },
-        reps: {
+        repeat: {
             calorie: 10 * 3,
             set: 3,
             pause: 30,
-            reps: 10
+            repeat: 10
         }
     },
     mobilite: {
@@ -236,11 +236,11 @@ const fatReduction15kVariables = {
             pause: 30,
             time: 10
         },
-        reps: {
+        repeat: {
             calorie: 10 * 2,
             set: 2,
             pause: 30,
-            reps: 10
+            repeat: 10
         }
     },
     alt: {
@@ -248,7 +248,7 @@ const fatReduction15kVariables = {
             calorie: 15 * 3,
             set: 3,
             pause: 30,
-            reps: 15
+            repeat: 15
         }
     },
     ust: {
@@ -256,7 +256,7 @@ const fatReduction15kVariables = {
             calorie: 10 * 3,
             set: 3,
             pause: 30,
-            reps: 10
+            repeat: 10
         }
     },
     statik: {
@@ -276,11 +276,11 @@ const keepingFit15kVariables = {
             pause: 30,
             time: 15
         },
-        reps: {
+        repeat: {
             calorie: 10 * 3,
             set: 3,
             pause: 30,
-            reps: 10
+            repeat: 10
         }
     },
     mobilite: {
@@ -290,11 +290,11 @@ const keepingFit15kVariables = {
             pause: 30,
             time: 10
         },
-        reps: {
+        repeat: {
             calorie: 10 * 2,
             set: 2,
             pause: 30,
-            reps: 10
+            repeat: 10
         }
     },
     alt: {
@@ -302,14 +302,14 @@ const keepingFit15kVariables = {
             calorie: 15 * 3,
             set: 3,
             pause: 30,
-            reps: 15
+            repeat: 15
         }
     },
     ust: {
         calorie: 15 * 3,
         set: 3,
         pause: 30,
-        reps: 15
+        repeat: 15
     },
     statik: {
         all: {
@@ -331,11 +331,11 @@ const increaseMuscle20kVariables = {
             pause: 60,
             time: 15
         },
-        reps: {
+        repeat: {
             calorie: 15 * 3,
             set: 3,
             pause: 60,
-            reps: 15
+            repeat: 15
         }
     },
     mobilite: {
@@ -345,11 +345,11 @@ const increaseMuscle20kVariables = {
             pause: 60,
             time: 10
         },
-        reps: {
+        repeat: {
             calorie: 10 * 3,
             set: 3,
             pause: 60,
-            reps: 10
+            repeat: 10
         }
     },
     alt: {
@@ -357,7 +357,7 @@ const increaseMuscle20kVariables = {
             calorie: 12 * 4,
             set: 4,
             pause: 60,
-            reps: 12
+            repeat: 12
         }
     },
     ust: {
@@ -365,7 +365,7 @@ const increaseMuscle20kVariables = {
             calorie: 12 * 4,
             set: 4,
             pause: 60,
-            reps: 12
+            repeat: 12
         }
     },
     statik: {
@@ -385,11 +385,11 @@ const fatReduction20kVariables = {
             pause: 30,
             time: 15
         },
-        reps: {
+        repeat: {
             calorie: 10 * 3,
             set: 3,
             pause: 30,
-            reps: 10
+            repeat: 10
         }
     },
     mobilite: {
@@ -399,11 +399,11 @@ const fatReduction20kVariables = {
             pause: 30,
             time: 10
         },
-        reps: {
+        repeat: {
             calorie: 10 * 2,
             set: 2,
             pause: 30,
-            reps: 10
+            repeat: 10
         }
     },
     alt: {
@@ -411,7 +411,7 @@ const fatReduction20kVariables = {
             calorie: 12 * 4,
             set: 4,
             pause: 30,
-            reps: 12
+            repeat: 12
         }
     },
     ust: {
@@ -419,7 +419,7 @@ const fatReduction20kVariables = {
             calorie: 12 * 4,
             set: 4,
             pause: 30,
-            reps: 12
+            repeat: 12
         }
     },
     statik: {
@@ -439,11 +439,11 @@ const keepingFit20kVariables = {
             pause: 45,
             time: 25
         },
-        reps: {
+        repeat: {
             calorie: 15 * 4,
             set: 4,
             pause: 45,
-            reps: 15
+            repeat: 15
         }
     },
     mobilite: {
@@ -453,11 +453,11 @@ const keepingFit20kVariables = {
             pause: 30,
             time: 10
         },
-        reps: {
+        repeat: {
             calorie: 10 * 2,
             set: 2,
             pause: 30,
-            reps: 10
+            repeat: 10
         }
     },
     alt: {
@@ -465,14 +465,14 @@ const keepingFit20kVariables = {
             calorie: 12 * 4,
             set: 4,
             pause: 30,
-            reps: 12
+            repeat: 12
         }
     },
     ust: {
         calorie: 12 * 4,
         set: 4,
         pause: 30,
-        reps: 12
+        repeat: 12
     },
     statik: {
         all: {

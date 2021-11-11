@@ -3,7 +3,7 @@ import { View, Text, Image, Pressable } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import styles from './style';
 
-const MoveCard = ({ data }) => {
+const WorkoutListCard = ({ data }) => {
     const defaultImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMZBG_-ExzFMKe3LFKHcLXOWaSFVarRC5OGl3ZWBTOCOBmz4OAPizlUC4-fgFih89tYOM&usqp=CAU';
     if (data.values !== undefined) {
         return (
@@ -38,4 +38,4 @@ const MoveCard = ({ data }) => {
     }
 }
 
-export default MoveCard;
+export default WorkoutListCard;

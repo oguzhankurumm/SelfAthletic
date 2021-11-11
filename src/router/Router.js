@@ -41,6 +41,8 @@ import TumGecmisler from '../pages/profilepages/TumGecmisler';
 import Gecmis from '../pages/profilepages/Gecmis';
 import LikedUsers from '../components/liked-users';
 import PostComments from '../components/post-comments';
+import StartWorkout from '../pages/workoutspages/StartWorkout';
+import EndWorkout from '../pages/workoutspages/EndWorkout';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -310,11 +312,19 @@ export function Root() {
                     headerTintColor: '#000'
                 }}
             />
-            <RootStack.Screen name="WorkoutSpecial" component={WorkoutSpecial}
+            <RootStack.Screen name="StartWorkout" component={StartWorkout}
                 options={{
                     headerShown: false,
                     headerBackTitleVisible: false,
                     headerTintColor: '#000'
+                }}
+            />
+            <RootStack.Screen name="EndWorkout" component={EndWorkout}
+                options={{
+                    headerShown: false,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000',
+                    gestureEnabled: false
                 }}
             />
             <RootStack.Screen name="WorkoutList" component={WorkoutList}

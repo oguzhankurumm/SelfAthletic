@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native"
-
+import themeColors from "../../../styles/colors";
+import themeFonts from "../../../styles/fonts";
 
 const styles = StyleSheet.create({
     container: {
@@ -15,43 +16,58 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20
     },
     headerText: {
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 18,
-        color: '#FFF'
+        color: themeColors.white
     },
     circleHeaderText: {
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 28,
-        color: '#FFF'
+        color: themeColors.white
     },
     circleSubText: {
         marginTop: 15,
         textAlign: 'center',
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 12,
-        color: '#FFF'
+        color: themeColors.white
     },
     targetHeader: {
         textAlign: 'center',
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 16,
-        color: '#FFF',
+        color: themeColors.white,
         marginBottom: 5
     },
     targetText: {
         marginTop: 10,
         textAlign: 'center',
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 16,
-        color: '#FFF'
+        color: themeColors.white
     },
     targetSubText: {
         marginTop: 5,
         textAlign: 'center',
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 12,
-        color: '#FFF'
+        color: themeColors.white
     },
+    startButton: {
+        width: '100%',
+        backgroundColor: 'yellow',
+        padding: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 12,
+        marginBottom: 10
+    },
+    startButtonText: {
+        textAlign: 'center',
+        fontFamily: themeFonts.mediumText,
+        fontSize: 16,
+        color: themeColors.ultraDark,
+    }
 })
 
 export default styles;

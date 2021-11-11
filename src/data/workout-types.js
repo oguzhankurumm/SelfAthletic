@@ -1,28 +1,29 @@
+//LEVEL 1
 const increaseMuscle10k = [
-    { type: 'core', name: 'Core Egzersizi', count: 2 },
-    { type: 'mobilite', name: 'Mobilite ve Dinamik Isınma', count: 2 },
-    { type: 'bottom', name: 'Alt Vücut', count: 5 },
-    { type: 'top', name: 'Üst Vücut', count: 5 },
-    { type: 'statik', name: 'Statik Stretching', count: 8 }
+    { type: 'statik', name: 'Statik Stretching', count: 8 },
+    { type: 'core', name: 'Core Egzersizi', count: 3 },
+    { type: 'mobilite', name: 'Mobilite ve Dinamik Isınma', count: 3 },
+    { type: 'bottom', name: 'Alt Vücut', count: 3 },
+    { type: 'top', name: 'Üst Vücut', count: 3 },
 ]
 
 const fatReduction10k = [
-    { type: 'core', name: 'Core Egzersizi', count: 3 },
-    { type: 'mobilite', name: 'Mobilite ve Dinamik Isınma', count: 2 },
-    { type: 'bottom', name: 'Alt Vücut', count: 3 },
-    { type: 'top', name: 'Üst Vücut', count: 3 },
-    { type: 'statik', name: 'Statik Stretching', count: 7 }
+    { type: 'core', name: 'Core Egzersizi', count: 4 },
+    { type: 'mobilite', name: 'Mobilite ve Dinamik Isınma', count: 3 },
+    { type: 'bottom', name: 'Alt Vücut', count: 4 },
+    { type: 'top', name: 'Üst Vücut', count: 4 },
+    { type: 'statik', name: 'Statik Stretching', count: 8 }
 ]
 
 const keepingFit10k = [
-    { type: 'core', name: 'Core Egzersizi', count: 4 },
-    { type: 'mobilite', name: 'Mobilite ve Dinamik Isınma', count: 2 },
-    { type: 'bottom', name: 'Alt Vücut', count: 1 },
-    { type: 'top', name: 'Üst Vücut', count: 2 },
-    { type: 'statik', name: 'Statik Stretching', count: 7 }
+    { type: 'core', name: 'Core Egzersizi', count: 5 },
+    { type: 'mobilite', name: 'Mobilite ve Dinamik Isınma', count: 3 },
+    { type: 'bottom', name: 'Alt Vücut', count: 2 },
+    { type: 'top', name: 'Üst Vücut', count: 3 },
+    { type: 'statik', name: 'Statik Stretching', count: 4 }
 ]
 
-//10-15K START
+//LEVEL 2
 const increaseMuscle15k = [
     { type: 'core', name: 'Core Egzersizi', count: 2 },
     { type: 'mobilite', name: 'Mobilite ve Dinamik Isınma', count: 2 },
@@ -53,7 +54,7 @@ const increaseMuscle20k = [
     { type: 'core', name: 'Core Egzersizi', count: 2 },
     { type: 'mobilite', name: 'Mobilite ve Dinamik Isınma', count: 2 },
     { type: 'bottom', name: 'Alt Vücut', count: 7 },
-    { type: 'top', name: 'Üst Vücut', count: 7},
+    { type: 'top', name: 'Üst Vücut', count: 7 },
     { type: 'statik', name: 'Statik Stretching', count: 7 }
 ]
 
