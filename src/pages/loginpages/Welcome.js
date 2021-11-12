@@ -248,6 +248,7 @@ const Welcome = ({ navigation }) => {
                                     autoCapitalize="none"
                                     allowFontScaling={false}
                                     maxLength={100}
+                                    placeholderTextColor="#999"
                                     placeholder="E-Posta"
                                     returnKeyType={"next"}
                                     value={LoginEmail}
@@ -268,6 +269,7 @@ const Welcome = ({ navigation }) => {
                                     allowFontScaling={false}
                                     blurOnSubmit={true}
                                     maxLength={30}
+                                    placeholderTextColor="#999"
                                     placeholder="Parola"
                                     returnKeyType={"done"}
                                     autoCapitalize="none"
@@ -296,6 +298,7 @@ const Welcome = ({ navigation }) => {
                                         autoCapitalize="words"
                                         allowFontScaling={false}
                                         maxLength={80}
+                                        placeholderTextColor="#999"
                                         placeholder="Ad Soyad"
                                         returnKeyType={"next"}
                                         value={Name}
@@ -318,6 +321,7 @@ const Welcome = ({ navigation }) => {
                                         autoCapitalize="none"
                                         allowFontScaling={false}
                                         maxLength={80}
+                                        placeholderTextColor="#999"
                                         placeholder="Kullanıcı Adı"
                                         returnKeyType={"next"}
                                         value={Username}
@@ -339,6 +343,7 @@ const Welcome = ({ navigation }) => {
                                         autoCapitalize="none"
                                         allowFontScaling={false}
                                         maxLength={100}
+                                        placeholderTextColor="#999"
                                         placeholder="E-Posta"
                                         returnKeyType={"next"}
                                         value={RegisterEmail}
@@ -359,6 +364,7 @@ const Welcome = ({ navigation }) => {
                                         allowFontScaling={false}
                                         blurOnSubmit={true}
                                         maxLength={30}
+                                        placeholderTextColor="#999"
                                         placeholder="Parola"
                                         returnKeyType={"done"}
                                         autoCapitalize="none"
@@ -441,7 +447,7 @@ const styles = StyleSheet.create({
         padding: 10,
         color: "#2d2d2d",
         fontSize: 16,
-        // fontFamily: "SFProDisplay-Medium",
+        fontFamily: "SFProDisplay-Medium",
     },
     socialText: {
         fontFamily: "SFProDisplay-Medium",

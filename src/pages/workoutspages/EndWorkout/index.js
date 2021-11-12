@@ -56,16 +56,7 @@ const EndWorkout = (props) => {
             setLoading(false);
             dispatch(actions.fetchUserData(profileData.email));
             dispatch(healthActions.fetchHealth());
-            setTimeout(() => {
-                Alert.alert('Başarılı', 'Antrenman kaydedildi.', [
-                    {
-                        text: 'Tamam', onPress: () => {
-
-                            props.navigation.navigate('Home');
-                        }
-                    }
-                ])
-            }, 1000);
+            props.navigation.navigate('WorkoutCompleted');
         } catch (error) {
             setLoading(false);
             Alert.alert('Hata', 'Bilgiler kaydedilirken bir sorun oluştu, lütfen tekrar deneyin.');

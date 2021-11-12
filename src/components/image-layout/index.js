@@ -32,7 +32,11 @@ const ImageLayout = ({ children, Loading, title, isScrollable, showBack, showAdd
                 />
 
                 {isScrollable ?
-                    <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false} style={styles.container}>
+                    <ScrollView
+                        showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
+                        style={styles.container}
+                    >
                         {children}
                     </ScrollView>
                     :

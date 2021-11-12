@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, FlatList, Alert, Pressable } from 'react-native';
+import { View, Text, FlatList, Alert, Pressable, RefreshControl } from 'react-native';
 import { firestore } from '../../../config/config';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
@@ -22,7 +22,7 @@ const Workout = ({ navigation }) => {
     const [WorkoutList, setWorkoutList] = useState([]);
 
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
-    const [SelectedDate, setSelectedDate] = useState(new Date());
+    const [SelectedDate, setSelectedDate] = useState(moment());
     const datesBlacklist = [{ start: moment().add(1, 'days'), end: moment().add(10, 'days') }];
 
     useEffect(() => {
@@ -229,7 +229,7 @@ const Workout = ({ navigation }) => {
                                 {!Loading &&
                                     <>
                                         <WorkoutTodayChart
-                                            stepCount={fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[7].quantity).toFixed(0) : 0}
+                                            stepCount={fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[4].quantity).toFixed(0) : 0}
                                             calorieCount={parseFloat(fitnessData.calories).toFixed(0)}
                                         />
                                         <CalendarStrip

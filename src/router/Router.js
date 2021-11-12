@@ -12,11 +12,9 @@ import FoodLib from '../pages/mainpages/FoodLib';
 import WorkoutLib from '../pages/mainpages/WorkoutLib';
 import AddNewPost from '../components/newPost/AddNewPost';
 import Profile from '../pages/profilepages/Profile';
-import WorkoutDetails from '../pages/mainpages/WorkoutDetails';
+import WorkoutDetails from '../pages/workoutspages/WorkoutDetails';
 import SliderDetails from '../pages/workoutspages/SliderDetails';
 import WorkoutVideo from '../pages/workoutspages/WorkoutVideo';
-import WorkoutSpecial from '../pages/workoutspages/WorkoutSpecial';
-import WorkoutList from '../pages/workoutspages/WorkoutList';
 import Feed from '../pages/mainpages/Feed';
 import Calories from '../pages/caloriespages/Calories';
 import StepCounter from '../pages/steppages/StepCounter';
@@ -43,6 +41,7 @@ import LikedUsers from '../components/liked-users';
 import PostComments from '../components/post-comments';
 import StartWorkout from '../pages/workoutspages/StartWorkout';
 import EndWorkout from '../pages/workoutspages/EndWorkout';
+import WorkoutCompleted from '../pages/workoutspages/WorkoutCompleted';
 
 const Tab = createBottomTabNavigator();
 const AuthStack = createStackNavigator();
@@ -327,11 +326,12 @@ export function Root() {
                     gestureEnabled: false
                 }}
             />
-            <RootStack.Screen name="WorkoutList" component={WorkoutList}
+            <RootStack.Screen name="WorkoutCompleted" component={WorkoutCompleted}
                 options={{
                     headerShown: false,
                     headerBackTitleVisible: false,
-                    headerTintColor: '#000'
+                    headerTintColor: '#000',
+                    gestureEnabled: false
                 }}
             />
             <RootStack.Screen name="SliderDetails" component={SliderDetails}

@@ -10,6 +10,7 @@ import { Timer } from 'react-native-element-timer';
 import Video from 'react-native-video';
 import styles from './style';
 import ModalTimer from '../../../components/workouts/mola-timer';
+import themeColors from '../../../styles/colors';
 
 const { width, height } = Dimensions.get("window");
 
@@ -26,7 +27,7 @@ const StartWorkout = (props) => {
     const [ShowMolaTimer, setShowMolaTimer] = useState(false);
     const [breakDuration, setbreakDuration] = useState(30);
     const [ShowFinishAlert, setShowFinishAlert] = useState(false);
-    const [PlayVideo, setPlayVideo] = useState(true);
+    const [PlayVideo, setPlayVideo] = useState(false);
     const _carousel = useRef(null);
     const timerRef = useRef(null);
     const myVideo = useRef(null);
@@ -59,7 +60,7 @@ const StartWorkout = (props) => {
                         <View style={{ width: '100%', height: 220 }}>
                             <Video
                                 ref={myVideo}
-                                shouldPlay={true}
+                                shouldPlay={false}
                                 resizeMode="contain"
                                 useNativeControls
                                 repeat={true}
@@ -83,7 +84,7 @@ const StartWorkout = (props) => {
                         }
 
                         <View style={styles.boxStyle}>
-                            <Text style={[styles.boxTitle, { fontWeight: '500', textAlign: 'justify' }]}>{item.info}</Text>
+                            <Text style={[styles.boxTitle, { color: themeColors.white, fontWeight: '500', textAlign: 'justify' }]}>{item.info}</Text>
                         </View>
                     </View>
                 </View>
@@ -152,6 +153,7 @@ const StartWorkout = (props) => {
     return (
         <WorkoutLayout Loading={Loading}>
             <ModalTimer ShowMolaTimer={ShowFirstTimer} duration={5} onComplete={() => {
+                setPlayVideo(true);
                 timerRef.current.start();
                 setShowFirstTimer(!ShowFirstTimer);
             }} />

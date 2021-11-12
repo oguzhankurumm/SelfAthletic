@@ -1,13 +1,13 @@
 import React from 'react'
 import { Dimensions, StyleSheet, View } from 'react-native';
 import Modal from 'react-native-modal';
-import { ActivityIndicator } from 'react-native-paper';
+import LottieView from "lottie-react-native";
 
 const { width, height } = Dimensions.get("window");
 
 const SpinnerLoading = (props) => {
     const Loading = props.Loading;
-    
+
     return (
         <Modal
             isVisible={Loading}
@@ -17,9 +17,7 @@ const SpinnerLoading = (props) => {
             animationOut="fadeOut"
             backdropOpacity={0.5}
         >
-            <View style={{
-                height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center'
-            }}>
+            <View style={styles.container}>
                 <View style={{
                     height: 100,
                     width: 100,
@@ -28,7 +26,13 @@ const SpinnerLoading = (props) => {
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
-                    <ActivityIndicator size={50} animating={true} color={"yellow"} />
+                    <LottieView
+                        style={{ height: 75, width: 75 }}
+                        source={require("../animations/loading.json")}
+                        autoPlay
+                        speed={1}
+                        loop={true}
+                    />
                 </View>
             </View>
         </Modal>
@@ -36,16 +40,17 @@ const SpinnerLoading = (props) => {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        height: '100%',
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     modalStyle: {
         justifyContent: 'center',
         margin: 0,
         width,
         height,
-    },
-    spinnerTextStyle: {
-        color: "yellow",
-        fontSize: 14,
-        fontFamily: "UberMoveText-Bold"
     }
 })
 

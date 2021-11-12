@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { database } from '../../../config/config';
+import { firestore, auth } from '../../../config/config';
 import { useSelector } from 'react-redux';
 import messaging from '@react-native-firebase/messaging';
 import SliderCard from '../../../components/slider-card';
@@ -8,7 +8,7 @@ import WodCard from '../../../components/wod-card';
 import axios from 'axios';
 import { showMessage } from 'react-native-flash-message';
 
-const Home = ({ navigation }) => {
+const Home = () => {
     const profileData = useSelector(state => state.user.users);
     const fitnessData = useSelector(state => state.health.health);
 
@@ -24,12 +24,12 @@ const Home = ({ navigation }) => {
 
         if (enabled) {
             try {
-                const fcmToken = await messaging().getToken();
-                if (fcmToken) {
-                    await database().ref(`tokens/${profileData.userId}/${fcmToken}`).set(fcmToken)
-                }
+                const getToken = await messaging().getToken();
+                await firestore().collection("users").doc(auth().currentUser.uid).update({
+                    tokens: firestore.FieldValue.arrayUnion(getToken)
+                })
             } catch (error) {
-                console.log('disabled')
+                console.log('GET TOKEN ERROR: ', error)
             }
         }
     }
@@ -38,15 +38,6 @@ const Home = ({ navigation }) => {
         // CheckPermissions();
         getHomeData();
     }, [])
-
-    // const convertData = async () => {
-
-    //     await database().ref('workouts').once('value').then((snapshot) => {
-    //         snapshot.forEach(async item => {
-    //             await firestore().collection('workouts').add(item.val()).then(res => console.log('true', res)).catch(err => console.log('error:', err))
-    //         })
-    //     }).catch(err => console.log('st error:', err))
-    // }
 
     const getHomeData = async () => {
         setLoading(true);
