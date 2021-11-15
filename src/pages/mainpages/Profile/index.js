@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
-import { database } from '../../config/config';
+import { View, Text, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
+import { database } from '../../../config/config';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
-import { Bar } from 'react-native-progress';
-import ImageLayout from '../../components/image-layout';
-import { changeProfilePicture } from '../../helpers';
-import IconCard from '../../components/profile/icon-card';
-import PressableCard from '../../components/profile/pressable-card';
+import ImageLayout from '../../../components/image-layout';
+import { changeProfilePicture } from '../../../helpers';
+import IconCard from '../../../components/profile/icon-card';
+import PressableCard from '../../../components/profile/pressable-card';
+import LevelCard from '../../../components/profile/level-card';
+import styles from './style';
 
 LocaleConfig.locales['tr'] = {
     monthNames: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
@@ -23,8 +24,6 @@ LocaleConfig.defaultLocale = 'tr';
 const { height, width } = Dimensions.get("window");
 
 const Profile = ({ navigation }) => {
-    let defaultAvatarUrl = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png"
-
     const [Loading, setLoading] = useState(false);
     const [AllLoading, setAllLoading] = useState(false)
     const profileData = useSelector(state => state.authReducer.currentUser);
@@ -66,98 +65,11 @@ const Profile = ({ navigation }) => {
         var level3 = parseFloat(profileData.point) / 40000;
 
         if (profileData.point < 10000) {
-            return (
-                <>
-                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 20 }}>
-                        <View style={{ width: '100%', marginBottom: 8 }}>
-                            <Text style={{
-                                fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 12,
-                                color: 'yellow'
-                            }}>Seviye {String(1)}</Text>
-                        </View>
-
-                        <Bar height={4} style={{ width: '100%' }} width={null} color="yellow" progress={level1} unfilledColor="#9999" borderWidth={0} />
-
-                        <View style={{ flexDirection: 'row', width: '100%', marginTop: 8, justifyContent: 'space-between', alignItems: 'center' }}>
-
-                            <Text style={{
-                                fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 12,
-                                color: 'yellow'
-                            }}>{profileData.point ? parseFloat(profileData.point).toFixed(1) : 0} puan</Text>
-
-                            <Text style={{
-                                fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 12,
-                                color: '#9D9D9D'
-                            }}>2. seviye için {parseFloat(String(parseFloat(10000) - parseFloat(profileData.point))).toFixed(1)} puan kaldı</Text>
-                        </View>
-                    </View>
-                </>
-            )
+            return <LevelCard currentPoint={profileData.point} levelTitle={1} levelPoint={10000} progress={level1} />
         } else if (profileData.point >= 10000 && profileData.point <= 15001) {
-            return (
-                <>
-                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 20 }}>
-                        <View style={{ width: '100%', marginBottom: 8 }}>
-                            <Text style={{
-                                fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 12,
-                                color: 'yellow'
-                            }}>Seviye {String(2)}</Text>
-                        </View>
-
-                        <Bar height={4} style={{ width: '100%' }} width={null} color="yellow" progress={level2} unfilledColor="#9999" borderWidth={0} />
-
-                        <View style={{ flexDirection: 'row', width: '100%', marginTop: 8, justifyContent: 'space-between', alignItems: 'center' }}>
-
-                            <Text style={{
-                                fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 12,
-                                color: 'yellow'
-                            }}>{profileData.point ? parseFloat(profileData.point).toFixed(1) : 0} puan</Text>
-
-                            <Text style={{
-                                fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 12,
-                                color: '#9D9D9D'
-                            }}>3. seviye için {String(parseFloat(25000) - parseFloat(profileData.point).toFixed(1))} puan kaldı</Text>
-                        </View>
-                    </View>
-                </>
-            )
+            return <LevelCard currentPoint={profileData.point} levelTitle={2} levelPoint={25000} progress={level2} />
         } else if (profileData.point >= 25000) {
-            return (
-                <>
-                    <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20, paddingHorizontal: 20 }}>
-                        <View style={{ width: '100%', marginBottom: 8 }}>
-                            <Text style={{
-                                fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 12,
-                                color: 'yellow'
-                            }}>Seviye 3</Text>
-                        </View>
-
-                        <Bar height={4} style={{ width: '100%' }} width={null} color="yellow" progress={level3} unfilledColor="#9999" borderWidth={0} />
-
-                        <View style={{ flexDirection: 'row', width: '100%', marginTop: 8, justifyContent: 'space-between', alignItems: 'center' }}>
-
-                            <Text style={{
-                                fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 11,
-                                color: 'yellow'
-                            }}>{profileData.point ? parseFloat(profileData.point).toFixed(1) : 0} puan</Text>
-
-                            <Text style={{
-                                fontFamily: 'SFProDisplay-Medium',
-                                fontSize: 12,
-                                color: '#9D9D9D'
-                            }}>Seviyeyi tamamlamak için {String(parseFloat(parseFloat(40000) - parseFloat(profileData.point)).toFixed(1))} puan kaldı</Text>
-                        </View>
-                    </View>
-                </>
-            )
+            return <LevelCard currentPoint={profileData.point} levelTitle={3} levelPoint={40000} progress={level3} />
         }
     }
 
@@ -268,7 +180,7 @@ const Profile = ({ navigation }) => {
             Loading={Loading}
         >
             <TouchableOpacity onPress={() => changeProfilePicture(profileData.email).then(res => console.log(res)).catch(err => console.log(err))} activeOpacity={0.8} style={styles.profileView}>
-                <Image style={styles.imageView} resizeMode="cover" source={{ uri: profileData.profile_picture !== '' && profileData.profile_picture !== undefined ? profileData.profile_picture : defaultAvatarUrl }} />
+                <Image style={styles.imageView} resizeMode="cover" source={profileData.profile_picture !== '' && profileData.profile_picture !== undefined ? { uri: profileData.profile_picture } : require('../../../img/no-image.jpg')} />
 
                 <View style={{ width: '100%', position: 'absolute', right: 0, left: 40, bottom: 40, justifyContent: 'center', alignItems: 'center' }}>
                     <View style={{ height: 30, width: 30, borderRadius: 100, backgroundColor: 'yellow', justifyContent: 'center', alignItems: 'center' }}>
@@ -387,104 +299,13 @@ const Profile = ({ navigation }) => {
             }
 
             {SelectedPage === 2 &&
-                <>
-                    <View style={[styles.iconsContainer, { paddingHorizontal: 20, paddingBottom: 100 }]}>
-                        <PressableCard title="Testleri Gör" image={{ uri: 'https://www.lanochefithall.com/assets/img/usenme.jpg' }} onPress={() => navigation.navigate('TestList')} />
-                        <PressableCard title="Mezura Ölçümleri" image={require('../../img/mezura.jpeg')} onPress={() => navigation.navigate('Olcumler')} />
-                    </View>
-                </>
+                <View style={[styles.iconsContainer, { paddingHorizontal: 20, paddingBottom: 100 }]}>
+                    <PressableCard title="Testleri Gör" image={{ uri: 'https://www.lanochefithall.com/assets/img/usenme.jpg' }} onPress={() => navigation.navigate('TestList')} />
+                    <PressableCard title="Mezura Ölçümleri" image={require('../../../img/mezura.jpeg')} onPress={() => navigation.navigate('Olcumler')} />
+                </View>
             }
         </ImageLayout>
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center'
-    },
-    TabsTextActive: {
-        fontFamily: 'SFProDisplay-Bold',
-        fontSize: 16,
-        paddingVertical: 1,
-        color: 'yellow'
-    },
-    TabsTextDisabled: {
-        fontFamily: 'SFProDisplay-Bold',
-        fontSize: 16,
-        paddingVertical: 1,
-        color: 'white'
-    },
-    nameText: {
-        marginTop: 20,
-        fontFamily: 'SFProDisplay-Bold',
-        fontSize: 18,
-        color: '#FFF'
-    },
-    imageView: {
-        borderRadius: 100,
-        backgroundColor: 'red',
-        height: 120,
-        width: 120
-    },
-    profileView: {
-        marginTop: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%'
-    },
-    iconsContainer: {
-        flexDirection: 'column',
-        paddingVertical: 20,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%'
-    },
-    iconsView: {
-        flexDirection: 'row',
-        paddingVertical: 20,
-        justifyContent: 'space-evenly',
-        alignItems: 'center',
-        width: '100%'
-    },
-    iconsText: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 13,
-        paddingVertical: 1,
-        color: '#FFF'
-    },
-    iconsNumber: {
-        marginTop: 10,
-        fontFamily: 'SFProDisplay-Bold',
-        fontSize: 18,
-        color: '#FFF'
-    },
-    iconsDate: {
-        marginTop: 5,
-        fontFamily: 'SFProDisplay-Bold',
-        fontSize: 12,
-        color: '#FFF'
-    },
-    header: {
-        width: '100%',
-        height: 60,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20
-    },
-    headerText: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 18,
-        color: '#FFF'
-    },
-    //gecmis
-    gecmisContainer: {
-        flexDirection: 'column',
-        paddingVertical: 20,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%'
-    }
-})
 export default Profile;

@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react'
-import { View, Text, Image, StyleSheet, StatusBar, TouchableOpacity, TouchableHighlight, Dimensions, ImageBackground, SafeAreaView, ScrollView, FlatList, Alert } from 'react-native';
+import { View, Text, Image, StatusBar, TouchableOpacity, TouchableHighlight, Dimensions, ImageBackground, SafeAreaView, ScrollView, FlatList, Alert } from 'react-native';
 import { useSelector } from 'react-redux';
-import { database } from '../../config/config';
+import { database } from '../../../config/config';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import SpinnerLoading from '../../components/SpinnerLoading';
+import SpinnerLoading from '../../../components/SpinnerLoading';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Sidebar from '../../components/Sidebar';
+import Sidebar from '../../../components/Sidebar';
 import moment from 'moment';
 import 'moment/locale/tr';
 moment.locale('tr');
 import CalendarStrip from 'react-native-calendar-strip';
 import Modal from 'react-native-modal';
 import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert';
+import styles from './style';
 
 const { height, width } = Dimensions.get("window");
 
@@ -1088,7 +1089,7 @@ const Food = ({ navigation }) => {
     }
 
     return (
-        <ImageBackground style={{ height: height, width: width }} resizeMode="cover" source={require('../../img/bg.jpg')}>
+        <ImageBackground style={{ height: height, width: width }} resizeMode="cover" source={require('../../../img/bg.jpg')}>
             <SafeAreaView style={styles.container}>
                 <StatusBar barStyle="light-content" />
                 <SpinnerLoading Loading={Loading} />
@@ -1259,7 +1260,7 @@ const Food = ({ navigation }) => {
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
 
                         <TouchableHighlight onPress={() => navigation.navigate('AddWater')}>
-                            <Image source={require('../../img/suekle.png')} style={{ tintColor: 'lightblue', width: 55, height: 50 }} resizeMode="contain" />
+                            <Image source={require('../../../img/suekle.png')} style={{ tintColor: 'lightblue', width: 55, height: 50 }} resizeMode="contain" />
                         </TouchableHighlight>
 
                         <TouchableHighlight onPress={() => navigation.navigate('Feed')}>
@@ -1702,16 +1703,6 @@ const Food = ({ navigation }) => {
                                 </>
                             }
                         </>
-                        //     :
-                        //     <>
-                        //     {!Loading &&
-                        //         <View style={{ height: 'auto', paddingHorizontal: 20, marginBottom: 20, marginTop: 30, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                        //             <Icon name="lock" size={64} color="#4D4D4D" />
-                        //             <Text style={[styles.headerText, { color: '#4D4D4D', fontSize: 16, textAlign: 'center', marginTop: 10 }]}>Seçili günün beslenmesine geçmek için önceki programlarınızı tamamlamalısınız.</Text>
-                        //         </View>
-                        //     }
-
-                        // </>
                     }
 
                 </ScrollView>
@@ -1721,76 +1712,4 @@ const Food = ({ navigation }) => {
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center'
-    },
-    popupText: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 18,
-        color: '#FFF',
-    },
-    header: {
-        width: '100%',
-        height: 60,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20
-    },
-    headerText: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 18,
-        color: '#FFF'
-    },
-    circleHeaderText: {
-        textAlign: 'center',
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 16,
-        color: '#FFF'
-    },
-    circleSubText: {
-        marginTop: 15,
-        textAlign: 'center',
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 12,
-        color: '#FFF'
-    },
-    targetHeader: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 17,
-        color: '#FFF',
-        marginBottom: 5
-    },
-    targetText: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 20,
-        color: '#FFF'
-    },
-    targetSubText: {
-        marginTop: 5,
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 13,
-        color: '#FFF'
-    },
-    foodHeader: {
-        fontFamily: 'SFProDisplay-Bold',
-        fontSize: 18,
-        color: '#FFF',
-        width: '100%'
-    },
-    foodName: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 16,
-        color: '#FFF'
-    },
-    modalStyle: {
-        paddingVertical: 5,
-        flexDirection: 'row',
-        width: '100%',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    }
-})
 export default Food;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { View, Text, Pressable, FlatList, TextInput, Alert } from 'react-native';
 import { firestore } from '../../../config/config';
 import { useSelector, useDispatch } from 'react-redux';
@@ -18,11 +18,6 @@ const EndWorkout = (props) => {
     const [DefaultData, setDefaultData] = useState(props.route.params.data);
     const [Data, setData] = useState(props.route.params.data);
     const [Values, setValues] = useState(props.route.params.values);
-
-    useEffect(() => {
-        console.log({ Data })
-    }, [])
-
 
     const CompleteTraining = async () => {
         setLoading(true);
@@ -62,26 +57,22 @@ const EndWorkout = (props) => {
         }
     }
 
+    const IconsCard = ({ iconName, value, valueName }) => (
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+            <Icon name={iconName} color="#FFF" size={24} />
+            <Text style={styles.iconText}>{value} {valueName}</Text>
+        </View>
+    )
+
     return (
         <WorkoutLayout Loading={Loading}>
             <KeyboardAwareView animated={true} style={{ width: '100%', height: '100%' }} >
                 <View style={{ width: '100%', height: '100%', paddingHorizontal: 20 }}>
 
                     <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255,255,0,0.05)', padding: 10, borderRadius: 12 }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                            <Icon name="directions-run" color="#FFF" size={24} />
-                            <Text style={styles.iconText}>{Values.TotalKcal} kalori</Text>
-                        </View>
-
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                            <Icon name="star" color="#FFF" size={24} />
-                            <Text style={styles.iconText}>{Values.TotalPoint} puan</Text>
-                        </View>
-
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                            <Icon name="timer" color="#FFF" size={24} />
-                            <Text style={styles.iconText}>{Values.initialTime} sn.</Text>
-                        </View>
+                        <IconsCard iconName="directions-run" value={Values.TotalKcal} valueName="kalori" />
+                        <IconsCard iconName="star" value={Values.TotalPoint} valueName="puan" />
+                        <IconsCard iconName="timer" value={Values.initialTime} valueName="sn." />
                     </View>
 
                     <FlatList
@@ -98,12 +89,7 @@ const EndWorkout = (props) => {
                                 <View
                                     style={styles.cardContainer}>
                                     <View style={{ flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                        <Text style={{
-                                            fontFamily: 'SFProDisplay-Bold',
-                                            fontSize: 16,
-                                            color: '#FFF',
-                                            width: '100%'
-                                        }}>{item.name}</Text>
+                                        <Text style={styles.nameText}>{item.name}</Text>
 
                                         <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, width: '100%' }}>
                                             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '50%' }}>
@@ -127,12 +113,7 @@ const EndWorkout = (props) => {
                                                     keyboardType="number-pad"
                                                 />
 
-                                                <Text style={{
-                                                    marginTop: 5,
-                                                    fontFamily: 'SFProDisplay-Medium',
-                                                    fontSize: 14,
-                                                    color: '#FFF'
-                                                }}>{item.type !== 'time' ? String(DefaultData[index].values.repeat) + ' Tekrar' : String(DefaultData[index].values.time) + ' Saniye'}</Text>
+                                                <Text style={styles.typeText}>{item.type !== 'time' ? String(DefaultData[index].values.repeat) + ' Tekrar' : String(DefaultData[index].values.time) + ' Saniye'}</Text>
                                             </View>
 
                                             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', width: '50%' }}>
@@ -152,12 +133,7 @@ const EndWorkout = (props) => {
                                                     keyboardType="decimal-pad"
                                                 />
 
-                                                <Text style={{
-                                                    marginTop: 5,
-                                                    fontFamily: 'SFProDisplay-Medium',
-                                                    fontSize: 14,
-                                                    color: '#FFF'
-                                                }}>{String(DefaultData[index].values.set) + ' Set'}</Text>
+                                                <Text style={styles.typeText}>{String(DefaultData[index].values.set) + ' Set'}</Text>
                                             </View>
                                         </View>
                                     </View>

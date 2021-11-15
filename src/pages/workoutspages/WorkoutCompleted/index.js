@@ -13,9 +13,9 @@ const WorkoutCompleted = ({ navigation }) => {
 
     return (
         <WorkoutLayout>
-            <View style={{ width: '100%', height: '100%', paddingHorizontal: 20, justifyContent: 'center', alignItems: 'center', bottom: 60 }}>
+            <View style={styles.container}>
                 <LottieView
-                    style={{ height: 250, alignSelf: "center", marginBottom: 10 }}
+                    style={styles.lottieView}
                     source={require("../../../animations/check-mark.json")}
                     autoPlay
                     speed={0.5}

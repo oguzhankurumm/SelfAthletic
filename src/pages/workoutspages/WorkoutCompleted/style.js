@@ -4,11 +4,17 @@ import themeFonts from "../../../styles/fonts";
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        justifyContent: 'space-between',
+        width: '100%',
+        height: '100%',
+        paddingHorizontal: 20,
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        backgroundColor: themeColors.white,
+        bottom: 60
+    },
+    lottieView: {
+        height: 250,
+        alignSelf: "center",
+        marginBottom: 10
     },
     bottomButton: {
         position: 'absolute',

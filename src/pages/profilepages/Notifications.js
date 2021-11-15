@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, StatusBar, Image, SafeAreaView, ScrollView, Alert, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Alert, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
@@ -7,7 +7,7 @@ import moment from 'moment';
 import { useSelector, useDispatch } from 'react-redux';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { CardItem, Button } from 'native-base';
-import BildirimList from '../../components/BildirimList';
+import NotificationList from '../../components/notification-list';
 import 'moment/locale/tr';
 import * as bildirimActions from '../../redux/actions/notifications';
 
@@ -84,10 +84,10 @@ const Notifications = props => {
                                 data={bildirimler}
                                 renderItem={(bildirim, i) => {
                                     return (
-                                        <BildirimList
+                                        <NotificationList
                                             key={i}
-                                            bildirimBody={bildirim.item.body}
-                                            bildirimTime={String(moment(bildirim.item.timestamp, "DD/MM/YYYY HH:mm:ss").format("lll"))}
+                                            body={bildirim.item.body}
+                                            time={String(moment(bildirim.item.timestamp, "DD/MM/YYYY HH:mm:ss").format("lll"))}
                                         />
                                     );
                                 }}

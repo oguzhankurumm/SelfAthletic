@@ -38,9 +38,9 @@ const styles = StyleSheet.create({
         borderColor: 'white',
         textAlign: 'center',
         padding: 10,
-        color: "#FFF",
+        color: themeColors.white,
         borderRadius: 12,
-        fontFamily: 'SFProDisplay-Medium',
+        fontFamily: themeFonts.mediumText,
         fontSize: 14,
         marginRight: 10,
         width: 80
@@ -50,6 +50,18 @@ const styles = StyleSheet.create({
         fontFamily: themeFonts.boldText,
         fontSize: 16,
         color: themeColors.ultraDark
+    },
+    nameText: {
+        fontFamily: themeFonts.boldText,
+        fontSize: 16,
+        color: themeColors.white,
+        width: '100%'
+    },
+    typeText: {
+        marginTop: 5,
+        fontFamily: themeFonts.mediumText,
+        fontSize: 14,
+        color: themeColors.white
     },
     header: {
         width: '100%',
