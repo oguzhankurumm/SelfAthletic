@@ -15,20 +15,18 @@ const WorkoutDetails = (props) => {
         >
             {data.length > 0 &&
                 <SafeAreaView style={{ flex: 1 }}>
-                    <View style={{ flex: 1 }}>
-                        <FlatList
-                            style={{ flex: 1, paddingHorizontal: 20 }}
-                            scrollEnabled={true}
-                            contentContainerStyle={{ paddingBottom: 20 }}
-                            data={Object.values(data)}
-                            keyExtractor={(item, index) => index.toString()}
-                            renderItem={(workouts) => {
-                                return (
-                                    <WorkoutListCard data={workouts.item} navigation={props.navigation} />
-                                )
-                            }}
-                        />
-                    </View>
+                    <FlatList
+                        style={{ flex: 1, paddingHorizontal: 20 }}
+                        scrollEnabled={true}
+                        contentContainerStyle={{ paddingBottom: 20 }}
+                        data={Object.values(data)}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={(workouts) => {
+                            return (
+                                <WorkoutListCard data={workouts.item} navigation={props.navigation} />
+                            )
+                        }}
+                    />
                     <View style={{ width: '100%', paddingHorizontal: 20 }}>
                         <Pressable
                             onPress={() => props.navigation.navigate('StartWorkout', { data })}

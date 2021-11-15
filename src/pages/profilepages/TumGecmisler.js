@@ -14,7 +14,7 @@ import TestGecmisi from '../profilepages/TestGecmisi';
 const { height, width } = Dimensions.get("window");
 
 const TumGecmisler = ({ navigation }) => {
-    const userData = useSelector(state => state.user.users);
+    const userData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(true);
 
     const [Waters, setWaters] = useState([]);

@@ -9,7 +9,7 @@ import { SwipeListView } from 'react-native-swipe-list-view';
 import { CardItem, Button } from 'native-base';
 import BildirimList from '../../components/BildirimList';
 import 'moment/locale/tr';
-import * as bildirimActions from '../../redux/actions/bildirim';
+import * as bildirimActions from '../../redux/actions/notifications';
 
 moment.locale('tr')
 
@@ -18,9 +18,9 @@ const { height, width } = Dimensions.get("window");
 const Notifications = props => {
     const dispatch = useDispatch();
 
-    const currentUserData = useSelector(state => state.user.users.userId);
+    const currentUserData = useSelector(state => state.authReducer.currentUser.userId);
 
-    const [bildirimData, setbildirimData] = useState(useSelector(state => state.bildirimler.bildirimler))
+    const [bildirimData, setbildirimData] = useState(useSelector(state => state.notificationsReducer.notifications))
     const [Loading, setLoading] = useState(true);
     const [bildirimler, setbildirimler] = useState([]);
 

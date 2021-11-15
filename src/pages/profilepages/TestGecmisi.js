@@ -8,7 +8,7 @@ import Icon2 from 'react-native-vector-icons/FontAwesome5';
 import Modal from 'react-native-modal';
 
 const TestGecmisi = ({ navigation }) => {
-    const userData = useSelector(state => state.user.users);
+    const userData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(true);
 
     const [TestList, setTestList] = useState([]);

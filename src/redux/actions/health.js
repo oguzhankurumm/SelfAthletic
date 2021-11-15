@@ -1,7 +1,7 @@
-export const FETCH_HEALTH = 'FETCH_HEALTH';
 import Fitness from '@ovalmoney/react-native-fitness';
 import moment from 'moment';
 import { firestore, auth } from '../../config/config';
+import { FETCH_HEALTH } from '../contants';
 
 export const fetchHealth = () => {
     const permissions = [

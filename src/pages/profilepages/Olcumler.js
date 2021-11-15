@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
 import moment from 'moment';
 import { database } from '../../config/config';
-import * as actions from '../../redux/actions/profile';
+import * as actions from '../../redux/actions/auth';
 import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
 import Carousel from 'react-native-snap-carousel';
 import Slider from '@react-native-community/slider';
@@ -22,7 +22,7 @@ const Olcumler = props => {
     const [SelectedIndex, setSelectedIndex] = useState(0);
     const [NewValue, setNewValue] = useState(0);
 
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
     const [ShowAlert, setShowAlert] = useState(false);
     const [ShowAlert2, setShowAlert2] = useState(false);
     const [Olcumler, setOlcumler] = useState([

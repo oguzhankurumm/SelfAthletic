@@ -11,7 +11,7 @@ const { height, width } = Dimensions.get("window");
 const Calories = ({ props, navigation }) => {
 
     const [Loading, setLoading] = useState(true);
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
     const [Calories, setCalories] = useState(null);
 
     useEffect(() => {

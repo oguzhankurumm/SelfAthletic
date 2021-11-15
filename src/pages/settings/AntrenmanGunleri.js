@@ -12,7 +12,7 @@ const { height, width } = Dimensions.get("window");
 const AntrenmanGunleri = ({ navigation }) => {
     moment.locale('tr');
 
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(false);
     const [WorkoutDays, setWorkoutDays] = useState([
         { value: 'Pazartesi', checked: false },

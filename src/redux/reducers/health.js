@@ -5,10 +5,10 @@ const initialState = {
         totalSteps: 0,
         totalCalories: 0
     },
-    loading: false
+    loaded: false
 }
 
-const healthReducer = (state = initialState, action) => {
+export const healthReducer = (state = initialState, action) => {
     switch (action.type) {
         case FETCH_HEALTH:
             return {
@@ -19,5 +19,3 @@ const healthReducer = (state = initialState, action) => {
             return state;
     }
 };
-
-export default healthReducer;

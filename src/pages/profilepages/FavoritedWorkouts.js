@@ -12,7 +12,7 @@ import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
 const { height, width } = Dimensions.get("window");
 
 const FavoritedWorkouts = ({ navigation }) => {
-    const userData = useSelector(state => state.user.users);
+    const userData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(true);
 
     const [FavoritedList, setFavoritedList] = useState([]);

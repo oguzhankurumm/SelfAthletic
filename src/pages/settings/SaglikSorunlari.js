@@ -14,7 +14,7 @@ const SaglikSorunlari = ({ navigation }) => {
     moment.locale('tr');
 
     const [SelectedPage, setSelectedPage] = useState(1);
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
     const [TotalPage, setTotalPage] = useState(2);
     const [Loading, setLoading] = useState(false);
 

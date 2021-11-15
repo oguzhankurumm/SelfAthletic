@@ -1,20 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import { firestore, auth } from '../../../config/config';
+import React, { useEffect } from 'react'
+import { auth, firestore } from '../../../config/config';
 import { useSelector } from 'react-redux';
 import messaging from '@react-native-firebase/messaging';
 import SliderCard from '../../../components/slider-card';
 import ImageLayout from '../../../components/image-layout';
 import WodCard from '../../../components/wod-card';
-import axios from 'axios';
-import { showMessage } from 'react-native-flash-message';
 
 const Home = () => {
-    const profileData = useSelector(state => state.user.users);
-    const fitnessData = useSelector(state => state.health.health);
-
-    const [Loading, setLoading] = useState(false);
-    const [Campaigns, setCampaigns] = useState([]);
-    const [Workouts, setWorkouts] = useState([]);
+    const homeData = useSelector(state => state.homeReducer);
+    const Loading = useSelector(state => state.homeReducer.loading)
+    const fitnessData = useSelector(state => state.healthReducer.health);
 
     const CheckPermissions = async () => {
         const authStatus = await messaging().requestPermission();
@@ -25,7 +20,7 @@ const Home = () => {
         if (enabled) {
             try {
                 const getToken = await messaging().getToken();
-                await firestore().collection("users").doc(auth().currentUser.uid).update({
+                await firestore().collection("users").doc(auth().currentUser.email).update({
                     tokens: firestore.FieldValue.arrayUnion(getToken)
                 })
             } catch (error) {
@@ -35,37 +30,13 @@ const Home = () => {
     }
 
     useEffect(() => {
-        // CheckPermissions();
-        getHomeData();
+        CheckPermissions();
     }, [])
-
-    const getHomeData = async () => {
-        setLoading(true);
-        await axios.all([
-            axios.get('https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/getSliders'),
-            axios.get('https://us-central1-selfathletic-d8b9a.cloudfunctions.net/app/getWodList')
-        ])
-            .then(axios.spread((data1, data2) => {
-                setCampaigns(data1.data);
-                setWorkouts(Object.values(data2.data).sort((a, b) => a.title.localeCompare(b.title)))
-                setLoading(false);
-            }))
-            .catch(error => {
-                setLoading(false);
-                showMessage({
-                    message: "Hata",
-                    description: `Bir hata oluştu! Hata: ${error}`,
-                    type: "danger",
-                    icon: "danger",
-                    hideStatusBar: true
-                });
-            })
-    }
 
     return (
         <ImageLayout title="Ana Sayfa" Loading={Loading}>
-            <SliderCard data={Campaigns} />
-            <WodCard data={Workouts} />
+            <SliderCard data={homeData.sliders} />
+            <WodCard data={homeData.wods} />
         </ImageLayout>
     )
 }

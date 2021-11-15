@@ -5,16 +5,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import 'moment/locale/tr';
-moment.locale('tr');
 import WorkoutLayout from '../../../components/workout-layout';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import styles from './style';
-import * as actions from '../../../redux/actions/profile';
+import * as actions from '../../../redux/actions/auth';
 import * as healthActions from '../../../redux/actions/health';
 
 const EndWorkout = (props) => {
     const dispatch = useDispatch()
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(false);
     const [DefaultData, setDefaultData] = useState(props.route.params.data);
     const [Data, setData] = useState(props.route.params.data);
@@ -45,7 +44,7 @@ const EndWorkout = (props) => {
         try {
             const date = moment().format("DD-MM-YYYY");
             const workoutData = {
-                workouts: Data,
+                workout: Data,
                 completed: true,
                 date,
                 time: Values.initialTime,

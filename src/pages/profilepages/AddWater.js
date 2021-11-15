@@ -14,7 +14,7 @@ const { height, width } = Dimensions.get("window");
 const AddWater = props => {
 
     const [Loading, setLoading] = useState(false);
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
 
     const [ShowAlert, setShowAlert] = useState(false);
     const [ShowAlertError, setShowAlertError] = useState(false);

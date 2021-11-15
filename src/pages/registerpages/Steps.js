@@ -7,7 +7,7 @@ import moment from 'moment';
 import axios from 'axios';
 import { auth } from '../../config/config';
 import { useSelector, useDispatch } from 'react-redux';
-import * as actions from '../../redux/actions/profile';
+import * as actions from '../../redux/actions/auth';
 
 const { height, width } = Dimensions.get("window");
 
@@ -18,7 +18,7 @@ const Steps = props => {
     const { index, routes } = props.navigation.dangerouslyGetState();
     const currentRoute = routes[index].name;
 
-    const userData = props.route.params?.userData !== undefined ? props.route.params.userData : useSelector(state => state.user.users);
+    const userData = props.route.params?.userData !== undefined ? props.route.params.userData : useSelector(state => state.authReducer.currentUser);
 
     const [UserTarget, setUserTarget] = useState(null);
     const [UserCronicProblems, setUserCronicProblems] = useState(null);

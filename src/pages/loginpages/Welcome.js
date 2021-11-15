@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Text, View, Image, TouchableOpacity, StyleSheet, Dimensions, StatusBar, Keyboard, Alert } from 'react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet, Dimensions, StatusBar, Keyboard } from 'react-native';
 import { Card } from 'native-base';
 import Style from '../../styles/Style';
 import Video from "react-native-video";
@@ -9,11 +9,10 @@ import Button2 from '../../components/Button';
 import Input from '../../components/Input';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SpinnerLoading from '../../components/SpinnerLoading';
-import { auth, database, firestore } from '../../config/config';
+import { auth, firestore } from '../../config/config';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { Button } from 'native-base';
 import moment from 'moment';
-import axios from 'axios';
 import { showMessage } from 'react-native-flash-message';
 
 const { width, height } = Dimensions.get("window");
@@ -46,7 +45,7 @@ const Welcome = ({ navigation }) => {
             await auth().signInWithEmailAndPassword(LoginEmail, LoginPassword);
             setLoading(false);
         } catch (error) {
-            LoginFailed(err);
+            LoginFailed(error);
         }
     }
 

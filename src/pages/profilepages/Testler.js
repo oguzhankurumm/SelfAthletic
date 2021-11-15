@@ -7,7 +7,7 @@ import Video from 'react-native-video';
 import axios from 'axios';
 import moment from 'moment';
 import { database } from '../../config/config';
-import * as actions from '../../redux/actions/profile';
+import * as actions from '../../redux/actions/auth';
 import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
 import Carousel from 'react-native-snap-carousel';
 
@@ -15,7 +15,7 @@ const { height, width } = Dimensions.get("window");
 
 
 const Testler = props => {
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
     const dispatch = useDispatch()
 
     const _carousel = useRef(null);

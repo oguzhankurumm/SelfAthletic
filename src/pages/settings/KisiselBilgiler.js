@@ -18,7 +18,7 @@ const KisiselBilgiler = ({ navigation }) => {
 
     moment.locale('tr');
 
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
 
     const [Name, setName] = useState(profileData.name)
     const [cinsiyet, setcinsiyet] = useState(profileData.gender);

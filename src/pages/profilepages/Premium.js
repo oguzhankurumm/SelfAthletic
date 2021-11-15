@@ -13,7 +13,7 @@ const Premium = ({ props, navigation }) => {
 
     const [Loading, setLoading] = useState(false);
     const [selectedType, setselectedType] = useState(1);
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
     const [SelectedPage, setSelectedPage] = useState(0);
 
     const [PaymentAddress, setPaymentAddress] = useState("");

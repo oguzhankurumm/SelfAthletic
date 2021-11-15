@@ -13,7 +13,7 @@ const { height, width } = Dimensions.get("window");
 
 const Sidebar = ({ opened, onClose }) => {
     const navigation = useNavigation();
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
     const [ShowSideModal, setShowSideModal] = useState(opened)
     const [Loading, setLoading] = useState(false);
     const [ShowWarning, setShowWarning] = useState(false);

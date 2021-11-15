@@ -11,7 +11,7 @@ import moment from 'moment';
 const { height, width } = Dimensions.get("window");
 
 const SliderDetails = props => {
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
 
     const [Loading, setLoading] = useState(false);
     const [Details, setDetails] = useState(props.route.params.item);

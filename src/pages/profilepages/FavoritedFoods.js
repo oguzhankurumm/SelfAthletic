@@ -9,7 +9,7 @@ import moment from 'moment';
 const { height, width } = Dimensions.get("window");
 
 const FavoritedFoods = ({ navigation }) => {
-    const userData = useSelector(state => state.user.users);
+    const userData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(true);
 
     const [FavoritedList, setFavoritedList] = useState([]);

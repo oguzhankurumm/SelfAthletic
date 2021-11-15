@@ -15,9 +15,9 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from './style';
 
 const Workout = ({ navigation }) => {
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
     const userTarget = profileData.values.target;
-    const fitnessData = useSelector(state => state.health.health);
+    const fitnessData = useSelector(state => state.healthReducer.health);
     const [Loading, setLoading] = useState(false);
     const [WorkoutList, setWorkoutList] = useState([]);
 
@@ -229,7 +229,7 @@ const Workout = ({ navigation }) => {
                                 {!Loading &&
                                     <>
                                         <WorkoutTodayChart
-                                            stepCount={fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[4].quantity).toFixed(0) : 0}
+                                            stepCount={fitnessData.steps !== undefined && fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[4].quantity).toFixed(0) : 0}
                                             calorieCount={parseFloat(fitnessData.calories).toFixed(0)}
                                         />
                                         <CalendarStrip

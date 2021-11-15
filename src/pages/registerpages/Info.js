@@ -13,8 +13,8 @@ const { height, width } = Dimensions.get("window");
 
 const Info = props => {
     console.log('props: ', props.route.params)
-    const userData = props.route.params?.userData !== undefined ? props.route.params.userData : useSelector(state => state.user.users);
-    const userId = props.route.params?.uid !== undefined ? props.route.params.uid : useSelector(state => state.user.users.userId);
+    const userData = props.route.params?.userData !== undefined ? props.route.params.userData : useSelector(state => state.authReducer.currentUser);
+    const userId = props.route.params?.uid !== undefined ? props.route.params.uid : useSelector(state => state.authReducer.currentUser.userId);
 
     const [Loading, setLoading] = useState(false);
 

@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
-import * as actions from '../../redux/actions/profile';
+import * as actions from '../../redux/actions/auth';
 import { database, auth } from '../../config/config';
 
 const { height, width } = Dimensions.get("window");
@@ -15,7 +15,7 @@ const HedefAyarlari = props => {
 
     const dispatch = useDispatch();
 
-    const userData = useSelector(state => state.user.users);
+    const userData = useSelector(state => state.authReducer.currentUser);
     const userId = auth().currentUser.email;
 
     const [UserTarget, setUserTarget] = useState(null);

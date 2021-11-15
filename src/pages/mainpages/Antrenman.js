@@ -17,8 +17,8 @@ import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert'
 const { height, width } = Dimensions.get("window");
 
 const Antrenman = ({ navigation }) => {
-    const profileData = useSelector(state => state.user.users);
-    const fitnessData = useSelector(state => state.health.health);
+    const profileData = useSelector(state => state.authReducer.currentUser);
+    const fitnessData = useSelector(state => state.healthReducer.health);
 
     const [Loading, setLoading] = useState(true);
     const [SaveLoading, setSaveLoading] = useState(false);

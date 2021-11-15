@@ -14,7 +14,7 @@ const TestList = props => {
 
     const [Loading, setLoading] = useState(true);
     const [Testler, setTestler] = useState([]);
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
 
     const GetTestData = async () => {
         let exList = [];

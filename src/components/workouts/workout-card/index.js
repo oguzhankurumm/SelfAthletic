@@ -7,7 +7,6 @@ import moment from 'moment';
 
 const WorkoutCard = ({ data, navigation }) => {
     const isCompleted = data.item.completed
-
     return (
         <ImageBackground source={{ uri: data.item.workout[0].videoData.thumb }} style={{ height: 250, width: '100%', marginTop: 10 }} imageStyle={{ borderRadius: 12 }} >
             <LinearGradient

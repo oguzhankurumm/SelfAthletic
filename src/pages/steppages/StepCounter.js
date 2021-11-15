@@ -11,7 +11,7 @@ const { height, width } = Dimensions.get("window");
 const StepCounter = ({ props, navigation }) => {
 
     const [Loading, setLoading] = useState(true);
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
     const [Steps, setSteps] = useState(null);
 
     useEffect(() => {

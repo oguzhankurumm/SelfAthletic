@@ -14,7 +14,7 @@ const { height, width } = Dimensions.get("window");
 const BildirimAyarlari = ({ navigation }) => {
     moment.locale('tr');
 
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
 
     const [Water, setWater] = useState(profileData.settings?.water !== undefined ? profileData.settings.water : false);
     const [Food, setFood] = useState(profileData.settings?.food !== undefined ? profileData.settings.food : false);

@@ -1,6 +1,4 @@
-export const FETCH_NOTIFICATIONS = 'FETCH_NOTIFICATIONS';
-export const DELETE_NOTIFICATION = 'DELETE_NOTIFICATION';
-export const DELETE_ALL_NOTIFICATIONS = 'DELETE_ALL_NOTIFICATIONS';
+import { FETCH_NOTIFICATIONS, DELETE_NOTIFICATION, DELETE_ALL_NOTIFICATIONS } from '../contants';
 import axios from 'axios';
 // import PushNotificationIOS from "@react-native-community/push-notification-ios";
 // var PushNotification = require("react-native-push-notification");

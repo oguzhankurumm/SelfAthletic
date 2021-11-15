@@ -12,7 +12,7 @@ import Modal from 'react-native-modal';
 const { height, width } = Dimensions.get("window");
 
 const OlcumGecmisi = ({ navigation }) => {
-    const userData = useSelector(state => state.user.users);
+    const userData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(true);
 
     const [OlcumList, setOlcumList] = useState([]);

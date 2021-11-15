@@ -12,7 +12,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 const { height, width } = Dimensions.get("window");
 
 const SendPost = props => {
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
 
     const [Loading, setLoading] = useState(false);
     const [myText, setmyText] = useState("");

@@ -16,7 +16,7 @@ import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert';
 const { height, width } = Dimensions.get("window");
 
 const Food = ({ navigation }) => {
-    const profileData = useSelector(state => state.user.users);
+    const profileData = useSelector(state => state.authReducer.currentUser);
 
     const [Loading, setLoading] = useState(true);
     const [SaveLoading, setSaveLoading] = useState(false);
