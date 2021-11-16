@@ -16,9 +16,8 @@ import styles from './style';
 
 const Workout = ({ navigation }) => {
     const profileData = useSelector(state => state.authReducer.currentUser);
-    const userTarget = profileData.values.target;
-    const fitnessData = useSelector(state => state.healthReducer.health);
-    const [Loading, setLoading] = useState(false);
+    const fitnessData = useSelector(state => state.healthReducer);
+    const [Loading, setLoading] = useState(true);
     const [WorkoutList, setWorkoutList] = useState([]);
 
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
@@ -30,7 +29,6 @@ const Workout = ({ navigation }) => {
     }, [])
 
     const checkWorkouts = async () => {
-        setLoading(true);
         const date = moment().format('DD-MM-YYYY');
         const workouts = await firestore().collection('users').doc(profileData.userId).collection('workouts').where('date', '==', date).get();
         if (!workouts.empty) {
@@ -115,14 +113,14 @@ const Workout = ({ navigation }) => {
 
                 let description = "-"
 
-                switch (userTarget) {
-                    case "Kas Kütlesi Artışı":
+                switch (profileData.values.target) {
+                    case 1:
                         description = "Dizayn edilen bu antrenman programı mevcut kas kütlesi ve kuvvetin geliştirilmesini sağlamaktadır. Programlamada yer alan egzersizlerin sıralaması maksimum oranda kas kütlesi gelişiminin sağlanması için bir gün tamamen üst vücut egzersizlerinden oluşurken, diğer gün tamamen alt vücut egzersizlerinden oluşmaktadır.";
                         break;
-                    case "Yağ Oranı Azaltma":
+                    case -1:
                         description = "Metabolik olarak daha hızlı ve daha ince bir görünüşe sahip olmak için dizayn edilen bu programda yağ oranınız azalırken aynı zamanda daha fonksiyonel ve fit bir fiziksel yapıya da sahip olacaksınız.";
                         break;
-                    case "Formda Kalma":
+                    case 0:
                         description = "Daha sıkı ve atletik bir fiziksel görünüm kazanmanız için dizayn edilen bu antrenman programı, mevcut yağ oranınız düşmesini sağlarken, aynı zamanda da daha kuvvetli ve dayanıklı olmanızı sağlayacaktır.";
                         break;
                     default:
@@ -166,15 +164,15 @@ const Workout = ({ navigation }) => {
         const gender = profileData.gender === "male" ? "Erkek" : "Kadin";
 
         const targetData = () => {
-            if (userTarget === "Kas Kütlesi Artışı" && profilePoint < 10000) return { variable: increaseMuscle10kVariables, data: increaseMuscle10k };
-            if (userTarget === "Kas Kütlesi Artışı" && profilePoint >= 10000 && profilePoint < 15000) return { variable: increaseMuscle15kVariables, data: increaseMuscle15k };
-            if (userTarget === "Kas Kütlesi Artışı" && profilePoint >= 15000) return { variable: increaseMuscle20kVariables, data: increaseMuscle20k };
-            if (userTarget === "Formda Kalma" && profilePoint < 10000) return { variable: keepingFit10kVariables, data: keepingFit10k };
-            if (userTarget === "Formda Kalma" && profilePoint >= 10000 && profilePoint < 15000) return { variable: keepingFit15kVariables, data: keepingFit15k };
-            if (userTarget === "Formda Kalma" && profilePoint >= 15000) return { variable: keepingFit20kVariables, data: keepingFit20k };
-            if (userTarget === "Yağ Oranı Azaltma" && profilePoint < 10000) return { variable: fatReduction10kVariables, data: fatReduction10k };
-            if (userTarget === "Yağ Oranı Azaltma" && profilePoint >= 10000 && profilePoint < 15000) return { variable: fatReduction15kVariables, data: fatReduction15k };
-            if (userTarget === "Yağ Oranı Azaltma" && profilePoint >= 15000) return { variable: fatReduction20kVariables, data: fatReduction20k };
+            if (profileData.values.target === 1 && profilePoint < 10000) return { variable: increaseMuscle10kVariables, data: increaseMuscle10k };
+            if (profileData.values.target === 1 && profilePoint >= 10000 && profilePoint < 15000) return { variable: increaseMuscle15kVariables, data: increaseMuscle15k };
+            if (profileData.values.target === 1 && profilePoint >= 15000) return { variable: increaseMuscle20kVariables, data: increaseMuscle20k };
+            if (profileData.values.target === 0 && profilePoint < 10000) return { variable: keepingFit10kVariables, data: keepingFit10k };
+            if (profileData.values.target === 0 && profilePoint >= 10000 && profilePoint < 15000) return { variable: keepingFit15kVariables, data: keepingFit15k };
+            if (profileData.values.target === 0 && profilePoint >= 15000) return { variable: keepingFit20kVariables, data: keepingFit20k };
+            if (profileData.values.target === -1 && profilePoint < 10000) return { variable: fatReduction10kVariables, data: fatReduction10k };
+            if (profileData.values.target === -1 && profilePoint >= 10000 && profilePoint < 15000) return { variable: fatReduction15kVariables, data: fatReduction15k };
+            if (profileData.values.target === -1 && profilePoint >= 15000) return { variable: fatReduction20kVariables, data: fatReduction20k };
         }
 
         try {
@@ -230,7 +228,7 @@ const Workout = ({ navigation }) => {
                                     <>
                                         <WorkoutTodayChart
                                             stepCount={fitnessData.steps !== undefined && fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[4].quantity).toFixed(0) : 0}
-                                            calorieCount={parseFloat(fitnessData.calories).toFixed(0)}
+                                            calorieCount={parseFloat(fitnessData.totalCalories).toFixed(0)}
                                         />
                                         <CalendarStrip
                                             scrollable={true}

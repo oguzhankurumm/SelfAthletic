@@ -28,9 +28,9 @@ const HedefAyarlari = props => {
     const [SelectedPage, setSelectedPage] = useState(1);
     const [TotalPage, setTotalPage] = useState(2);
     const [Target, setTarget] = useState([
-        { value: "Yağ Oranı Azaltma", checked: false },
-        { value: "Formda Kalma", checked: false },
-        { value: "Kas Kütlesi Artışı", checked: false }
+        { name: "Yağ Oranı Azaltma", value: -1, checked: false },
+        { name: "Formda Kalma", value: 0, checked: false },
+        { name: "Kas Kütlesi Artışı", value: 1, checked: false }
     ]);
     const [Aktiflik, setAktiflik] = useState([
         { value: "Kısmen Aktif\n(Masa başı iş/ haftada 1-2 gün hareket)", deger: 1.1, checked: false },
@@ -56,7 +56,7 @@ const HedefAyarlari = props => {
         if (profileData.questions?.target !== undefined) {
             const newValue = Target.map((checkbox, i) => {
 
-                if (checkbox.value === profileData.questions.target) {
+                if (checkbox.value === profileData.values.target) {
                     const item = {
                         ...checkbox,
                         checked: !checkbox.checked,
@@ -124,7 +124,7 @@ const HedefAyarlari = props => {
                                         setUserTarget(targetCheck[0].value);
                                         setSelectedPage(SelectedPage + 1);
 
-                                        if (targetCheck[0].value === "Yağ Oranı Azaltma") {
+                                        if (targetCheck[0].value === -1) {
                                             setProgram("Dengeli");
                                         } else {
                                             setProgram("");

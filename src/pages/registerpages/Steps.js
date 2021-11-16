@@ -33,35 +33,35 @@ const Steps = props => {
     const [SelectedPage, setSelectedPage] = useState(1);
     const [TotalPage, setTotalPage] = useState(5);
     const [Target, setTarget] = useState([
-        { value: "Yağ Oranı Azaltma", checked: false },
-        { value: "Formda Kalma", checked: false },
-        { value: "Kas Kütlesi Artışı", checked: false }
+        { name: "Yağ Oranı Azaltma", value: -1, checked: false },
+        { name: "Formda Kalma", value: 0, checked: false },
+        { name: "Kas Kütlesi Artışı", value: 1, checked: false }
     ]);
     const [HealthProblems, setHealthProblems] = useState([
-        { value: "Diyabet/İnsülin Direnci", checked: false },
-        { value: "Yüksek Tansiyon", checked: false },
-        { value: "Tiroid", checked: false },
-        { value: "Kalp-Damar Hastalıkları", checked: false },
-        { value: "Hiçbiri", checked: false }
+        { value, name: "Diyabet/İnsülin Direnci", checked: false },
+        { value, name: "Yüksek Tansiyon", checked: false },
+        { value, name: "Tiroid", checked: false },
+        { value, name: "Kalp-Damar Hastalıkları", checked: false },
+        { value, name: "Hiçbiri", checked: false }
     ]);
     const [CronicProblems, setCronicProblems] = useState([
-        { value: "Ayak Bileği", checked: false },
-        { value: "Diz", checked: false },
-        { value: "Kalça", checked: false },
-        { value: "Bel", checked: false },
-        { value: "Omuz / Boyun", checked: false },
-        { value: "Hiçbiri", checked: false }
+        { value, name: "Ayak Bileği", checked: false },
+        { value, name: "Diz", checked: false },
+        { value, name: "Kalça", checked: false },
+        { value, name: "Bel", checked: false },
+        { value, name: "Omuz / Boyun", checked: false },
+        { value, name: "Hiçbiri", checked: false }
     ]);
     const [Nutrition, setNutrition] = useState([
-        { value: "Normal", checked: false },
-        { value: "Vejetaryen", checked: false }
+        { value, name: "Normal", checked: false },
+        { value, name: "Vejetaryen", checked: false }
     ]);
     const [Aktiflik, setAktiflik] = useState([
-        { value: "Kısmen Aktif\n(Masa başı iş/ haftada 1-2 gün hareket)", deger: 1.1, checked: false },
-        { value: "Yeterince Aktif\n(Haftada 3 gün düzenli hareket)", deger: 1.2, checked: false },
-        { value: "Çok Aktif\n(Haftada 4-5 gün hareket)", deger: 1.3, checked: false },
-        { value: "Ağır Düzeyde Aktif\n(Haftada 6-7 gün aktif)", deger: 1.4, checked: false },
-        { value: "Ekstra Aktif\n(Günde 2 kez spor yapan)", deger: 1.5, checked: false },
+        { value, name: "Kısmen Aktif\n(Masa başı iş/ haftada 1-2 gün hareket)", deger: 1.1, checked: false },
+        { value, name: "Yeterince Aktif\n(Haftada 3 gün düzenli hareket)", deger: 1.2, checked: false },
+        { value, name: "Çok Aktif\n(Haftada 4-5 gün hareket)", deger: 1.3, checked: false },
+        { value, name: "Ağır Düzeyde Aktif\n(Haftada 6-7 gün aktif)", deger: 1.4, checked: false },
+        { value, name: "Ekstra Aktif\n(Günde 2 kez spor yapan)", deger: 1.5, checked: false },
     ]);
 
     const CalculateAge = () => {
@@ -322,7 +322,7 @@ const Steps = props => {
                                         }}
                                         key={index}
                                         style={{ marginTop: 20, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
-                                        <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.value}</Text>
+                                        <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.name}</Text>
                                     </TouchableOpacity>
                                 )
                             })}
@@ -362,7 +362,7 @@ const Steps = props => {
                                         }}
                                         key={index}
                                         style={{ marginTop: 20, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
-                                        <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.value}</Text>
+                                        <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.name}</Text>
                                     </TouchableOpacity>
                                 )
                             })}
@@ -372,7 +372,7 @@ const Steps = props => {
                     {SelectedPage === 3 &&
                         <>
                             <View style={{ width: '100%', paddingHorizontal: 20 }}>
-                                <Text style={[styles.headerText, { fontSize: 20, fontWeight: 'bold', textAlign: 'center' }]}>Herhangi bir kronik ağrınız var mı?</Text>
+                                <Text style={[styles.headerText, { fontSize: 20, fontWeight: 'bold', textAlign: 'center' }]}>Herhangi bir eklem ağrınız var mı?</Text>
                             </View>
 
                             {CronicProblems.map((item, index) => {
@@ -402,7 +402,7 @@ const Steps = props => {
                                         }}
                                         key={index}
                                         style={{ marginTop: 20, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
-                                        <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.value}</Text>
+                                        <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.name}</Text>
                                     </TouchableOpacity>
                                 )
                             })}
@@ -442,7 +442,7 @@ const Steps = props => {
                                         }}
                                         key={index}
                                         style={{ marginTop: 20, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
-                                        <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.value}</Text>
+                                        <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.name}</Text>
                                     </TouchableOpacity>
                                 )
                             })}
@@ -482,7 +482,7 @@ const Steps = props => {
                                         }}
                                         key={index}
                                         style={{ marginTop: 20, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
-                                        <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.value}</Text>
+                                        <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.name}</Text>
                                     </TouchableOpacity>
                                 )
                             })}

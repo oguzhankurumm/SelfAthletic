@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
-import { database } from '../../config/config';
+import { database, firestore, auth } from '../../config/config';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';

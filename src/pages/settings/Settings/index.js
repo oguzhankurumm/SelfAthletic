@@ -51,10 +51,11 @@ const Settings = ({ navigation }) => {
             </SCLAlert>
 
             <View style={{ paddingHorizontal: 20 }}>
-                <SettingsCard title="Kişisel Bilgiler" icon="keyboard-arrow-right" onPress={() => navigation.navigate('KisiselBilgiler')} />
+                <SettingsCard title="Kişisel Bilgiler" icon="keyboard-arrow-right" onPress={() => navigation.navigate('PersonalSettings')} />
+                <SettingsCard title="Antrenman Günleri" icon="keyboard-arrow-right" onPress={() => navigation.navigate('WorkoutDays')} />
                 <SettingsCard title="Hedef Ayarları" icon="keyboard-arrow-right" onPress={() => navigation.navigate('HedefAyarlari')} />
-                <SettingsCard title="Sağlık Sorunları" icon="keyboard-arrow-right" onPress={() => navigation.navigate('SaglikSorunlari')} />
-                <SettingsCard title="Antrenman Günleri" icon="keyboard-arrow-right" onPress={() => navigation.navigate('AntrenmanGunleri')} />
+                <SettingsCard title="Sağlık Sorunları" icon="keyboard-arrow-right" onPress={() => navigation.navigate('HealthProblems')} />
+                <SettingsCard title="Eklem Ağrıları" icon="keyboard-arrow-right" onPress={() => navigation.navigate('CronicProblems')} />
                 <SettingsCard title="Çıkış Yap" icon="lock-outline" onPress={() => setShowWarning(true)} />
             </View>
         </ImageLayout>

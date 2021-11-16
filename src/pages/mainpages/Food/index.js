@@ -611,7 +611,7 @@ const Food = ({ navigation }) => {
 
         //algoritmadan gelecek olan besin degerleri
 
-        if (Target === "Kas Kütlesi Artışı") {
+        if (Target === 1) {
             await database().ref(`algorithm/kaskutlesiartisi/${enerji}`).once('value')
                 .then((snapshot) => {
                     snapshot.forEach((item) => {
@@ -659,7 +659,7 @@ const Food = ({ navigation }) => {
             }
         }
 
-        if (Target === "Formda Kalma") {
+        if (Target === 0) {
             await database().ref(`algorithm/formdakalma/${enerji}`).once('value')
                 .then((snapshot) => {
                     snapshot.forEach((item) => {
@@ -707,7 +707,7 @@ const Food = ({ navigation }) => {
             }
         }
 
-        if (Target === "Yağ Oranı Azaltma") {
+        if (Target === -1) {
             await database().ref(`algorithm/dengeli/${enerji}`).once('value')
                 .then((snapshot) => {
                     console.log('snap: ', snapshot.val())

@@ -87,7 +87,7 @@ const Notifications = props => {
                                         <NotificationList
                                             key={i}
                                             body={bildirim.item.body}
-                                            time={String(moment(bildirim.item.timestamp, "DD/MM/YYYY HH:mm:ss").format("lll"))}
+                                            time={String(moment(bildirim.item.timestamp, "DD/MM/YYYYTHH:mm:ss").format("lll"))}
                                         />
                                     );
                                 }}

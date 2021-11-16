@@ -6,7 +6,7 @@ import styles from './style';
 import moment from 'moment';
 
 const WorkoutCard = ({ data, navigation }) => {
-    const isCompleted = data.item.completed
+    const isCompleted = data.item.completed;
     return (
         <ImageBackground source={{ uri: data.item.workout[0].videoData.thumb }} style={{ height: 250, width: '100%', marginTop: 10 }} imageStyle={{ borderRadius: 12 }} >
             <LinearGradient
@@ -33,17 +33,17 @@ const WorkoutCard = ({ data, navigation }) => {
                 <View style={styles.viewContainer}>
                     <View style={styles.iconContainer}>
                         <Icon name="timer" color="#FFF" size={20} />
-                        <Text style={styles.bottomIconText}>{moment.utc(data.item.duration * 1000).format('mm:ss')} (ort.)</Text>
+                        <Text style={styles.bottomIconText}>{moment.utc(data.item.duration * 1000).format('mm:ss')}</Text>
                     </View>
 
                     <View style={styles.iconContainer}>
                         <Icon name="directions-run" color="#FFF" size={20} />
-                        <Text style={styles.bottomIconText}>{data.item.kcal} kcal (ort.)</Text>
+                        <Text style={styles.bottomIconText}>{data.item.kcal} kcal</Text>
                     </View>
 
                     <View style={styles.iconContainer}>
                         <Icon name="star" color="#FFF" size={20} />
-                        <Text style={styles.bottomIconText}>{data.item.point} (ort.)</Text>
+                        <Text style={styles.bottomIconText}>{data.item.point}</Text>
                     </View>
                 </View>
             </Pressable>

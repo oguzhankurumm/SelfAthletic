@@ -9,7 +9,7 @@ import WodCard from '../../../components/wod-card';
 const Home = () => {
     const homeData = useSelector(state => state.homeReducer);
     const Loading = useSelector(state => state.homeReducer.loading)
-    const fitnessData = useSelector(state => state.healthReducer.health);
+    const fitnessData = useSelector(state => state.healthReducer);
 
     const CheckPermissions = async () => {
         const authStatus = await messaging().requestPermission();

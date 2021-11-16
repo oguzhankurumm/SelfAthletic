@@ -5,7 +5,8 @@ import WorkoutListCard from '../../../components/workouts/workout-list-card';
 import styles from './style';
 
 const WorkoutDetails = (props) => {
-    const data = props.route.params.data.workout;
+    const data = props.route.params.data;
+    console.log('data:', data.workout)
     return (
         <ImageLayout
             title="Antrenman Listesi"
@@ -13,13 +14,13 @@ const WorkoutDetails = (props) => {
             showBack
             isScrollable={false}
         >
-            {data.length > 0 &&
+            {data.workout.length > 0 &&
                 <SafeAreaView style={{ flex: 1 }}>
                     <FlatList
                         style={{ flex: 1, paddingHorizontal: 20 }}
                         scrollEnabled={true}
                         contentContainerStyle={{ paddingBottom: 20 }}
-                        data={Object.values(data)}
+                        data={Object.values(data.workout)}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={(workouts) => {
                             return (

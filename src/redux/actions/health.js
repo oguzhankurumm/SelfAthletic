@@ -1,7 +1,7 @@
 import Fitness from '@ovalmoney/react-native-fitness';
 import moment from 'moment';
 import { firestore, auth } from '../../config/config';
-import { FETCH_HEALTH } from '../contants';
+import { FETCH_HEALTH, ADD_CALORIE } from '../contants';
 
 export const fetchHealth = () => {
     const permissions = [
@@ -36,7 +36,6 @@ export const fetchHealth = () => {
 
                 var convertStartdate = moment().subtract(7, 'days').local().toDate();
                 var convertEndDate = moment().toDate();
-
                 await Fitness.getSteps({
                     startDate: convertStartdate, // required
                     endDate: convertEndDate, // required
@@ -49,7 +48,7 @@ export const fetchHealth = () => {
                         TotalSteps = sum;
                     }
                 });
-                dispatch({ type: FETCH_HEALTH, health: { steps: Data.Steps, totalSteps: TotalSteps, calories: totalCalories } })
+                dispatch({ type: FETCH_HEALTH, steps: Data.Steps, totalSteps: TotalSteps, totalCalories: totalCalories })
             }).catch((error) => {
                 console.log('hata: ', error)
                 //   // Do something
@@ -57,3 +56,8 @@ export const fetchHealth = () => {
     }
 }
 
+export const addCalorie = (value) => {
+    return async dispatch => {
+        dispatch({ type: ADD_CALORIE, value: parseInt(value) })
+    }
+}

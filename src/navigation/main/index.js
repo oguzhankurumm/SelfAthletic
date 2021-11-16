@@ -11,7 +11,7 @@ import AntrenmanList from '../../pages/profilepages/AntrenmanList';
 import FoodLib from '../../pages/mainpages/FoodLib';
 import WorkoutLib from '../../pages/mainpages/WorkoutLib';
 import AddNewPost from '../../components/newPost/AddNewPost';
-import Profile from '../../pages/profilepages/Profile';
+import Profile from '../../pages/mainpages/Profile';
 import WorkoutDetails from '../../pages/workoutspages/WorkoutDetails';
 import SliderDetails from '../../pages/workoutspages/SliderDetails';
 import WorkoutVideo from '../../pages/workoutspages/WorkoutVideo';
@@ -20,16 +20,15 @@ import Calories from '../../pages/caloriespages/Calories';
 import StepCounter from '../../pages/steppages/StepCounter';
 import Premium from '../../pages/profilepages/Premium';
 import Notifications from '../../pages/profilepages/Notifications';
-import Settings from '../../pages/profilepages/Settings';
+import Settings from '../../pages/settings/Settings';
 import BildirimAyarlari from '../../pages/settings/BildirimAyarlari';
-import KisiselBilgiler from '../../pages/settings/KisiselBilgiler';
 import FavoritedWorkouts from '../../pages/profilepages/FavoritedWorkouts';
 import FavoritedFoods from '../../pages/profilepages/FavoritedFoods';
 import Steps from '../../pages/registerpages/Steps';
 import Info from '../../pages/registerpages/Info';
-import SaglikSorunlari from '../../pages/settings/SaglikSorunlari';
+import HealthProblems from '../../pages/settings/HealthProblems';
 import HedefAyarlari from '../../pages/settings/HedefAyarlari';
-import AntrenmanGunleri from '../../pages/settings/AntrenmanGunleri';
+import WorkoutDays from '../../pages/settings/WorkoutDays';
 import MoveThumb from '../../pages/workoutspages/MoveThumb';
 import TestList from '../../pages/profilepages/TestList';
 import Testler from '../../pages/profilepages/Testler';
@@ -43,7 +42,8 @@ import StartWorkout from '../../pages/workoutspages/StartWorkout';
 import EndWorkout from '../../pages/workoutspages/EndWorkout';
 import WorkoutCompleted from '../../pages/workoutspages/WorkoutCompleted';
 import HomeScreen from '../home';
-import { auth } from '../../config/config';
+import CronicProblems from '../../pages/settings/CronicProblems';
+import PersonalSettings from '../../pages/settings/Personal';
 
 const Stack = createStackNavigator();
 
@@ -166,7 +166,7 @@ export default function Route() {
                                 headerTintColor: '#000'
                             }}
                         />
-                        <Stack.Screen name="KisiselBilgiler" component={KisiselBilgiler}
+                        <Stack.Screen name="PersonalSettings" component={PersonalSettings}
                             options={{
                                 title: 'Kişisel Bilgiler',
                                 headerShown: false,
@@ -174,9 +174,17 @@ export default function Route() {
                                 headerTintColor: '#000'
                             }}
                         />
-                        <Stack.Screen name="SaglikSorunlari" component={SaglikSorunlari}
+                        <Stack.Screen name="HealthProblems" component={HealthProblems}
                             options={{
                                 title: 'Sağlık Sorunları',
+                                headerShown: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: '#000'
+                            }}
+                        />
+                        <Stack.Screen name="CronicProblems" component={CronicProblems}
+                            options={{
+                                title: 'Eklem Ağrıları',
                                 headerShown: false,
                                 headerBackTitleVisible: false,
                                 headerTintColor: '#000'
@@ -190,7 +198,7 @@ export default function Route() {
                                 headerTintColor: '#000'
                             }}
                         />
-                        <Stack.Screen name="AntrenmanGunleri" component={AntrenmanGunleri}
+                        <Stack.Screen name="WorkoutDays" component={WorkoutDays}
                             options={{
                                 title: 'Antrenman Günleri',
                                 headerShown: false,

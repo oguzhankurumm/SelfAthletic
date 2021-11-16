@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import { View, Text, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
-import { database } from '../../../config/config';
+import { firestore, auth } from '../../../config/config';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
@@ -25,13 +25,13 @@ const { height, width } = Dimensions.get("window");
 
 const Profile = ({ navigation }) => {
     const [Loading, setLoading] = useState(false);
-    const [AllLoading, setAllLoading] = useState(false)
+    const [AllLoading, setAllLoading] = useState(true);
     const profileData = useSelector(state => state.authReducer.currentUser);
     const [SelectedPage, setSelectedPage] = useState(0);
-    const [AktifGun, setAktifGun] = useState(0);
     const [EgzersizList, setEgzersizList] = useState([]);
     const [FoodList, setFoodList] = useState([]);
-    const [TamamlananCount, setTamamlananCount] = useState(0);
+    const [CompletedFoods, setCompletedFoods] = useState(0);
+    const [CompletedWorkouts, setCompletedWorkouts] = useState(0);
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
 
     const [BestDay, setBestDay] = useState("")
@@ -73,104 +73,46 @@ const Profile = ({ navigation }) => {
         }
     }
 
-    const getMyWorkouts = async () => {
-        let egzList = [];
-        let completedList = [];
-        let foodList = [];
+    const CalculateCompleteds = async () => {
+        try {
+            const workoutsRes = await firestore().collection('users').doc(profileData.email).collection('workouts').where("completed", "==", true).get()
+            const foodsRes = await firestore().collection('users').doc(profileData.email).collection('foods').where("completed", "==", true).get()
+            if (!workoutsRes.empty) {
+                workoutsRes.docs.length > 0 ? setCompletedWorkouts(workoutsRes.docs.length) : setCompletedWorkouts(0)
+                const docs = workoutsRes.docs.map(doc => {
+                    return { ...doc.data(), id: doc.id, date: moment(doc.data().date, "DD-MM-YYYY").format("YYYY-MM-DD"), type: 'workout', disabled: false }
+                })
+                let workout = { key: 'workout', color: 'yellow' };
 
-        await database().ref('users/' + profileData.userId + '/workouts').once('value')
-            .then(snapshot => {
-                if (snapshot.val() !== null) {
-                    snapshot.forEach((item) => {
-                        egzList.push({
-                            ...item.val(),
-                            id: item.key,
-                            date: moment(item.key, "DD-MM-YYYY").format("YYYY-MM-DD"),
-                            type: 'workout'
-                        });
+                let groups = {};
 
-                        let completed = 0;
-                        let total = 0;
-
-                        Object.values(item.val().moves).forEach((wrk) => {
-                            wrk.calorie !== undefined && wrk.calorie !== "NaN" ? total += parseFloat(wrk.calorie) : 0
-                        })
-
-                        completedList.push({
-                            ...item.val(),
-                            date: item.key,
-                            isCompleted: completed,
-                            total: parseFloat(total)
-                        })
-                    })
-
-                    if (completedList.length >= 1) {
-                        const userBestDay = completedList.sort((a, b) => String(b.total).toLowerCase().localeCompare(String(a.total).toLowerCase()))
-                        setBestDay(moment(userBestDay[0].date, "DD-MM-YYYY").format("LL"));
-                    }
-                    setTamamlananCount(completedList.length)
-                    setEgzersizList(egzList);
-
+                if (docs.length > 0) {
+                    docs.forEach(function (o, i) {
+                        var dataObj = { ...o.type === 'workout' ? workout : food, disabled: false }
+                        if (groups[o.date]) {
+                            groups[o.date]['dots'].push(dataObj);
+                        } else {
+                            groups[o.date] = { title: o.date, dots: [dataObj], disabled: false };
+                        }
+                    });
 
                 }
-            })
-            .catch(err => {
-                console.log('HATA:', err)
-            })
-
-        await database().ref('users/' + profileData.userId + '/foods').once('value')
-            .then(snapshot => {
-                if (snapshot.val() !== null) {
-                    snapshot.forEach((fd) => {
-                        foodList.push({
-                            ...fd.val(),
-                            id: fd.key,
-                            date: moment(fd.key, "DD-MM-YYYY").format("YYYY-MM-DD"),
-                            type: 'food'
-                        });
-                    })
+                console.log({ groups })
+                setmarkedDatesArray(groups);
+                setAllLoading(false);
+            }
+            if (!foodsRes.empty) {
+                foodsRes.docs.length > 0 ? setCompletedFoods(foodsRes.docs.length) : setCompletedFoods(0)
+            }
 
 
-                    setFoodList(foodList);
-
-                }
-            })
-            .catch(err => {
-                console.log('FOOD ERR:', err)
-            })
-
-        const mergeResult = [...foodList, ...egzList];
-
-        let food = { key: 'food', color: 'green' };
-        let workout = { key: 'workout', color: 'yellow' };
-
-        let groups = {};
-        var array = Object.keys(mergeResult).map((key) => mergeResult[key])
-
-        if (array.length > 0) {
-            array.forEach(function (o, i) {
-                var dataObj = { ...o.type === 'workout' ? workout : food, disabled: false }
-                if (groups[o.date]) {
-                    groups[o.date]['dots'].push(dataObj);
-                } else {
-                    groups[o.date] = { title: o.date, dots: [dataObj], disabled: false };
-                }
-            });
-
+        } catch (error) {
+            console.log('Hata', error);
         }
-
-        setmarkedDatesArray(groups);
-        setAllLoading(false);
     }
 
-
     useEffect(() => {
-        setAllLoading(true);
-        var start = moment(profileData.registerDate, "DD/MM/YYYY");
-        var end = moment(moment(), "DD/MM/YYYY");
-
-        setAktifGun(parseFloat(moment.duration(end.diff(start)).asDays()).toFixed(0));
-        getMyWorkouts();
+        CalculateCompleteds();
     }, [])
 
     return (
@@ -213,9 +155,9 @@ const Profile = ({ navigation }) => {
 
                     <View style={styles.iconsContainer}>
                         <View style={styles.iconsView}>
-                            <IconCard icon="user" title="Aktif Gün" value={AktifGun !== undefined && AktifGun !== "NaN" ? AktifGun : 0} />
-                            <IconCard icon="clockcircleo" title="Tamamlanan Beslenme" value={TamamlananCount} />
-                            <IconCard icon="Trophy" title="Tamamlanan Egzersiz" value={TamamlananCount} />
+                            <IconCard icon="user" title="Aktif Gün" value={parseFloat(moment.duration(moment().diff(auth().currentUser.metadata.creationTime)).asDays()).toFixed(0)} />
+                            <IconCard icon="clockcircleo" title="Tamamlanan Beslenme" value={CompletedFoods} />
+                            <IconCard icon="Trophy" title="Tamamlanan Egzersiz" value={CompletedWorkouts} />
                         </View>
 
                         <View style={styles.iconsView}>

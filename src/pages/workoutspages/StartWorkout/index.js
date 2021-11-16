@@ -16,7 +16,8 @@ const { width, height } = Dimensions.get("window");
 
 const StartWorkout = (props) => {
     const [Loading, setLoading] = useState(false);
-    const [Workouts, setWorkouts] = useState(props.route.params.data);
+    const Data = props.route.params.data;
+    const [Workouts, setWorkouts] = useState(Data.workout);
     const [TotalKcal, setTotalKcal] = useState(0);
     const [TotalPoint, setTotalPoint] = useState(0);
     const [CurrentSet, setCurrentSet] = useState(1);
@@ -224,7 +225,7 @@ const StartWorkout = (props) => {
                         <Pressable onPress={() => {
                             timerRef.current.pause();
                             props.navigation.navigate('EndWorkout', {
-                                data: Workouts, values: { TotalKcal, TotalPoint, initialTime }
+                                data: Data, workouts: Workouts, values: { TotalKcal, TotalPoint, initialTime }
                             })
                         }}>
                             <Text style={styles.bottomTitle}>Tamamla</Text>

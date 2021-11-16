@@ -15,16 +15,18 @@ const EndWorkout = (props) => {
     const dispatch = useDispatch()
     const profileData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(false);
-    const [DefaultData, setDefaultData] = useState(props.route.params.data);
     const [Data, setData] = useState(props.route.params.data);
+    const [DefaultData, setDefaultData] = useState(props.route.params.workouts);
+    const [Workouts, setWorkouts] = useState(props.route.params.workouts);
     const [Values, setValues] = useState(props.route.params.values);
 
+    console.log({ Data, Workouts })
     const CompleteTraining = async () => {
         setLoading(true);
         let totalPoint = 0;
         let totalKcal = 0;
 
-        Object.values(Data).map(item => {
+        Object.values(Workouts).map(item => {
             if (item.type === "time") {
                 const timePoint = parseFloat(item.values.time) * parseFloat(item.values.set) / 10;
                 totalPoint = parseFloat(totalPoint) + parseFloat(timePoint);
@@ -39,17 +41,18 @@ const EndWorkout = (props) => {
         try {
             const date = moment().format("DD-MM-YYYY");
             const workoutData = {
-                workout: Data,
                 completed: true,
                 date,
+                description: Data.description,
+                duration: Values.initialTime,
                 time: Values.initialTime,
+                kcal: totalKcal,
                 point: totalPoint,
-                kcal: totalKcal
+                workout: Workouts,
             }
             await firestore().collection('users').doc(profileData.userId).collection('workouts').add(workoutData);
             setLoading(false);
-            dispatch(actions.fetchUserData(profileData.email));
-            dispatch(healthActions.fetchHealth());
+            dispatch(healthActions.addCalorie(totalKcal));
             props.navigation.navigate('WorkoutCompleted');
         } catch (error) {
             setLoading(false);
@@ -82,7 +85,7 @@ const EndWorkout = (props) => {
                         showsHorizontalScrollIndicator={false}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ paddingBottom: 80 }}
-                        data={Data}
+                        data={Workouts}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({ item, index }) => {
                             return (
@@ -104,10 +107,10 @@ const EndWorkout = (props) => {
                                                     placeholder={item.type !== 'reps' ? String(item.values.time) : String(item.values.repeat)}
                                                     returnKeyType={"done"}
                                                     onChangeText={(text) => {
-                                                        if (Data[index].type === "reps") {
-                                                            Data[index].values.repeat === text !== "" ? parseFloat(text) : parseFloat(item.values.repeat);
+                                                        if (Workouts[index].type === "reps") {
+                                                            Workouts[index].values.repeat === text !== "" ? parseFloat(text) : parseFloat(item.values.repeat);
                                                         } else {
-                                                            Data[index].values.time = text !== "" ? parseFloat(text) : parseFloat(item.values.time);
+                                                            Workouts[index].values.time = text !== "" ? parseFloat(text) : parseFloat(item.values.time);
                                                         }
                                                     }}
                                                     keyboardType="number-pad"
@@ -128,7 +131,7 @@ const EndWorkout = (props) => {
                                                     placeholder={String(item.values.set)}
                                                     returnKeyType={"done"}
                                                     onChangeText={text => {
-                                                        Data[index].values.set = text !== "" ? parseFloat(text) : parseFloat(item.values.set);
+                                                        Workouts[index].values.set = text !== "" ? parseFloat(text) : parseFloat(item.values.set);
                                                     }}
                                                     keyboardType="decimal-pad"
                                                 />
