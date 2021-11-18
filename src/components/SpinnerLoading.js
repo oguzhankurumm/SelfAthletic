@@ -28,7 +28,7 @@ const SpinnerLoading = (props) => {
                 }}>
                     <LottieView
                         style={{ height: 75, width: 75 }}
-                        source={require("../animations/loading.json")}
+                        source={require("../assets/animations/loading.json")}
                         autoPlay
                         speed={1}
                         loop={true}

@@ -25,12 +25,16 @@ export const getWorkouts = () => dispatch => {
                 const weekCalories = filterArrayBetweenTwoDates.reduce(function (prev, current) {
                     return prev + +parseFloat(current.kcal)
                 }, 0);
+                const totalPoint = workouts.filter(q => q.completed === true).reduce(function (prev, current) {
+                    return prev + +parseFloat(current.point)
+                }, 0);
 
                 dispatch({
                     type: FETCH_WORKOUTS,
                     todayCalories,
                     weekCalories,
                     workouts: workouts,
+                    totalPoint,
                     loading: false
                 })
             }

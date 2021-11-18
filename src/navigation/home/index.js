@@ -2,11 +2,11 @@ import React from 'react'
 import { Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import Home from '../../pages/mainpages/Home';
-import Workout from '../../pages/mainpages/Workout';
-import Feed from '../../pages/mainpages/Feed';
-import Food from '../../pages/mainpages/Food';
-import Profile from '../../pages/mainpages/Profile';
+import Home from '../../screens/mainpages/Home';
+import Workout from '../../screens/mainpages/Workout';
+import Feed from '../../screens/mainpages/Feed';
+import Food from '../../screens/mainpages/Food';
+import Profile from '../../screens/mainpages/Profile';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,7 +21,7 @@ export default function HomeScreen() {
                             <Image
                                 resizeMode="contain"
                                 style={{ height: 28, width: 28, tintColor: color }}
-                                source={require('../../img/anasayfa.png')}
+                                source={require('../../assets/img/anasayfa.png')}
                             />
                         )
                     }
@@ -31,7 +31,7 @@ export default function HomeScreen() {
                             <Image
                                 resizeMode="contain"
                                 style={{ height: 28, width: 28, tintColor: color }}
-                                source={require('../../img/antrenman.png')}
+                                source={require('../../assets/img/antrenman.png')}
                             />
                         )
                     }
@@ -42,7 +42,7 @@ export default function HomeScreen() {
                             <Image
                                 resizeMode="contain"
                                 style={{ height: 28, width: 28, tintColor: color }}
-                                source={require('../../img/beslenme.png')}
+                                source={require('../../assets/img/beslenme.png')}
                             />
                         )
                     }
@@ -52,7 +52,7 @@ export default function HomeScreen() {
                             <Image
                                 resizeMode="contain"
                                 style={{ height: 28, width: 28, tintColor: color }}
-                                source={require('../../img/profilicon.png')}
+                                source={require('../../assets/img/profilicon.png')}
                             />
                         )
                     }
@@ -62,7 +62,7 @@ export default function HomeScreen() {
                             <Image
                                 resizeMode="contain"
                                 style={{ height: 28, width: 28, tintColor: color }}
-                                source={require('../../img/plus.png')}
+                                source={require('../../assets/img/plus.png')}
                             />
                         )
                     }

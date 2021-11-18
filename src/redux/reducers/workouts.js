@@ -13,6 +13,7 @@ const initialState = {
     workouts: [],
     todayCalories: 0,
     weekCalories: 0,
+    totalPoint: 0,
     loading: true,
     errorMsg: ''
 }
@@ -24,6 +25,7 @@ export const workoutsReducer = (state = initialState, action) => {
                 ...state,
                 todayCalories: action.todayCalories,
                 weekCalories: action.weekCalories,
+                totalPoint: action.totalPoint,
                 workouts: action.workouts,
                 loading: action.loading
             };

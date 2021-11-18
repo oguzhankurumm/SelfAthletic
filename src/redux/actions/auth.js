@@ -45,8 +45,7 @@ export const getCurrentUserData = () => dispatch => {
                         ...res.data(),
                         age: age(),
                         userId: auth().currentUser.email,
-                        isPremium: true,
-                        point: 500
+                        isPremium: true
                     },
                     loaded: true
                 })

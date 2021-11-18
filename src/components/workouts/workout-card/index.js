@@ -7,6 +7,7 @@ import moment from 'moment';
 
 const WorkoutCard = ({ data, navigation }) => {
     const isCompleted = data.item.completed;
+    const workoutType = data.item.type === 1 ? "Kas Kütlesi Artışı" : profileData.values.target === -1 ? "Yağ Oranı Azaltma" : "Formda Kalma";
     return (
         <ImageBackground source={{ uri: data.item.workout[0].videoData.thumb }} style={{ height: 250, width: '100%', marginTop: 10 }} imageStyle={{ borderRadius: 12 }} >
             <LinearGradient
@@ -22,11 +23,11 @@ const WorkoutCard = ({ data, navigation }) => {
                 <View style={styles.viewContainer}>
                     <View style={styles.iconContainer}>
                         <Icon name={isCompleted === true ? "check-circle-outline" : "error-outline"} color="#FFF" size={20} />
-                        <Text style={styles.iconText}>{isCompleted ? "Tamamlandı" : "Henüz Tamamlanmadı"}</Text>
+                        <Text style={styles.iconText}>{isCompleted ? "Tamamlandı" : "Tamamlanmadı"}</Text>
                     </View>
                     <View style={styles.iconContainer}>
                         <Icon name="chevron-right" color="#FFF" size={24} />
-                        <Text style={styles.iconText}>{isCompleted ? "Tekrar Yap" : "Hemen Başla"}</Text>
+                        <Text style={styles.iconText}>{workoutType}</Text>
                     </View>
                 </View>
                 <Text style={styles.bannerTitle}>{data.item.description}</Text>

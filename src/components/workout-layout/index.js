@@ -10,7 +10,7 @@ const WorkoutLayout = ({ children, Loading }) => {
         <ImageBackground
             style={{ height: height, width: width }}
             resizeMode="cover"
-            source={require('../../img/bg.jpg')}
+            source={require('../../assets/img/bg.jpg')}
         >
             <StatusBar barStyle="light-content" />
             <SpinnerLoading Loading={Loading} />
