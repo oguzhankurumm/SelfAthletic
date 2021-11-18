@@ -14,7 +14,7 @@ export const fetchHealth = () => {
                 const userEmail = auth().currentUser.email;
                 let totalCalories = 0;
                 try {
-                    const getCalories = await firestore().collection('users').doc(userEmail).collection('workouts').get();
+                    const getCalories = await firestore().collection('users').doc(userEmail).collection('workouts').where('completed', '==', true).get();
                     if (!getCalories.empty) {
                         const calorieRes = getCalories.docs.map(doc => {
                             return {

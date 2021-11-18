@@ -27,7 +27,6 @@ import FavoritedFoods from '../../pages/profilepages/FavoritedFoods';
 import Steps from '../../pages/registerpages/Steps';
 import Info from '../../pages/registerpages/Info';
 import HealthProblems from '../../pages/settings/HealthProblems';
-import HedefAyarlari from '../../pages/settings/HedefAyarlari';
 import WorkoutDays from '../../pages/settings/WorkoutDays';
 import MoveThumb from '../../pages/workoutspages/MoveThumb';
 import TestList from '../../pages/profilepages/TestList';
@@ -44,6 +43,7 @@ import WorkoutCompleted from '../../pages/workoutspages/WorkoutCompleted';
 import HomeScreen from '../home';
 import CronicProblems from '../../pages/settings/CronicProblems';
 import PersonalSettings from '../../pages/settings/Personal';
+import TargetSettings from '../../pages/settings/Target';
 
 const Stack = createStackNavigator();
 
@@ -190,7 +190,7 @@ export default function Route() {
                                 headerTintColor: '#000'
                             }}
                         />
-                        <Stack.Screen name="HedefAyarlari" component={HedefAyarlari}
+                        <Stack.Screen name="TargetSettings" component={TargetSettings}
                             options={{
                                 title: 'Hedef Ayarları',
                                 headerShown: false,

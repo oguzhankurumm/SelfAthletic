@@ -50,9 +50,8 @@ const EndWorkout = (props) => {
                 point: totalPoint,
                 workout: Workouts,
             }
-            await firestore().collection('users').doc(profileData.userId).collection('workouts').add(workoutData);
+            await firestore().collection('users').doc(profileData.userId).collection('workouts').doc(Data.id).update(workoutData);
             setLoading(false);
-            dispatch(healthActions.addCalorie(totalKcal));
             props.navigation.navigate('WorkoutCompleted');
         } catch (error) {
             setLoading(false);

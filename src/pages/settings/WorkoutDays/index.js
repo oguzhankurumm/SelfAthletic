@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { View, Text, Pressable } from 'react-native'
 import ImageLayout from '../../../components/image-layout';
 import { useSelector } from 'react-redux';
@@ -10,13 +10,13 @@ const WorkoutDays = () => {
     const profileData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(false);
     const [Days, setDays] = useState([
-        { name: 'Pazar', value: 0, checked: false },
-        { name: 'Pazartesi', value: 1, checked: false },
-        { name: 'Salı', value: 2, checked: false },
-        { name: 'Çarşamba', value: 3, checked: false },
-        { name: 'Perşembe', value: 4, checked: false },
-        { name: 'Cuma', value: 5, checked: false },
-        { name: 'Cumartesi', value: 6, checked: false },
+        { name: 'Pazar', value: 0, checked: Object.values(profileData?.days).includes(0) },
+        { name: 'Pazartesi', value: 1, checked: Object.values(profileData?.days).includes(1) },
+        { name: 'Salı', value: 2, checked: Object.values(profileData?.days).includes() },
+        { name: 'Çarşamba', value: 3, checked: Object.values(profileData?.days).includes(3) },
+        { name: 'Perşembe', value: 4, checked: Object.values(profileData?.days).includes(4) },
+        { name: 'Cuma', value: 5, checked: Object.values(profileData?.days).includes(5) },
+        { name: 'Cumartesi', value: 6, checked: Object.values(profileData?.days).includes(6) },
     ]);
 
     const showMsg = ({ message, description, type }) => {
@@ -51,28 +51,6 @@ const WorkoutDays = () => {
         }
     }
 
-
-    const checkValues = () => {
-        const currentDays = profileData?.days;
-
-        if (currentDays !== undefined) {
-            const newValue = Days.map(checkbox => {
-                if (checkbox.value === currentDays[0] || checkbox.value === currentDays[1] || checkbox.value === currentDays[2] || checkbox.value === currentDays[3] || checkbox.value === currentDays[4] || checkbox.value === currentDays[5] || checkbox.value === currentDays[6]) {
-                    const item = {
-                        ...checkbox,
-                        checked: !checkbox.checked,
-                    }
-                    return item
-                }
-                return checkbox
-            })
-            setDays(newValue);
-        }
-    }
-
-    useEffect(() => {
-        checkValues();
-    }, [])
 
     return (
         <ImageLayout

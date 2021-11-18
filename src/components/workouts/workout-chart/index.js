@@ -5,9 +5,9 @@ import styles from './style';
 
 const { width, height } = Dimensions.get('window');
 
-const WorkoutTodayChart = ({ calorieCount, stepCount }) => {
+const WorkoutChart = ({ calorieCount, stepCount, days, newStyle }) => {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { ...newStyle }]}>
 
             <View style={{ width: width / 2, justifyContent: 'center', alignItems: 'center' }}>
                 <AnimatedCircularProgress
@@ -19,7 +19,7 @@ const WorkoutTodayChart = ({ calorieCount, stepCount }) => {
                     backgroundColor="#4D4D4D">
                     {(fill) => (
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={styles.headerText}>Bugün</Text>
+                            <Text style={styles.headerText}>{days}</Text>
                             <Text style={styles.circleHeaderText}>{calorieCount}</Text>
                             <Text style={styles.targetHeader}>Kalori</Text>
                         </View>
@@ -37,7 +37,7 @@ const WorkoutTodayChart = ({ calorieCount, stepCount }) => {
                     backgroundColor="#4D4D4D">
                     {(fill) => (
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={styles.headerText}>Bugün</Text>
+                            <Text style={styles.headerText}>{days}</Text>
                             <Text style={styles.circleHeaderText}>{stepCount}</Text>
                             <Text style={styles.targetHeader}>Adım</Text>
                         </View>
@@ -48,4 +48,4 @@ const WorkoutTodayChart = ({ calorieCount, stepCount }) => {
     )
 }
 
-export default WorkoutTodayChart;
+export default WorkoutChart;

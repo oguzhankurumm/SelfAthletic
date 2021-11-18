@@ -18,7 +18,23 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: themeColors.ultraDark,
         marginLeft: 5
-    }
+    },
+    emptyContainer: {
+        width: '100%',
+        height: 250,
+        marginTop: 10,
+        padding: 20,
+        backgroundColor: themeColors.ultraDark,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8
+    },
+    emptyText: {
+        fontFamily: themeFonts.mediumText,
+        fontSize: 15,
+        color: themeColors.white,
+        textAlign: 'center'
+    },
 })
 
 export default styles;

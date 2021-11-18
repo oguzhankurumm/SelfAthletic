@@ -5,11 +5,14 @@ import messaging from '@react-native-firebase/messaging';
 import SliderCard from '../../../components/slider-card';
 import ImageLayout from '../../../components/image-layout';
 import WodCard from '../../../components/wod-card';
+import WorkoutChart from '../../../components/workouts/workout-chart';
+import moment from 'moment';
 
 const Home = () => {
     const homeData = useSelector(state => state.homeReducer);
     const Loading = useSelector(state => state.homeReducer.loading)
     const fitnessData = useSelector(state => state.healthReducer);
+    const weekCalories = useSelector(state => state.workoutsReducer.weekCalories);
 
     const CheckPermissions = async () => {
         const authStatus = await messaging().requestPermission();
@@ -37,6 +40,12 @@ const Home = () => {
         <ImageLayout title="Ana Sayfa" Loading={Loading}>
             <SliderCard data={homeData.sliders} />
             <WodCard data={homeData.wods} />
+            <WorkoutChart
+                days="Bu Hafta"
+                newStyle={{ marginTop: 20 }}
+                stepCount={fitnessData.steps[moment().day()] !== undefined && fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[moment().day()].quantity).toFixed(0) : 0}
+                calorieCount={weekCalories}
+            />
         </ImageLayout>
     )
 }

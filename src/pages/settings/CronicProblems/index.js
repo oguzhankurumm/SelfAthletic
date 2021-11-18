@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { View, Text, Pressable } from 'react-native'
 import ImageLayout from '../../../components/image-layout';
 import { useSelector } from 'react-redux';
@@ -10,12 +10,12 @@ const CronicProblems = () => {
     const profileData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(false);
     const [Problems, setProblems] = useState([
-        { name: "Ayak Bileği", value: "Ayak Bileği", checked: false },
-        { name: "Diz", value: "Diz", checked: false },
-        { name: "Kalça", value: "Kalça", checked: false },
-        { name: "Bel", value: "Bel", checked: false },
-        { name: "Omuz / Boyun", value: "Omuz / Boyun", checked: false },
-        { name: "Hiçbiri", value: "Hiçbiri", checked: false }
+        { name: "Ayak Bileği", value: "Ayak Bileği", checked: Object.values(profileData?.cronicProblems).includes("Ayak Bileği") },
+        { name: "Diz", value: "Diz", checked: Object.values(profileData?.cronicProblems).includes("Diz") },
+        { name: "Kalça", value: "Kalça", checked: Object.values(profileData?.cronicProblems).includes("Kalça") },
+        { name: "Bel", value: "Bel", checked: Object.values(profileData?.cronicProblems).includes("Bel") },
+        { name: "Omuz / Boyun", value: "Omuz / Boyun", checked: Object.values(profileData?.cronicProblems).includes("Omuz / Boyun") },
+        { name: "Hiçbiri", value: "Hiçbiri", checked: Object.values(profileData?.cronicProblems).includes("Hiçbiri") }
     ]);
 
     const showMsg = ({ message, description, type }) => {
@@ -49,29 +49,6 @@ const CronicProblems = () => {
             }
         }
     }
-
-
-    const checkValues = () => {
-        const currentValues = profileData?.cronicProblems;
-
-        if (currentValues !== undefined) {
-            const newValue = Problems.map(checkbox => {
-                if (checkbox.value === currentValues[0] || checkbox.value === currentValues[1] || checkbox.value === currentValues[2] || checkbox.value === currentValues[3] || checkbox.value === currentValues[4] || checkbox.value === currentValues[5] || checkbox.value === currentValues[6]) {
-                    const item = {
-                        ...checkbox,
-                        checked: !checkbox.checked,
-                    }
-                    return item
-                }
-                return checkbox
-            })
-            setProblems(newValue);
-        }
-    }
-
-    useEffect(() => {
-        checkValues();
-    }, [])
 
     return (
         <ImageLayout

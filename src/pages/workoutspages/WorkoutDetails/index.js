@@ -6,7 +6,6 @@ import styles from './style';
 
 const WorkoutDetails = (props) => {
     const data = props.route.params.data;
-    console.log('data:', data.workout)
     return (
         <ImageLayout
             title="Antrenman Listesi"

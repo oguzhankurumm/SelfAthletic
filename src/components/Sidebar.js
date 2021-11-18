@@ -45,6 +45,7 @@ const Sidebar = ({ opened, onClose }) => {
         >
             <SafeAreaView style={styles.safeAreaView}>
                 <SCLAlert
+                    onRequestClose={() => setShowWarning(false)}
                     theme="warning"
                     show={ShowWarning}
                     title="Çıkış Yap"
@@ -234,7 +235,7 @@ const Sidebar = ({ opened, onClose }) => {
                     </TouchableOpacity>
                 </ScrollView>
             </SafeAreaView>
-        </Modal>
+        </Modal >
     )
 }
 

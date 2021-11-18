@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, FlatList, Alert, Pressable, RefreshControl } from 'react-native';
+import { View, Text, FlatList, Alert, Pressable, Dimensions } from 'react-native';
 import { firestore } from '../../../config/config';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import moment from 'moment';
 import 'moment/locale/tr';
-import WorkoutTodayChart from '../../../components/workouts/workout-today-chart';
+import WorkoutChart from '../../../components/workouts/workout-chart';
 import CalendarStrip from 'react-native-calendar-strip';
 import ImageLayout from '../../../components/image-layout';
 import WorkoutCard from '../../../components/workouts/workout-card';
@@ -13,38 +13,53 @@ import { increaseMuscle10k, increaseMuscle15k, increaseMuscle20k, fatReduction10
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from './style';
+import { addWorkout } from '../../../redux/actions/workouts';
+import { showMessage } from 'react-native-flash-message';
+import themeColors from '../../../styles/colors';
 
 const Workout = ({ navigation }) => {
+    const dispatch = useDispatch();
     const profileData = useSelector(state => state.authReducer.currentUser);
     const fitnessData = useSelector(state => state.healthReducer);
-    const [Loading, setLoading] = useState(true);
-    const [WorkoutList, setWorkoutList] = useState([]);
+    const userWorkouts = useSelector(state => state.workoutsReducer.workouts);
+    const todayCalories = useSelector(state => state.workoutsReducer.todayCalories);
+    const Loading = useSelector(state => state.workoutsReducer.loading);
 
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
     const [SelectedDate, setSelectedDate] = useState(moment());
-    const datesBlacklist = [{ start: moment().add(1, 'days'), end: moment().add(10, 'days') }];
 
     useEffect(() => {
         checkWorkouts();
-    }, [])
+        let groups = {};
 
-    const checkWorkouts = async () => {
-        const date = moment().format('DD-MM-YYYY');
-        const workouts = await firestore().collection('users').doc(profileData.userId).collection('workouts').where('date', '==', date).get();
-        if (!workouts.empty) {
-            const allWorkouts = workouts.docs.map(doc => {
-                return {
-                    ...doc.data(),
-                    id: doc.id
+        if (userWorkouts !== undefined && userWorkouts.length > 0) {
+            userWorkouts.map(o => {
+                const date = moment(o.date, 'DD-MM-YYYY').format('YYYY-MM-DD');
+                const isCompleted = o.completed;
+                if (groups[date]) {
+                    groups[date]['dots'].push({ color: isCompleted ? 'yellow' : 'gray' });
+                } else {
+                    groups[date] = { date: new Date(date), dots: [{ color: isCompleted ? 'yellow' : 'gray' }] };
                 }
             });
-            setWorkoutList(allWorkouts);
-            setLoading(false);
-        } else {
-            createWorkout();
+
+            setmarkedDatesArray(Object.keys(groups).map(key => groups[key]));
+        }
+    }, [userWorkouts])
+
+    const checkWorkouts = async () => {
+        const userSelectedDays = profileData.days;
+        const userHaveWorkoutToday = userSelectedDays.includes(moment().day());
+
+        if (userHaveWorkoutToday) {
+            const workout = userWorkouts.find(workout => workout.date === moment().format('DD-MM-YYYY'));
+            const workoutExist = workout ? true : false;
+
+            if (!workoutExist) {
+                createWorkout();
+            }
         }
     }
-
 
     function shuffle(array, number) {
         let currentIndex = array.length, randomIndex;
@@ -55,6 +70,7 @@ const Workout = ({ navigation }) => {
             [array[currentIndex], array[randomIndex]] = [
                 array[randomIndex], array[currentIndex]];
         }
+
         return array.length > 0 ? array.slice(0, number) : array;
     }
 
@@ -141,25 +157,24 @@ const Workout = ({ navigation }) => {
                 const workoutData = [{
                     description,
                     completed: false,
-                    date: moment().format('DD-MM-YYYY'),
+                    date: moment(SelectedDate).format('DD-MM-YYYY'),
                     duration,
                     kcal,
                     point,
                     workout: newMoves
                 }];
 
-                setWorkoutList(workoutData);
-                setLoading(false);
+                dispatch(addWorkout(workoutData));
             })
             .catch(error => {
-                setLoading(false);
+                dispatch({ type: 'ADD_WORKOUT_FAILED', errorMsg: error.message });
                 Alert.alert('Hata', 'Bir hata oluştu, lütfen tekrar deneyin.');
                 console.log('promise error', error)
             })
     }
 
     const createWorkout = async () => {
-        setLoading(true);
+        dispatch({ type: 'ADD_WORKOUT_START' });
         const profilePoint = profileData.point;
         const gender = profileData.gender === "male" ? "Erkek" : "Kadin";
 
@@ -198,12 +213,30 @@ const Workout = ({ navigation }) => {
                     getWorkoutVideos(datas, targetData().variable);
                 })
                 .catch(error => {
-                    setLoading(false);
+                    dispatch({ type: 'ADD_WORKOUT_FAILED', errorMsg: error.message });
                     console.log('promise error', error)
                 })
         } catch (error) {
-            setLoading(false);
-            console.log(error);
+            dispatch({ type: 'ADD_WORKOUT_FAILED', errorMsg: error.message });
+            console.log('hata', error);
+        }
+    }
+
+    const getSelectedDay = (day) => {
+        const userSelectedDays = profileData.days;
+        const userHaveWorkoutToday = userSelectedDays.includes(moment(day).day());
+        if (userHaveWorkoutToday) {
+            setSelectedDate(moment(day));
+        } else {
+            setSelectedDate(moment());
+            showMessage({
+                message: 'Antrenman yok.',
+                description: 'Seçtiğiniz gün için antrenman programınız bulunmamaktadır. Ayarlardan antrenman günlerini değiştirebilirsiniz.',
+                type: 'warning',
+                backgroundColor: themeColors.yellow,
+                color: themeColors.ultraDark,
+                duration: 3000
+            })
         }
     }
 
@@ -214,56 +247,60 @@ const Workout = ({ navigation }) => {
             Loading={Loading}
             isScrollable={true}
         >
-            {!Loading &&
+            {!Loading && userWorkouts !== undefined && userWorkouts.length > 0 &&
                 <FlatList
                     style={{ flex: 1, paddingHorizontal: 20 }}
                     scrollEnabled={false}
                     contentContainerStyle={{ paddingBottom: 100 }}
-                    data={WorkoutList}
+                    data={userWorkouts.filter(q => q.date === moment(SelectedDate).format('DD-MM-YYYY'))}
                     keyExtractor={(item, index) => index.toString()}
                     ListHeaderComponent={() => (
                         <>
                             <View style={{ width: '100%' }}>
-                                {!Loading &&
-                                    <>
-                                        <WorkoutTodayChart
-                                            stepCount={fitnessData.steps !== undefined && fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[4].quantity).toFixed(0) : 0}
-                                            calorieCount={parseFloat(fitnessData.totalCalories).toFixed(0)}
-                                        />
-                                        <CalendarStrip
-                                            scrollable={true}
-                                            datesBlacklist={datesBlacklist}
-                                            selectedDate={SelectedDate}
-                                            maxDate={moment()}
-                                            minDate={moment().subtract(31, 'days')}
-                                            // onDateSelected={(val) => getSelectedDay(val)}
-                                            showMonth={false}
-                                            style={{ padding: 10 }}
-                                            daySelectionAnimation={{ type: 'background', duration: 200, borderWidth: 1, borderHighlightColor: 'white' }}
-                                            calendarHeaderStyle={{ color: 'white' }}
-                                            dateNumberStyle={{ color: 'white' }}
-                                            dateNameStyle={{ color: 'white' }}
-                                            highlightDateNumberStyle={{ color: 'yellow' }}
-                                            highlightDateNameStyle={{ color: 'yellow' }}
-                                            disabledDateNameStyle={{ color: 'grey' }}
-                                            disabledDateNumberStyle={{ color: 'grey' }}
-                                            markedDates={markedDatesArray}
-                                            iconRight={null}
-                                            iconLeft={null}
-                                        />
-                                    </>
-                                }
+                                <WorkoutChart
+                                    days="Bugün"
+                                    stepCount={fitnessData.steps[moment().day()] !== undefined && fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[moment().day()].quantity).toFixed(0) : 0}
+                                    calorieCount={parseFloat(todayCalories).toFixed(1)}
+                                />
+                                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                    <CalendarStrip
+                                        scrollable={true}
+                                        selectedDate={SelectedDate}
+                                        maxDate={moment()}
+                                        minDate={moment().subtract(1, 'week')}
+                                        onDateSelected={(val) => getSelectedDay(val)}
+                                        showMonth={true}
+                                        innerStyle={{ flex: 1, marginTop: 10 }}
+                                        style={{ width: Dimensions.get('window').width - 10, minHeight: 80 }}
+                                        daySelectionAnimation={{ type: 'border', duration: 200, borderWidth: 1, borderHighlightColor: 'yellow' }}
+                                        calendarHeaderStyle={{ color: 'white' }}
+                                        dateNumberStyle={{ color: 'white' }}
+                                        dateNameStyle={{ color: 'white' }}
+                                        highlightDateNumberStyle={{ color: 'yellow' }}
+                                        highlightDateNameStyle={{ color: 'yellow' }}
+                                        disabledDateNameStyle={{ color: 'grey' }}
+                                        disabledDateNumberStyle={{ color: 'grey' }}
+                                        markedDates={markedDatesArray}
+                                        iconRight={null}
+                                        iconLeft={null}
+                                    />
+                                </View>
                             </View>
                             {!Loading &&
                                 <Pressable
                                     onPress={createWorkout}
                                     style={styles.addButtonContainer}>
-                                    <Icon name="refresh" color="#222" size={20} />
+                                    <Icon name="add" color="#222" size={20} />
                                     <Text style={styles.addButtonText}
-                                    >Antrenmanı Değiştir</Text>
+                                    >Yeni Antrenman Ekle</Text>
                                 </Pressable>
                             }
                         </>
+                    )}
+                    ListEmptyComponent={() => (
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>Seçili gün için antrenman yok.{'\n'} Daha fazla antrenman için antrenman günlerinizi ayarlardan değiştirebilirsiniz.</Text>
+                        </View>
                     )}
                     renderItem={(workouts) => {
                         return (workouts.item &&
