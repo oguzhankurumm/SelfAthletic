@@ -78,18 +78,25 @@ const TargetSettings = ({ navigation }) => {
                     return (
                         <Pressable
                             onPress={() => {
-                                const options = Targets;
+                                const newValue = Targets.map((checkbox, i) => {
+                                    if (i !== index)
+                                        return {
+                                            ...checkbox,
+                                            checked: false,
+                                        }
 
-                                options.forEach((newitem) => {
-                                    if (newitem.checked === false) {
-                                        newitem.checked === true
+                                    if (i === index) {
+                                        const item = {
+                                            ...checkbox,
+                                            checked: !checkbox.checked,
+                                        }
+                                        return item
                                     }
+
+                                    return checkbox
                                 })
 
-                                var tempItem = item;
-                                tempItem.checked = !item.checked;
-                                const tempArr = [...Targets];
-                                setTargets(tempArr);
+                                setTargets(newValue);
                             }}
                             key={index}
                             style={{ marginTop: 15, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
@@ -116,18 +123,25 @@ const TargetSettings = ({ navigation }) => {
                     return (
                         <Pressable
                             onPress={() => {
-                                const options = Activities;
+                                const newValue = Activities.map((checkbox, i) => {
+                                    if (i !== index)
+                                        return {
+                                            ...checkbox,
+                                            checked: false,
+                                        }
 
-                                options.forEach((newitem) => {
-                                    if (newitem.checked === false) {
-                                        newitem.checked === true
+                                    if (i === index) {
+                                        const item = {
+                                            ...checkbox,
+                                            checked: !checkbox.checked,
+                                        }
+                                        return item
                                     }
+
+                                    return checkbox
                                 })
 
-                                var tempItem = item;
-                                tempItem.checked = !item.checked;
-                                const tempArr = [...Activities];
-                                setActivities(tempArr);
+                                setActivities(newValue);
                             }}
                             key={index}
                             style={{ marginTop: 15, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>

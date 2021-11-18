@@ -20,7 +20,6 @@ const EndWorkout = (props) => {
     const [Workouts, setWorkouts] = useState(props.route.params.workouts);
     const [Values, setValues] = useState(props.route.params.values);
 
-    console.log({ Data, Workouts })
     const CompleteTraining = async () => {
         setLoading(true);
         let totalPoint = 0;

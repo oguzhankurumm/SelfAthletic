@@ -40,7 +40,18 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center'
     },
+    bottomButton: {
+        padding: 10,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
     bottomTitle: {
+        fontFamily: themeFonts.boldText,
+        fontSize: 14,
+        color: themeColors.white
+    },
+    bottomTitleLeft: {
         fontFamily: themeFonts.boldText,
         fontSize: 14,
         color: themeColors.white

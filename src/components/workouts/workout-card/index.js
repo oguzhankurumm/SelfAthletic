@@ -4,10 +4,11 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './style';
 import moment from 'moment';
+import themeColors from '../../../styles/colors';
 
 const WorkoutCard = ({ data, navigation }) => {
     const isCompleted = data.item.completed;
-    const workoutType = data.item.type === 1 ? "Kas Kütlesi Artışı" : profileData.values.target === -1 ? "Yağ Oranı Azaltma" : "Formda Kalma";
+    const workoutType = data.item.type === 1 ? "Kas Kütlesi Artışı" : data.item.type === -1 ? "Yağ Oranı Azaltma" : "Formda Kalma";
     return (
         <ImageBackground source={{ uri: data.item.workout[0].videoData.thumb }} style={{ height: 250, width: '100%', marginTop: 10 }} imageStyle={{ borderRadius: 12 }} >
             <LinearGradient
@@ -22,8 +23,8 @@ const WorkoutCard = ({ data, navigation }) => {
             >
                 <View style={styles.viewContainer}>
                     <View style={styles.iconContainer}>
-                        <Icon name={isCompleted === true ? "check-circle-outline" : "error-outline"} color="#FFF" size={20} />
-                        <Text style={styles.iconText}>{isCompleted ? "Tamamlandı" : "Tamamlanmadı"}</Text>
+                        <Icon name={isCompleted === true ? "check-circle-outline" : "error-outline"} color={isCompleted ? '#B9F6CA' : themeColors.yellow} size={20} />
+                        <Text style={[styles.iconText, { color: isCompleted ? '#B9F6CA' : themeColors.yellow }]}>{isCompleted ? "Tamamlandı" : "Tamamlanmadı"}</Text>
                     </View>
                     <View style={styles.iconContainer}>
                         <Icon name="chevron-right" color="#FFF" size={24} />

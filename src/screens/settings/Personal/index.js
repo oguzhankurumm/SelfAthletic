@@ -23,7 +23,7 @@ const PersonalSettings = () => {
     const [gender, setGender] = useState(profileData.gender);
     const [birthDate, setBirthDate] = useState(profileData.birthDate);
     const [weight, setWeight] = useState(profileData.values.weight ? profileData.values.weight : 0);
-    const [height, setHeight] = useState(profileData.values.height ? [{ id: "height", value: profileData.values.height }] : 0);
+    const [height, setHeight] = useState(profileData.values.height ? profileData.values.height : 0);
 
 
     const showMsg = ({ message, description, type }) => {

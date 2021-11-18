@@ -11,6 +11,8 @@ import IconCard from '../../../components/profile/icon-card';
 import PressableCard from '../../../components/profile/pressable-card';
 import LevelCard from '../../../components/profile/level-card';
 import styles from './style';
+import { showMessage } from 'react-native-flash-message';
+import themeColors from '../../../styles/colors';
 
 LocaleConfig.locales['tr'] = {
     monthNames: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
@@ -27,6 +29,7 @@ const Profile = ({ navigation }) => {
     const [Loading, setLoading] = useState(false);
     const [AllLoading, setAllLoading] = useState(true);
     const profileData = useSelector(state => state.authReducer.currentUser);
+    const userWorkouts = useSelector(state => state.workoutsReducer.workouts);
     const totalPoint = useSelector(state => state.workoutsReducer.totalPoint);
     const [SelectedPage, setSelectedPage] = useState(0);
     const [EgzersizList, setEgzersizList] = useState([]);
@@ -41,21 +44,30 @@ const Profile = ({ navigation }) => {
         var date = moment(day.dateString).format("YYYY-MM-DD");
         if (markedDatesArray[date]) {
             let dots = markedDatesArray[date].dots
+            console.log('dots:', dots)
             if (dots.length === 1) {
-                if (dots[0].key === 'food') {
-                    let findData = FoodList.find(q => q.date === date);
-                    navigation.navigate('Gecmis', { food: findData, type: 'food' })
-                } else {
-                    let findData = EgzersizList.find(q => q.date === date)
-                    navigation.navigate('Gecmis', { workout: findData, type: 'workout' })
-                }
+                // if (dots[0].key === 'food') {
+                //     let findData = FoodList.find(q => q.date === date);
+                //     navigation.navigate('Gecmis', { food: findData, type: 'food' })
+                // } else {
+                //     let findData = EgzersizList.find(q => q.date === date)
+                //     navigation.navigate('Gecmis', { workout: findData, type: 'workout' })
+                // }
             } else {
-                let findFood = FoodList.find(q => q.date === date);
-                let findWorkout = EgzersizList.find(q => q.date === date);
-                navigation.navigate('Gecmis', { food: findFood, workout: findWorkout, type: 'all' })
+                console.log('len 1 üstü')
+                //     let findFood = FoodList.find(q => q.date === date);
+                //     let findWorkout = EgzersizList.find(q => q.date === date);
+                //     navigation.navigate('Gecmis', { food: findFood, workout: findWorkout, type: 'all' })
             }
         } else {
-            Alert.alert('Hata', 'Seçtiğiniz tarihe ilişkin kayıt bulunamadı.');
+            showMessage({
+                message: "Kayıt Yok",
+                description: 'Seçtiğiniz güne ait bir kayıt bulunamadı.',
+                type: 'warning',
+                backgroundColor: themeColors.yellow,
+                color: themeColors.ultraDark,
+                duration: 3000
+            })
         }
 
     }
@@ -76,45 +88,50 @@ const Profile = ({ navigation }) => {
 
     const CalculateCompleteds = async () => {
         try {
-            const workoutsRes = await firestore().collection('users').doc(profileData.email).collection('workouts').where("completed", "==", true).get()
             const foodsRes = await firestore().collection('users').doc(profileData.email).collection('foods').where("completed", "==", true).get()
-            if (!workoutsRes.empty) {
-                workoutsRes.docs.length > 0 ? setCompletedWorkouts(workoutsRes.docs.length) : setCompletedWorkouts(0)
-                const docs = workoutsRes.docs.map(doc => {
-                    return { ...doc.data(), id: doc.id, date: moment(doc.data().date, "DD-MM-YYYY").format("YYYY-MM-DD"), type: 'workout', disabled: false }
-                })
-                let workout = { key: 'workout', color: 'yellow' };
-
-                let groups = {};
-
-                if (docs.length > 0) {
-                    docs.forEach(function (o, i) {
-                        var dataObj = { ...o.type === 'workout' ? workout : food, disabled: false }
-                        if (groups[o.date]) {
-                            groups[o.date]['dots'].push(dataObj);
-                        } else {
-                            groups[o.date] = { title: o.date, dots: [dataObj], disabled: false };
-                        }
-                    });
-
-                }
-                console.log({ groups })
-                setmarkedDatesArray(groups);
-                setAllLoading(false);
-            }
             if (!foodsRes.empty) {
                 foodsRes.docs.length > 0 ? setCompletedFoods(foodsRes.docs.length) : setCompletedFoods(0)
             }
 
 
+            if (userWorkouts !== undefined && userWorkouts.length > 0) {
+                const groupArrayByDate = (array) => {
+                    return array.reduce((acc, cur) => {
+                        const date = moment(cur.date, "DD-MM-YYYY").format("YYYY-MM-DD");
+                        if (!acc[date]) {
+                            acc[date] = [];
+                        }
+                        acc[date].push(cur);
+                        return acc;
+                    }, {});
+                }
+
+                setCompletedWorkouts(userWorkouts.length);
+                let groups = {};
+
+                userWorkouts.map(o => {
+                    const date = moment(o.date, 'DD-MM-YYYY').format('YYYY-MM-DD');
+                    const isCompleted = o.completed;
+                    if (groups[date]) {
+                        groups[date]['dots'].push({ color: isCompleted ? 'yellow' : 'gray' });
+                    } else {
+                        groups[date] = { date: new Date(date), dots: [{ color: isCompleted ? 'yellow' : 'gray' }] };
+                    }
+                });
+
+                setmarkedDatesArray(groups);
+                setAllLoading(false);
+            }
+
         } catch (error) {
             console.log('Hata', error);
+            setAllLoading(false);
         }
     }
 
     useEffect(() => {
         CalculateCompleteds();
-    }, [])
+    }, [userWorkouts])
 
     return (
         <ImageLayout

@@ -143,10 +143,12 @@ const keepingFit10kVariables = {
         }
     },
     ust: {
-        calorie: 15 * 4,
-        set: 4,
-        pause: 45,
-        repeat: 15
+        all: {
+            calorie: 15 * 4,
+            set: 4,
+            pause: 45,
+            repeat: 15
+        }
     },
     statik: {
         all: {
@@ -306,10 +308,12 @@ const keepingFit15kVariables = {
         }
     },
     ust: {
-        calorie: 15 * 3,
-        set: 3,
-        pause: 30,
-        repeat: 15
+        all: {
+            calorie: 15 * 3,
+            set: 3,
+            pause: 30,
+            repeat: 15
+        }
     },
     statik: {
         all: {
@@ -469,10 +473,12 @@ const keepingFit20kVariables = {
         }
     },
     ust: {
-        calorie: 12 * 4,
-        set: 4,
-        pause: 30,
-        repeat: 12
+        all: {
+            calorie: 12 * 4,
+            set: 4,
+            pause: 30,
+            repeat: 12
+        }
     },
     statik: {
         all: {

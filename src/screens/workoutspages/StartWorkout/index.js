@@ -219,16 +219,15 @@ const StartWorkout = (props) => {
                     </View>
 
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, height: 50 }}>
-                        <Pressable onPress={GoBack}>
-                            <Text style={styles.bottomTitle}>Antrenmanı Bitir</Text>
-                        </Pressable>
-                        <Pressable onPress={() => {
-                            timerRef.current.pause();
-                            props.navigation.navigate('EndWorkout', {
-                                data: Data, workouts: Workouts, values: { TotalKcal, TotalPoint, initialTime }
-                            })
-                        }}>
-                            <Text style={styles.bottomTitle}>Tamamla</Text>
+                        <Pressable
+                            style={styles.bottomButton}
+                            onPress={() => {
+                                timerRef.current.pause();
+                                props.navigation.navigate('EndWorkout', {
+                                    data: Data, workouts: Workouts, values: { TotalKcal, TotalPoint, initialTime }
+                                })
+                            }}>
+                            <Text style={styles.bottomTitleLeft}>Antrenmanı Tamamla</Text>
                         </Pressable>
                         <View style={{ alignItems: 'flex-end', justifyContent: 'center', width: '50%' }}>
                             <Text style={styles.bottomSubtitle}>Sonraki Hareket</Text>
