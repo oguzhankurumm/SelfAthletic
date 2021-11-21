@@ -43,8 +43,8 @@ const Home = () => {
             <WorkoutChart
                 days="Bu Hafta"
                 newStyle={{ marginTop: 20 }}
-                stepCount={fitnessData.steps[moment().day()] !== undefined && fitnessData.steps.length !== 0 ? parseFloat(fitnessData.steps[moment().day()].quantity).toFixed(0) : 0}
-                calorieCount={weekCalories}
+                stepCount={fitnessData.totalSteps !== undefined ? parseFloat(fitnessData.totalSteps).toFixed(0) : 0}
+                calorieCount={weekCalories !== undefined ? parseFloat(weekCalories).toFixed(1) : 0}
             />
         </ImageLayout>
     )

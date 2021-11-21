@@ -10,6 +10,7 @@ export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILED = 'LOGIN_FAILED';
 
 export const USER_LOGOUT = 'USER_LOGOUT';
+export const USER_LOGOUT_START = 'USER_LOGOUT_START';
 export const USER_LOGOUT_FAILED = 'USER_LOGOUT_FAILED';
 
 

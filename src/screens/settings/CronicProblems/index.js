@@ -58,8 +58,8 @@ const CronicProblems = () => {
             isScrollable={false}
         >
 
-            <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+            <View style={styles.container}>
+                <View style={styles.subcontainer}>
                     {Problems.map((item, index) => {
                         return (
                             <Pressable
@@ -78,7 +78,7 @@ const CronicProblems = () => {
                                     setProblems(tempArr);
                                 }}
                                 key={index}
-                                style={{ marginTop: 15, width: '80%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
+                                style={{ marginTop: 15, width: '90%', backgroundColor: item.checked ? 'yellow' : null, borderRadius: 18, borderWidth: 1, borderColor: 'yellow', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
                                 <Text style={item.checked ? [styles.optionText, { color: '#000' }] : styles.optionText}>{item.name}</Text>
                             </Pressable>
                         )

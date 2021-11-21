@@ -3,7 +3,8 @@ import { firestore, auth } from '../../config/config';
 import {
     USER_STATE_CHANGE,
     USER_LOGOUT,
-    USER_LOGOUT_FAILED
+    USER_LOGOUT_FAILED,
+    USER_LOGOUT_START
 } from '../contants';
 import * as notificationsActions from './notifications';
 import * as healthActions from './health';
@@ -30,7 +31,7 @@ export const getCurrentUserData = () => dispatch => {
         .collection('users')
         .doc(auth().currentUser.email)
         .onSnapshot((res) => {
-            if (res.exists) {
+            if (res?.exists) {
                 const age = () => {
                     const birthDate = moment(res.data()?.birthDate);
                     if (birthDate !== undefined && birthDate !== null) {
@@ -49,19 +50,20 @@ export const getCurrentUserData = () => dispatch => {
                     },
                     loaded: true
                 })
+            } else {
+                return dispatch({
+                    type: USER_STATE_CHANGE,
+                    currentUser: null,
+                    loaded: true
+                })
             }
         })
 }
 
-export const logout = () => dispatch => {
-    try {
-        dispatch({
-            type: USER_LOGOUT
-        })
-        auth().signOut();
-    } catch (error) {
-        dispatch({
-            type: USER_LOGOUT_FAILED
-        })
+export const logout = () => {
+    return async dispatch => {
+        await dispatch({ type: USER_LOGOUT_START })
+        await auth().signOut();
+        await dispatch({ type: USER_LOGOUT })
     }
 }

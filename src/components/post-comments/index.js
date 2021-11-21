@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { ScrollView, Dimensions, FlatList } from 'react-native';
 import ImageLayout from '../image-layout';
 import { firestore } from '../../config/config';
-import { ListItem, Text, TextField, Keyboard } from 'react-native-ui-lib'; //eslint-disable-line
+import { ListItem, Text, TextField, Keyboard } from 'react-native-ui-lib';
 import { useRoute } from '@react-navigation/core';
 import 'moment/locale/tr';
 
-const { width, height } = Dimensions.get("window");
 const PostComments = () => {
     const params = useRoute().params.comments;
     const [Loading, setLoading] = useState(false);

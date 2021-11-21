@@ -546,7 +546,7 @@
 				CODE_SIGN_ENTITLEMENTS = SelfAthletic/SelfAthletic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = 6P469R9L6A;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = SelfAthletic/Info.plist;
@@ -575,7 +575,7 @@
 				CODE_SIGN_ENTITLEMENTS = SelfAthletic/SelfAthletic.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = 6P469R9L6A;
 				INFOPLIST_FILE = SelfAthletic/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

@@ -18,8 +18,6 @@ import { showMessage } from 'react-native-flash-message';
 const { width, height } = Dimensions.get("window");
 
 const Welcome = ({ navigation }) => {
-    const [selectedType, setselectedType] = useState(0);
-
     const [Name, setName] = useState("");
     const [LoginEmail, setLoginEmail] = useState("");
     const [LoginPassword, setLoginPassword] = useState("");
@@ -219,170 +217,70 @@ const Welcome = ({ navigation }) => {
 
                         <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
 
-                            <Button onPress={() => {
-                                setselectedType(0);
-                            }} full style={{ flexDirection: 'row', backgroundColor: selectedType === 0 ? "#FFF" : "#000", height: 40, width: '50%', justifyContent: 'center', alignItems: 'center', borderTopLeftRadius: 12, borderBottomLeftRadius: 12 }}>
-                                <Text allowFontScaling={false} style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 15, color: selectedType === 0 ? "#000" : "#FFF", textAlign: 'center' }}>Giriş Yap</Text>
+                            <Button full style={{ flexDirection: 'row', backgroundColor: "#FFF", height: 40, width: '50%', justifyContent: 'center', alignItems: 'center', borderTopLeftRadius: 12, borderBottomLeftRadius: 12 }}>
+                                <Text allowFontScaling={false} style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 15, color: "#000", textAlign: 'center' }}>Giriş Yap</Text>
                             </Button>
 
-                            <Button onPress={() => {
-                                setselectedType(1);
-                            }} full style={{ flexDirection: 'row', backgroundColor: selectedType === 1 ? "#FFF" : "#000", height: 40, width: '50%', justifyContent: 'center', alignItems: 'center', borderTopRightRadius: 12, borderBottomRightRadius: 12 }}>
-                                <Text allowFontScaling={false} style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 15, color: selectedType === 1 ? "#000" : "#FFF", textAlign: 'center' }}>Kayıt Ol</Text>
+                            <Button onPress={() => navigation.navigate('Register')}
+                                full
+                                style={{ flexDirection: 'row', backgroundColor: "#000", height: 40, width: '50%', justifyContent: 'center', alignItems: 'center', borderTopRightRadius: 12, borderBottomRightRadius: 12 }}>
+                                <Text allowFontScaling={false} style={{ fontFamily: 'SFProDisplay-Medium', fontSize: 15, color: "#FFF", textAlign: 'center' }}>Kayıt Ol</Text>
                             </Button>
                         </View>
                     </View>
 
-                    {selectedType === 0 ?
-                        <Card style={{ borderRadius: 12, padding: 10, width: '100%' }}>
+                    <Card style={{ borderRadius: 12, padding: 10, width: '100%' }}>
 
-                            <View style={styles.registerItemProfile}>
-                                <Icon name="mail-outline" size={28} color="#2D2D2D" />
-                                <Input
-                                    onSubmitEditing={() => parolaTextInput.current.focus()}
-                                    style={styles.registerTextInput}
-                                    autoCorrect={false}
-                                    autoCapitalize="none"
-                                    allowFontScaling={false}
-                                    maxLength={100}
-                                    placeholderTextColor="#999"
-                                    placeholder="E-Posta"
-                                    returnKeyType={"next"}
-                                    value={LoginEmail}
-                                    onChangeText={email => setLoginEmail(email)}
-                                    keyboardType={"email-address"}
-                                />
-                            </View>
+                        <View style={styles.registerItemProfile}>
+                            <Icon name="mail-outline" size={28} color="#2D2D2D" />
+                            <Input
+                                onSubmitEditing={() => parolaTextInput.current.focus()}
+                                style={styles.registerTextInput}
+                                autoCorrect={false}
+                                autoCapitalize="none"
+                                allowFontScaling={false}
+                                maxLength={100}
+                                placeholderTextColor="#999"
+                                placeholder="E-Posta"
+                                returnKeyType={"next"}
+                                value={LoginEmail}
+                                onChangeText={email => setLoginEmail(email)}
+                                keyboardType={"email-address"}
+                            />
+                        </View>
 
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <View style={{ flex: 1, height: 0.5, backgroundColor: '#4D4D4D' }} />
-                            </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <View style={{ flex: 1, height: 0.5, backgroundColor: '#4D4D4D' }} />
+                        </View>
 
-                            <View style={styles.registerItemProfile}>
-                                <Icon name="lock-outline" size={28} color="#2D2D2D" />
-                                <Input
-                                    inputRef={parolaTextInput}
-                                    style={styles.registerTextInput}
-                                    allowFontScaling={false}
-                                    blurOnSubmit={true}
-                                    maxLength={30}
-                                    placeholderTextColor="#999"
-                                    placeholder="Parola"
-                                    returnKeyType={"done"}
-                                    autoCapitalize="none"
-                                    secureTextEntry={ShowPassword}
-                                    value={LoginPassword}
-                                    onChangeText={password => setLoginPassword(password)}
-                                />
-                                <TouchableOpacity style={{ position: 'absolute', right: -20, top: 15, paddingRight: 30 }} onPress={() => setShowPassword(!ShowPassword)}>
-                                    <Icon name="remove-red-eye" size={25} color={'#2D2D2D'} />
-                                </TouchableOpacity>
-                            </View>
+                        <View style={styles.registerItemProfile}>
+                            <Icon name="lock-outline" size={28} color="#2D2D2D" />
+                            <Input
+                                inputRef={parolaTextInput}
+                                style={styles.registerTextInput}
+                                allowFontScaling={false}
+                                blurOnSubmit={true}
+                                maxLength={30}
+                                placeholderTextColor="#999"
+                                placeholder="Parola"
+                                returnKeyType={"done"}
+                                autoCapitalize="none"
+                                secureTextEntry={ShowPassword}
+                                value={LoginPassword}
+                                onChangeText={password => setLoginPassword(password)}
+                            />
+                            <TouchableOpacity style={{ position: 'absolute', right: -20, top: 15, paddingRight: 30 }} onPress={() => setShowPassword(!ShowPassword)}>
+                                <Icon name="remove-red-eye" size={25} color={'#2D2D2D'} />
+                            </TouchableOpacity>
+                        </View>
 
-                        </Card>
+                    </Card>
 
-                        :
-                        <>
-                            <Card style={{ borderRadius: 12, padding: 10, width: '100%' }}>
-
-                                <View style={styles.registerItemProfile}>
-                                    <Icon name="person-outline" size={28} color="#2D2D2D" />
-                                    <Input
-                                        onSubmitEditing={() => usernameRTextInput.current.focus()}
-                                        blurOnSubmit={false}
-                                        style={styles.registerTextInput}
-                                        autoCorrect={false}
-                                        autoCapitalize="words"
-                                        allowFontScaling={false}
-                                        maxLength={80}
-                                        placeholderTextColor="#999"
-                                        placeholder="Ad Soyad"
-                                        returnKeyType={"next"}
-                                        value={Name}
-                                        onChangeText={Name => setName(Name)}
-                                    />
-                                </View>
-
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <View style={{ flex: 1, height: 0.5, backgroundColor: '#4D4D4D' }} />
-                                </View>
-
-                                <View style={styles.registerItemProfile}>
-                                    <Icon name="person-outline" size={28} color="#2D2D2D" />
-                                    <Input
-                                        inputRef={usernameRTextInput}
-                                        onSubmitEditing={() => epostaRTextInput.current.focus()}
-                                        blurOnSubmit={false}
-                                        style={styles.registerTextInput}
-                                        autoCorrect={false}
-                                        autoCapitalize="none"
-                                        allowFontScaling={false}
-                                        maxLength={80}
-                                        placeholderTextColor="#999"
-                                        placeholder="Kullanıcı Adı"
-                                        returnKeyType={"next"}
-                                        value={Username}
-                                        onChangeText={value => setUsername(value)}
-                                    />
-                                </View>
-
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <View style={{ flex: 1, height: 0.5, backgroundColor: '#4D4D4D' }} />
-                                </View>
-
-                                <View style={styles.registerItemProfile}>
-                                    <Icon name="mail-outline" size={28} color="#2D2D2D" />
-                                    <Input
-                                        inputRef={epostaRTextInput}
-                                        onSubmitEditing={() => parolaRTextInput.current.focus()}
-                                        style={styles.registerTextInput}
-                                        autoCorrect={false}
-                                        autoCapitalize="none"
-                                        allowFontScaling={false}
-                                        maxLength={100}
-                                        placeholderTextColor="#999"
-                                        placeholder="E-Posta"
-                                        returnKeyType={"next"}
-                                        value={RegisterEmail}
-                                        onChangeText={email => setRegisterEmail(email)}
-                                        keyboardType={"email-address"}
-                                    />
-                                </View>
-
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <View style={{ flex: 1, height: 0.5, backgroundColor: '#4D4D4D' }} />
-                                </View>
-
-                                <View style={styles.registerItemProfile}>
-                                    <Icon name="lock-outline" size={28} color="#2D2D2D" />
-                                    <Input
-                                        inputRef={parolaRTextInput}
-                                        style={styles.registerTextInput}
-                                        allowFontScaling={false}
-                                        blurOnSubmit={true}
-                                        maxLength={30}
-                                        placeholderTextColor="#999"
-                                        placeholder="Parola"
-                                        returnKeyType={"done"}
-                                        autoCapitalize="none"
-                                        secureTextEntry={ShowPassword}
-                                        value={RegisterPassword}
-                                        onChangeText={password => setRegisterPassword(password)}
-                                    />
-                                    <TouchableOpacity style={{ position: 'absolute', right: -20, top: 15, paddingRight: 30 }} onPress={() => setShowPassword(!ShowPassword)}>
-                                        <Icon name="remove-red-eye" size={25} color={'#2D2D2D'} />
-                                    </TouchableOpacity>
-                                </View>
-
-                            </Card>
-                        </>
-
-                    }
 
                     <View style={Style.registerItemProfile}>
                         <Button2
-                            title={selectedType === 0 ? "Giriş Yap" : "Kayıt Ol"}
-                            onPress={selectedType === 0 ? OnLoginButtonClicked : onRegisterButtonClicked}
+                            title="Giriş Yap"
+                            onPress={OnLoginButtonClicked}
                             style={{
                                 padding: 8,
                                 color: '#000',

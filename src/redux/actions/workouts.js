@@ -8,7 +8,7 @@ export const getWorkouts = () => dispatch => {
         .doc(auth().currentUser.email)
         .collection('workouts')
         .onSnapshot((res) => {
-            if (!res.empty) {
+            if (!res?.empty) {
                 const workouts = res.docs.map(doc => {
                     return {
                         id: doc.id,

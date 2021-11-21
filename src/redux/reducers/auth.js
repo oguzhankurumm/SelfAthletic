@@ -1,6 +1,7 @@
 import {
     USER_STATE_CHANGE,
     USER_LOGOUT,
+    USER_LOGOUT_START,
     USER_LOGOUT_FAILED
 } from "../contants";
 
@@ -17,6 +18,11 @@ export const authReducer = (state = initialState, action) => {
                 ...state,
                 currentUser: action.currentUser,
                 loaded: action.loaded
+            };
+        case USER_LOGOUT_START:
+            return {
+                ...state,
+                loaded: false
             };
         case USER_LOGOUT:
             return {

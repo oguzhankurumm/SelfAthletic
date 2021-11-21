@@ -82,7 +82,6 @@ const Workout = ({ navigation }) => {
                 filteredArray[randomIndex], filteredArray[currentIndex]];
         }
 
-        console.log('filtered', filteredArray)
         return filteredArray.length > 0 ? filteredArray.slice(0, number) : filteredArray;
     }
 

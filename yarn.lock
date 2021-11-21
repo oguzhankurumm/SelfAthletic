@@ -1257,7 +1257,7 @@
     sudo-prompt "^9.0.0"
     wcwidth "^1.0.1"
 
-"@react-native-community/datetimepicker@^3.0.2", "@react-native-community/datetimepicker@^3.4.3":
+"@react-native-community/datetimepicker@^3.0.2", "@react-native-community/datetimepicker@^3.5.2":
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/@react-native-community/datetimepicker/-/datetimepicker-3.5.2.tgz#8e6feb30f2620e5abdf565d5fe74c0c04edcf6ae"
   integrity sha512-TWRuAtr/DnrEcRewqvXMLea2oB+YF+SbtuYLHguALLxNJQLl/RFB7aTNZeF+OoH75zKFqtXECXV1/uxQUpA+sg==
@@ -1358,10 +1358,10 @@
   resolved "https://registry.yarnpkg.com/@react-native-picker/picker/-/picker-1.16.8.tgz#2126ca54d4a5a3e9ea5e3f39ad1e6643f8e4b3d4"
   integrity sha512-pacdQDX6V6EmjF+HoiIh6u++qx4mTK0WnhgUHRc01B+Qt5eoeUwseBqmqfTSXTx/aHDEd6PiIw7UGvKgFoqgFQ==
 
-"@react-native-picker/picker@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@react-native-picker/picker/-/picker-2.1.0.tgz#1ef22d4e9b2e555d44b43453f51a46d8631f3182"
-  integrity sha512-iJ/QaDrBMBaW6cFuQyR3DXzcn2h7c5O7mGgmNLCBQHTTtLNBZR+Sxogy6YleFPeToNdysG5mTTkXqBmlWHMQqg==
+"@react-native-picker/picker@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@react-native-picker/picker/-/picker-2.2.1.tgz#32b9f540d8e88a73d8856f73cca88251cecb9614"
+  integrity sha512-EC7yv22QLHlTfnbC1ez9IUdXTOh1W31x96Oir0PfskSGFFJMWWdLTg4VrcE2DsGLzbfjjkBk123c173vf2a5MQ==
 
 "@react-navigation/bottom-tabs@^5.11.8":
   version "5.11.15"
@@ -2229,9 +2229,9 @@ bower-auto-release@^1.1.357:
     wnpm-ci "*"
 
 bower@^1.7.9:
-  version "1.8.12"
-  resolved "https://registry.yarnpkg.com/bower/-/bower-1.8.12.tgz#44cfca2a5e04b8d9a066621e24c8b179d8ac321e"
-  integrity sha512-u1xy9SrwwoPlgjuHNjhV+YUPVdqyBj2ALBxuzeIUKXaPI2i2xypGgxqXkuHcITGdi5yBj5JuXgyMvgiWiS1S3Q==
+  version "1.8.13"
+  resolved "https://registry.yarnpkg.com/bower/-/bower-1.8.13.tgz#5892f391f47134db88ea93d4c91a31f09792dc58"
+  integrity sha512-8eWko16JlCTdaZZG70kddHPed17pHEbH8/IjfP4IFkQsfEqRsyNM09Dc8cDBFkSvtQ/2lTea7A+bMhRggG2a+Q==
 
 bplist-creator@0.0.8:
   version "0.0.8"
@@ -7043,10 +7043,10 @@ react-native-text-size@4.0.0-rc.1:
   resolved "https://registry.yarnpkg.com/react-native-text-size/-/react-native-text-size-4.0.0-rc.1.tgz#1e048d345dd6a5a8e1269e0585c1a5948c478da5"
   integrity sha512-CysqjU2jK6Yc+a+kEI222pUyTY2ywcU2HqbFqf1KHymW6OPTdvBBHqbEJKL0QiLhQaFYDbqicM+h990s9TP00g==
 
-react-native-ui-lib@^6.1.2:
-  version "6.1.2"
-  resolved "https://registry.yarnpkg.com/react-native-ui-lib/-/react-native-ui-lib-6.1.2.tgz#d0b1da48b4b1e33f8f5d0586b998aea67711b729"
-  integrity sha512-1NRfNK2pdZyPa8/45GMtWa0ZE8pftJ4mOUsvEgzsAq5Lx4COOnsLr1/ejhn20X4TBAq3ewjPcD7jza19xW8wWw==
+react-native-ui-lib@^6.4.1:
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/react-native-ui-lib/-/react-native-ui-lib-6.4.1.tgz#6c3bebcc346fe27700ea02e4f212cda74133b306"
+  integrity sha512-tbC8iuFPIPZMRikaELUcb4qjSLzIuX9/aL1e7bBi6/Zqgg8bVxI0foxqT0yHd8gti7AtK6Ju6vXczJyY8tQjqA==
   dependencies:
     babel-plugin-transform-inline-environment-variables "^0.0.2"
     color "^3.1.0"

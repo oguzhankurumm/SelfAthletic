@@ -1,17 +1,18 @@
 import React, { useState } from 'react'
 import { View, SafeAreaView, Text, StyleSheet, Image, TouchableOpacity, Dimensions, Alert, ScrollView } from 'react-native'
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Modal from 'react-native-modal';
-import { auth } from '../config/config';
 import SpinnerLoading from '../components/SpinnerLoading';
 import { SCLAlert, SCLAlertButton } from 'react-native-scl-alert';
 import { useNavigation } from '@react-navigation/core';
 import themeColors from '../styles/colors';
 import themeFonts from '../styles/fonts';
+import { logout } from '../redux/actions/auth';
 
 const { height, width } = Dimensions.get("window");
 
 const Sidebar = ({ opened, onClose }) => {
+    const dispatch = useDispatch();
     const navigation = useNavigation();
     const profileData = useSelector(state => state.authReducer.currentUser);
     const [ShowSideModal, setShowSideModal] = useState(opened)
@@ -52,14 +53,7 @@ const Sidebar = ({ opened, onClose }) => {
                     subtitle="Hesabınızdan çıkılsın mı?"
                 >
                     <SCLAlertButton theme="warning" onPress={() => {
-                        setLoading(true);
-                        auth().signOut()
-                            .then(() => {
-                                setLoading(false);
-                            })
-                            .catch((err) => {
-                                console.log('Hata: ', err)
-                            })
+                        dispatch(logout());
                     }}>Çıkış Yap</SCLAlertButton>
                     <SCLAlertButton theme="default" onPress={() => setShowWarning(false)}>Vazgeç</SCLAlertButton>
                 </SCLAlert>

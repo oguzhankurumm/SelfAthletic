@@ -4,7 +4,7 @@ import { View, Text, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import styles from './style';
 
-const Header = ({ title, showMenuOnPress, showBack, showAddPost }) => {
+const Header = ({ title, showMenuOnPress, showBack, showAddPost, hideRight }) => {
     const navigation = useNavigation();
 
     return (
@@ -22,21 +22,23 @@ const Header = ({ title, showMenuOnPress, showBack, showAddPost }) => {
                 <Text style={styles.headerText}>{title}</Text>
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-                {showAddPost === true ?
-                    <Pressable onPress={() => navigation.navigate('NewPost')}>
-                        <Icon name={"post-add"} color="#FFF" size={28} style={{ marginRight: 20 }} />
-                    </Pressable>
-                    :
-                    <Pressable onPress={() => navigation.navigate('Settings')}>
-                        <Icon name={"settings"} color="#FFF" size={28} style={{ marginRight: 20 }} />
-                    </Pressable>
-                }
+            {hideRight === undefined &&
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+                    {showAddPost === true ?
+                        <Pressable onPress={() => navigation.navigate('NewPost')}>
+                            <Icon name={"post-add"} color="#FFF" size={28} style={{ marginRight: 20 }} />
+                        </Pressable>
+                        :
+                        <Pressable onPress={() => navigation.navigate('Settings')}>
+                            <Icon name={"settings"} color="#FFF" size={28} style={{ marginRight: 20 }} />
+                        </Pressable>
+                    }
 
-                <Pressable onPress={() => navigation.navigate('Notifications')}>
-                    <Icon name={"notifications"} color="#FFF" size={28} />
-                </Pressable>
-            </View>
+                    <Pressable onPress={() => navigation.navigate('Notifications')}>
+                        <Icon name={"notifications"} color="#FFF" size={28} />
+                    </Pressable>
+                </View>
+            }
         </View>
     )
 }

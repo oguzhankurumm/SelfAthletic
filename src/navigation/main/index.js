@@ -44,6 +44,7 @@ import HomeScreen from '../home';
 import CronicProblems from '../../screens/settings/CronicProblems';
 import PersonalSettings from '../../screens/settings/Personal';
 import TargetSettings from '../../screens/settings/Target';
+import Register from '../../screens/registerpages/Register';
 
 const Stack = createStackNavigator();
 
@@ -54,7 +55,7 @@ export default function Route() {
     useEffect(() => {
         dispatch(userAuthStateListener());
     }, [])
-
+    
     if (!currentUserObj.loaded) {
         return (
             <Loading />
@@ -70,6 +71,12 @@ export default function Route() {
                             options={{
                                 title: 'Welcome',
                                 headerShown: false
+                            }}
+                        />
+                        <Stack.Screen name="Register" component={Register}
+                            options={{
+                                headerShown: false,
+                                gestureEnabled: true
                             }}
                         />
                         <Stack.Screen name="Info" component={Info}
