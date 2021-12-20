@@ -9,7 +9,7 @@ import ImageLayout from '../../../components/image-layout';
 const SliderDetails = props => {
     const profileData = useSelector(state => state.authReducer.currentUser);
 
-    const [Loading, setLoading] = useState(false);
+    const [Loading, setLoading] = useState(true);
     const [Details, setDetails] = useState(props.route.params.item);
 
     useEffect(() => {
