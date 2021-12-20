@@ -1,5 +1,5 @@
 # SelfAthletic
-Fitness & Health App using React Native, Hooks, Redux, Firebase, NodeJS.
+Fitness & Health App using React Native, Hooks, Redux, Firebase, AWS S3, NodeJS and Cloud Functions.
 
 Workouts and nutrition sections are created by the algorithm according to the information provided by the user.
 
