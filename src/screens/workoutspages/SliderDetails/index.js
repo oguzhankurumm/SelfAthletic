@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StatusBar, Image, SafeAreaView, ScrollView, Alert, TouchableOpacity, ImageBackground, Dimensions, Linking } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Linking } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
-import SpinnerLoading from '../../components/SpinnerLoading';
 import { useSelector } from 'react-redux';
-import { database } from '../../config/config';
-import moment from 'moment';
 import styles from './style';
 import ImageLayout from '../../../components/image-layout';
 
