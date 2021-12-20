@@ -14,7 +14,7 @@ const WodCard = ({ data }) => {
                 <Text style={styles.titleStyle}>Antrenmanlar</Text>
 
                 <TouchableOpacity
-                    onPress={() => navigation.navigate('WorkoutList', { Workouts: data })}
+                    onPress={() => navigation.navigate('WodList', { Workouts: data })}
                     style={styles.seeAllButton}>
                     <Text style={styles.subTitleStyle}>Tümünü Gör</Text>
                     <Icon name="keyboard-arrow-right" size={18} color="yellow" />

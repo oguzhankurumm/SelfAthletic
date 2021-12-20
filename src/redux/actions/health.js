@@ -39,7 +39,7 @@ export const fetchHealth = () => {
                     }
                 })
                 let sum = calorieRes.reduce(function (prev, current) {
-                    return prev + +parseFloat(current.kcal)
+                    return parseFloat(prev) + +parseFloat(current.kcal)
                 }, 0);
                 totalCalories = sum;
             }

@@ -260,7 +260,7 @@ const Profile = ({ navigation }) => {
 
             {SelectedPage === 2 &&
                 <View style={[styles.iconsContainer, { paddingHorizontal: 20, paddingBottom: 100 }]}>
-                    <PressableCard title="Testleri Gör" image={{ uri: 'https://www.lanochefithall.com/assets/img/assets/usenme.jpg' }} onPress={() => navigation.navigate('TestList')} />
+                    <PressableCard title="Testleri Gör" image={require('../../../assets/img/tests.jpeg')} onPress={() => navigation.navigate('TestList')} />
                     <PressableCard title="Mezura Ölçümleri" image={require('../../../assets/img/mezura.jpeg')} onPress={() => navigation.navigate('Olcumler')} />
                 </View>
             }

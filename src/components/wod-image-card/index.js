@@ -11,7 +11,7 @@ const WodImageCard = ({ item }) => {
     return (
         <Pressable
             key={item.id}
-            onPress={() => navigation.navigate('WorkoutDetails', { data: item })}
+            onPress={() => navigation.navigate('WodDetails', { data: item })}
             style={styles.scrollCardContainer}>
             <Image
                 resizeMode="cover"

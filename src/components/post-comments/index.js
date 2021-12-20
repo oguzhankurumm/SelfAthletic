@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react'
-import { ScrollView, Dimensions, FlatList } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react'
+import { View, FlatList } from 'react-native';
 import ImageLayout from '../image-layout';
 import { firestore } from '../../config/config';
-import { ListItem, Text, TextField, Keyboard } from 'react-native-ui-lib';
+import { ListItem, Text } from 'react-native-ui-lib';
 import { useRoute } from '@react-navigation/core';
 import 'moment/locale/tr';
+import { TextInput } from 'react-native-paper';
 
 const PostComments = () => {
     const params = useRoute().params.comments;
+    const inputRef = useRef(null);
     const [Loading, setLoading] = useState(false);
     const [UserComments, setUserComments] = useState([]);
+    const [MyComment, setMyComment] = useState('');
 
     const getUsersComments = async () => {
         setLoading(true);
@@ -60,14 +63,23 @@ const PostComments = () => {
                 data={UserComments}
                 renderItem={({ item, index }) => renderRow(item, index)}
                 keyExtractor={(item, index) => index.toString()}
-            />
-            <TextField
-                text70
-                containerStyle={{ marginBottom: 18 }}
-                floatingPlaceholder
-                placeholder="Multiline & helperText"
-                multiline
-                helperText="this is an helper text"
+                ListFooterComponent={() => (
+                    <View style={{ paddingHorizontal: 20 }}>
+                        <TextInput
+                            ref={inputRef}
+                            placeholderTextColor={'white'}
+                            onChangeText={text => setMyComment(text)}
+                            value={MyComment}
+                            clearTextOnFocus={true}
+                            clearButtonMode='always'
+                            returnKeyType='done'
+                            style={{ backgroundColor: 'none' }}
+                            autoFocus={true}
+                            placeholder="Yorumunuzu buraya yazın..."
+                            multiline
+                        />
+                    </View>
+                )}
             />
         </ImageLayout>
     )

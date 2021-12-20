@@ -37,14 +37,18 @@ import TumGecmisler from '../../screens/profilepages/TumGecmisler';
 import Gecmis from '../../screens/profilepages/Gecmis';
 import LikedUsers from '../../components/liked-users';
 import PostComments from '../../components/post-comments';
+import WodList from '../../screens/workoutspages/WodList';
 import StartWorkout from '../../screens/workoutspages/StartWorkout';
+import StartWod from '../../screens/workoutspages/StartWod';
 import EndWorkout from '../../screens/workoutspages/EndWorkout';
+import EndWod from '../../screens/workoutspages/EndWod';
 import WorkoutCompleted from '../../screens/workoutspages/WorkoutCompleted';
 import HomeScreen from '../home';
 import CronicProblems from '../../screens/settings/CronicProblems';
 import PersonalSettings from '../../screens/settings/Personal';
 import TargetSettings from '../../screens/settings/Target';
 import Register from '../../screens/registerpages/Register';
+import WodDetails from '../../screens/workoutspages/WodDetails';
 
 const Stack = createStackNavigator();
 
@@ -55,7 +59,7 @@ export default function Route() {
     useEffect(() => {
         dispatch(userAuthStateListener());
     }, [])
-    
+
     if (!currentUserObj.loaded) {
         return (
             <Loading />
@@ -251,6 +255,20 @@ export default function Route() {
                                 headerTintColor: '#000'
                             }}
                         />
+                        <Stack.Screen name="WodList" component={WodList}
+                            options={{
+                                headerShown: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: '#000'
+                            }}
+                        />
+                        <Stack.Screen name="WodDetails" component={WodDetails}
+                            options={{
+                                headerShown: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: '#000'
+                            }}
+                        />
                         <Stack.Screen name="WorkoutVideo" component={WorkoutVideo}
                             options={{
                                 headerShown: false,
@@ -266,6 +284,21 @@ export default function Route() {
                             }}
                         />
                         <Stack.Screen name="EndWorkout" component={EndWorkout}
+                            options={{
+                                headerShown: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: '#000',
+                                gestureEnabled: false
+                            }}
+                        />
+                        <Stack.Screen name="StartWod" component={StartWod}
+                            options={{
+                                headerShown: false,
+                                headerBackTitleVisible: false,
+                                headerTintColor: '#000'
+                            }}
+                        />
+                        <Stack.Screen name="EndWod" component={EndWod}
                             options={{
                                 headerShown: false,
                                 headerBackTitleVisible: false,
