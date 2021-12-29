@@ -16,14 +16,14 @@ const Item = Picker.Item;
 
 const { width, height } = Dimensions.get('window');
 
-const Page1 = ({ submitHandler, setLoading }) => {
+const Page1 = ({ submitHandler }) => {
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const [BirthDate, setBirthDate] = useState(moment.now());
 
     const registerScheme = Yup.object().shape({
         firstName: Yup.string().min(3, 'Adınız en az 3 karakter olmalıdır.'),
         lastName: Yup.string().min(2, 'Soyadınız en az 2 karakter olmalıdır.'),
         username: Yup.string().min(3, 'Kullanıcı adınız en az 3 karakter olmalıdır.'),
-        // birthDate: Yup.date().required('Doğum tarihinizi seçmelisiniz.'),
         height: Yup.number().min(3, 'Boyunuz doğru görünmüyor.'),
         weight: Yup.number().min(2, 'Kilonuz doğru görünmüyor.'),
         gender: Yup.string().min(2, 'Cinsiyet seçmelisiniz'),
@@ -185,32 +185,27 @@ const Page1 = ({ submitHandler, setLoading }) => {
                             )}
                         </View>
 
-                        {/* <View style={styles.cardContainer}>
-                                    <Text style={styles.textStyleHeader}>Doğum Tarihi</Text>
-                                    <Card style={styles.textContainer}>
-                                        {errors.birthDate && (
-                                            <Text style={{ fontSize: 14, color: 'red' }}>
-                                                {errors.birthDate}
-                                            </Text>
-                                        )}
-                                        <Pressable style={styles.textContainer} onPress={() => setDatePickerVisibility(!isDatePickerVisible)}>
-                                            <Text style={styles.textInput}>{values.birthDate !== undefined ? moment(values.birthDate).format("LL") : moment().format("LL")}</Text>
-                                        </Pressable>
-                                        <DateTimePickerModal
-                                            minimumDate={new Date("01-01-1940")}
-                                            maximumDate={Date.now()}
-                                            date={values.birthDate}
-                                            cancelTextIOS="Vazgeç"
-                                            confirmTextIOS="Tamam"
-                                            headerTextIOS="Doğum tarihinizi seçin"
-                                            locale="TR"
-                                            isVisible={isDatePickerVisible}
-                                            mode="date"
-                                            onConfirm={handleConfirm}
-                                            onCancel={() => setDatePickerVisibility(false)}
-                                        />
-                                    </Card>
-                                </View> */}
+                        <View style={styles.cardContainer}>
+                            <Text style={styles.textStyleHeader}>Doğum Tarihi</Text>
+                            <Card style={styles.textContainer}>
+                                <Pressable style={styles.textContainer} onPress={() => setDatePickerVisibility(!isDatePickerVisible)}>
+                                    <Text style={styles.textInput}>{BirthDate !== undefined ? moment(BirthDate).format("LL") : moment().format("LL")}</Text>
+                                </Pressable>
+                                <DateTimePickerModal
+                                    minimumDate={new Date("01-01-1940")}
+                                    maximumDate={Date.now()}
+                                    date={BirthDate}
+                                    cancelTextIOS="Vazgeç"
+                                    confirmTextIOS="Tamam"
+                                    headerTextIOS="Doğum tarihinizi seçin"
+                                    locale="TR"
+                                    isVisible={isDatePickerVisible}
+                                    mode="date"
+                                    onConfirm={handleConfirm}
+                                    onCancel={() => setDatePickerVisibility(false)}
+                                />
+                            </Card>
+                        </View>
                     </KeyboardAwareScrollView>
                     <View style={{ marginHorizontal: 20 }}>
                         <Pressable

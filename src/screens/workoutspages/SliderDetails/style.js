@@ -7,12 +7,6 @@ const styles = StyleSheet.create({
         height: '100%',
         paddingHorizontal: 20
     },
-    imageContainer: {
-        height: 'auto',
-        width: '100%',
-        borderRadius: 18,
-        marginTop: 10
-    },
     image: {
         width: '100%',
         minHeight: 200,
@@ -39,6 +33,7 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         width: '100%',
         minHeight: 200,
+        left: 20,
         height: 'auto'
     },
     title: {

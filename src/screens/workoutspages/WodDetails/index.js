@@ -50,6 +50,7 @@ const WodDetails = (props) => {
                     workout: newMoves,
                     pause: 60
                 }
+                console.log({workouts})
                 setWorkout(workouts);
                 setLoading(false);
             })

@@ -7,7 +7,7 @@ import styles from './style';
 
 const WorkoutCompleted = ({ navigation }) => {
 
-    const GoHome = async () => {
+    const GoHome = () => {
         navigation.navigate('Home');
     }
 

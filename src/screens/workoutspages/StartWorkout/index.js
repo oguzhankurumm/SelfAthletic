@@ -177,7 +177,7 @@ const StartWorkout = (props) => {
                                 </View>
                             </View>
                             <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={styles.headerText}>Egzersiz {SelectedIndex + 1} / {Workouts.length}</Text>
+                                <Text style={styles.headerText}>Egzersiz {SelectedIndex + 1} / {Workouts.length + 1}</Text>
                                 <Timer
                                     ref={timerRef}
                                     textStyle={styles.countdownText}

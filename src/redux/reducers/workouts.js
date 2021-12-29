@@ -11,6 +11,7 @@ import {
 
 const initialState = {
     workouts: [],
+    wods: [],
     todayCalories: 0,
     weekCalories: 0,
     totalPoint: 0,
@@ -27,6 +28,7 @@ export const workoutsReducer = (state = initialState, action) => {
                 weekCalories: action.weekCalories,
                 totalPoint: action.totalPoint,
                 workouts: action.workouts,
+                wods: action.wods,
                 loading: action.loading
             };
         case FETCH_WORKOUTS_FAILED:

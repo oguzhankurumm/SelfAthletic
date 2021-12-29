@@ -37,13 +37,13 @@ const SliderDetails = props => {
 
     return (
         <ImageLayout
-            title={Details.title}
+            title="Detaylar"
             Loading={Loading}
             showBack
             isScrollable={true}
         >
             {!Loading &&
-                <View style={styles.imageContainer}>
+                <View style={styles.container}>
                     <Image
                         resizeMode="cover"
                         source={{ uri: Details.image }}
@@ -57,7 +57,7 @@ const SliderDetails = props => {
                         style={styles.linearGradient}
                     />
 
-                    <View style={{ position: 'absolute', top: 15, paddingHorizontal: 20 }}>
+                    <View style={{ position: 'absolute', top: 15, left: 10, paddingHorizontal: 20 }}>
                         <Text style={styles.title}>{Details.title}</Text>
                     </View>
                     <View style={{ marginTop: 20 }}>

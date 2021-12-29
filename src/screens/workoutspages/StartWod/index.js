@@ -3,7 +3,6 @@ import { View, Text, Dimensions, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import 'moment/locale/tr';
-moment.locale('tr');
 import WorkoutLayout from '../../../components/workout-layout';
 import Carousel from 'react-native-snap-carousel';
 import { Timer } from 'react-native-element-timer';
@@ -15,6 +14,7 @@ import themeColors from '../../../styles/colors';
 const { width, height } = Dimensions.get("window");
 
 const StartWod = (props) => {
+    moment.locale('tr');
     const [Loading, setLoading] = useState(false);
     const Data = props.route.params.Workout;
     const [Workouts, setWorkouts] = useState(Object.values(Data.workout));
@@ -22,12 +22,10 @@ const StartWod = (props) => {
     const [TotalPoint, setTotalPoint] = useState(0);
     const [CurrentSet, setCurrentSet] = useState(1);
     const [initialTime, setInitialTime] = useState(0);
-    const [RemaningTime, setRemaningTime] = useState(0);
     const [SelectedIndex, setSelectedIndex] = useState(0);
     const [ShowFirstTimer, setShowFirstTimer] = useState(false);
     const [ShowMolaTimer, setShowMolaTimer] = useState(false);
     const [breakDuration, setbreakDuration] = useState(30);
-    const [ShowFinishAlert, setShowFinishAlert] = useState(false);
     const [PlayVideo, setPlayVideo] = useState(false);
     const _carousel = useRef(null);
     const timerRef = useRef(null);
@@ -96,18 +94,22 @@ const StartWod = (props) => {
 
     const increaseMove = () => {
         const currentWorkout = Workouts[SelectedIndex];
-        console.log({ currentWorkout })
-        setbreakDuration(currentWorkout.pause);
-        if (CurrentSet === currentWorkout.set) {
+        console.log('fsdfsd', currentWorkout);
+        if (currentWorkout !== undefined && CurrentSet === currentWorkout.set) {
             if (currentWorkout.type === "reps") {
                 setTotalPoint(TotalPoint + parseFloat(1));
             } else {
                 setTotalPoint(TotalPoint + parseFloat(currentWorkout.time) / 10);
             }
             setTotalKcal(TotalKcal + parseFloat(currentWorkout.calorie / currentWorkout.set))
+            setbreakDuration(currentWorkout.pause);
             updateLastIndex(SelectedIndex + 1);
             setCurrentSet(1);
             setShowMolaTimer(true);
+        } else if (currentWorkout === undefined) {
+            console.log({ CurrentSet, currentWorkout })
+            timerRef.current.pause();
+            alert('antrenman bitti');
         } else {
             setTotalKcal(TotalKcal + parseFloat(currentWorkout.calorie / currentWorkout.set))
             if (currentWorkout.type === "reps") {
@@ -115,6 +117,7 @@ const StartWod = (props) => {
             } else {
                 setTotalPoint(TotalPoint + parseFloat(currentWorkout.time) / 10);
             }
+            setbreakDuration(currentWorkout.pause);
             setCurrentSet(CurrentSet + 1);
             setShowMolaTimer(true);
         }
@@ -174,7 +177,7 @@ const StartWod = (props) => {
                                 </View>
                             </View>
                             <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={styles.headerText}>Egzersiz {SelectedIndex + 1} / {Workouts.length}</Text>
+                                <Text style={styles.headerText}>Egzersiz {SelectedIndex + 1} / {Workouts.length + 1}</Text>
                                 <Timer
                                     ref={timerRef}
                                     textStyle={styles.countdownText}

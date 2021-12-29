@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
-import SpinnerLoading from '../../components/SpinnerLoading';
-import { database } from '../../config/config';
+import SpinnerLoading from '../../../components/SpinnerLoading';
+import { firestore } from '../../../config/config';
+import styles from './style';
 import moment from 'moment';
 import Icon2 from 'react-native-vector-icons/FontAwesome5';
 import Modal from 'react-native-modal';
 
-const TestGecmisi = ({ navigation }) => {
+const TestHistory = ({ navigation }) => {
     const userData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(true);
 
@@ -15,36 +16,26 @@ const TestGecmisi = ({ navigation }) => {
     const [SelectedTest, setSelectedTest] = useState([])
     const [ShowPopup, setShowPopup] = useState(false);
 
-    const getFavorites = async () => {
+    const getTests = async () => {
         setLoading(true);
-        var testList = [];
 
-        await database().ref(`users_points/${userData.userId}`).orderByChild('dataType').equalTo('exam').once("value")
-            .then((snapshot) => {
-                if (snapshot.val() !== undefined && snapshot.val() !== null) {
-                    snapshot.forEach((item) => {
-                        console.log('item: ', item.val())
-                        testList.push({
-                            ...item.val(),
-                            id: item.key
-                        });
-                    })
-
-                    setTestList(testList.sort((a, b) => b.date.localeCompare(a.date)))
-                    setLoading(false);
-                } else {
-                    setTestList([]);
-                    setLoading(false);
+        try {
+            const testRef = await firestore().collection('users').doc(userData.userId).collection('tests').get();
+            const testList = testRef.docs.map(doc => {
+                return {
+                    ...doc.data(),
+                    id: doc.id
                 }
-            })
-            .catch((err) => {
-                setTestList([]);
-                setLoading(false);
-            })
+            });
+            setTestList(testList.sort((a, b) => b.date.localeCompare(a.date)));
+            setLoading(false);
+        } catch (error) {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
-        getFavorites();
+        getTests();
     }, [])
 
     const GetPoint = (point) => {
@@ -56,6 +47,7 @@ const TestGecmisi = ({ navigation }) => {
             return "Seviye 3"
         }
     }
+
     return (
         <>
             <SpinnerLoading Loading={Loading} />
@@ -152,7 +144,7 @@ const TestGecmisi = ({ navigation }) => {
                                     }}>
 
                                     <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10 }}>
-                                        <Image source={require('../../assets/img/seviyeicon.png')} width={50} height={50} resizeMode="contain" style={{ width: 50, height: 50 }} />
+                                        <Image source={require('../../../assets/img/seviyeicon.png')} width={50} height={50} resizeMode="contain" style={{ width: 50, height: 50 }} />
                                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                             <Text style={{
                                                 fontFamily: 'SFProDisplay-Bold',
@@ -182,58 +174,4 @@ const TestGecmisi = ({ navigation }) => {
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center'
-    },
-    header: {
-        width: '100%',
-        height: 60,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20
-    },
-    headerText: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 18,
-        color: '#FFF'
-    },
-    circleHeaderText: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 28,
-        color: '#FFF'
-    },
-    targetHeader: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 22,
-        color: '#FFF',
-        marginBottom: 5
-    },
-    targetText: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 20,
-        color: '#FFF'
-    },
-    targetSubText: {
-        marginTop: 5,
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 13,
-        color: '#FFF'
-    },
-    touchableText: {
-        textAlign: 'center',
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 14,
-        color: '#FFF'
-    },
-    touchableStyle: {
-        width: '33%',
-        marginHorizontal: 1,
-        paddingVertical: 10,
-        paddingHorizontal: 5,
-        borderRadius: 12
-    }
-})
-export default TestGecmisi;
+export default TestHistory;

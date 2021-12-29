@@ -14,7 +14,6 @@ import AddNewPost from '../../components/newPost/AddNewPost';
 import Profile from '../../screens/mainpages/Profile';
 import WorkoutDetails from '../../screens/workoutspages/WorkoutDetails';
 import SliderDetails from '../../screens/workoutspages/SliderDetails';
-import WorkoutVideo from '../../screens/workoutspages/WorkoutVideo';
 import Feed from '../../screens/mainpages/Feed';
 import Calories from '../../screens/caloriespages/Calories';
 import StepCounter from '../../screens/steppages/StepCounter';
@@ -31,10 +30,10 @@ import WorkoutDays from '../../screens/settings/WorkoutDays';
 import MoveThumb from '../../screens/workoutspages/MoveThumb';
 import TestList from '../../screens/profilepages/TestList';
 import Testler from '../../screens/profilepages/Testler';
-import Olcumler from '../../screens/profilepages/Olcumler';
+import Measurement from '../../screens/profilepages/Measurement';
 import AddWater from '../../screens/profilepages/AddWater';
 import TumGecmisler from '../../screens/profilepages/TumGecmisler';
-import Gecmis from '../../screens/profilepages/Gecmis';
+import History from '../../screens/profilepages/History';
 import LikedUsers from '../../components/liked-users';
 import PostComments from '../../components/post-comments';
 import WodList from '../../screens/workoutspages/WodList';
@@ -247,7 +246,7 @@ export default function Route() {
                                 headerTintColor: '#000'
                             }}
                         />
-                        <Stack.Screen name="Olcumler" component={Olcumler}
+                        <Stack.Screen name="Measurement" component={Measurement}
                             options={{
                                 gestureEnabled: false,
                                 headerShown: false,
@@ -263,13 +262,6 @@ export default function Route() {
                             }}
                         />
                         <Stack.Screen name="WodDetails" component={WodDetails}
-                            options={{
-                                headerShown: false,
-                                headerBackTitleVisible: false,
-                                headerTintColor: '#000'
-                            }}
-                        />
-                        <Stack.Screen name="WorkoutVideo" component={WorkoutVideo}
                             options={{
                                 headerShown: false,
                                 headerBackTitleVisible: false,
@@ -377,7 +369,7 @@ export default function Route() {
                                 headerTintColor: '#000'
                             }}
                         />
-                        <Stack.Screen name="Gecmis" component={Gecmis}
+                        <Stack.Screen name="History" component={History}
                             options={{
                                 headerShown: false,
                                 headerBackTitleVisible: false,

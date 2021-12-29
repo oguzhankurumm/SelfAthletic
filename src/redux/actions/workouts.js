@@ -1,4 +1,4 @@
-import { FETCH_WORKOUTS, FETCH_WORKOUTS_FAILED, ADD_WORKOUT, ADD_WORKOUT_FINISH, ADD_WORKOUT_FAILED, DELETE_WORKOUT, ADD_WORKOUT_START } from '../contants';
+import { FETCH_WORKOUTS, ADD_WOD_START, ADD_WOD_FINISH, ADD_WOD_FAILED, ADD_WORKOUT_FINISH, ADD_WORKOUT_FAILED, ADD_WORKOUT_START } from '../contants';
 import { firestore, auth } from '../../config/config';
 import moment from 'moment';
 
@@ -50,6 +50,23 @@ export const addWorkout = data => {
         } catch (error) {
             dispatch({
                 type: ADD_WORKOUT_FAILED,
+                errorMsg: error.message,
+                loading: false
+            })
+        }
+    }
+}
+
+
+export const addWod = data => {
+    return async dispatch => {
+        try {
+            dispatch({ type: ADD_WOD_START })
+            await firestore().collection('users').doc(auth().currentUser.email).collection('wods').add(data[0]);
+            dispatch({ type: ADD_WOD_FINISH })
+        } catch (error) {
+            dispatch({
+                type: ADD_WOD_FAILED,
                 errorMsg: error.message,
                 loading: false
             })

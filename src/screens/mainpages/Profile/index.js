@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
-import { View, Text, TouchableOpacity, Dimensions, Image, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { firestore, auth } from '../../../config/config';
+import styles from './style';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
@@ -10,7 +11,6 @@ import { changeProfilePicture } from '../../../helpers';
 import IconCard from '../../../components/profile/icon-card';
 import PressableCard from '../../../components/profile/pressable-card';
 import LevelCard from '../../../components/profile/level-card';
-import styles from './style';
 import { showMessage } from 'react-native-flash-message';
 import themeColors from '../../../styles/colors';
 
@@ -32,32 +32,27 @@ const Profile = ({ navigation }) => {
     const userWorkouts = useSelector(state => state.workoutsReducer.workouts);
     const totalPoint = useSelector(state => state.workoutsReducer.totalPoint);
     const [SelectedPage, setSelectedPage] = useState(0);
-    const [EgzersizList, setEgzersizList] = useState([]);
     const [FoodList, setFoodList] = useState([]);
     const [CompletedFoods, setCompletedFoods] = useState(0);
     const [CompletedWorkouts, setCompletedWorkouts] = useState(0);
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
 
-    const [BestDay, setBestDay] = useState("")
-
     const onDayPressed = (day) => {
         var date = moment(day.dateString).format("YYYY-MM-DD");
         if (markedDatesArray[date]) {
             let dots = markedDatesArray[date].dots
-            console.log('dots:', dots)
             if (dots.length === 1) {
-                // if (dots[0].key === 'food') {
-                //     let findData = FoodList.find(q => q.date === date);
-                //     navigation.navigate('Gecmis', { food: findData, type: 'food' })
-                // } else {
-                //     let findData = EgzersizList.find(q => q.date === date)
-                //     navigation.navigate('Gecmis', { workout: findData, type: 'workout' })
-                // }
+                if (dots[0].key === 'food') {
+                    let findData = FoodList.find(q => q.date === moment(date, "YYYY-MM-DD").format("DD-MM-YYYY"));
+                    navigation.navigate('History', { food: findData, type: 'food' })
+                } else {
+                    let findData = userWorkouts.find(q => q.date === moment(date, "YYYY-MM-DD").format("DD-MM-YYYY"))
+                    navigation.navigate('History', { workout: findData, type: 'workout' })
+                }
             } else {
-                console.log('len 1 üstü')
-                //     let findFood = FoodList.find(q => q.date === date);
-                //     let findWorkout = EgzersizList.find(q => q.date === date);
-                //     navigation.navigate('Gecmis', { food: findFood, workout: findWorkout, type: 'all' })
+                let findFood = FoodList.find(q => q.date === moment(date, "YYYY-MM-DD").format("DD-MM-YYYY"));
+                let findWorkout = userWorkouts.filter(q => q.date === moment(date, "YYYY-MM-DD").format("DD-MM-YYYY"));
+                navigation.navigate('History', { food: findFood, workout: findWorkout, type: 'all' })
             }
         } else {
             showMessage({
@@ -113,9 +108,9 @@ const Profile = ({ navigation }) => {
                     const date = moment(o.date, 'DD-MM-YYYY').format('YYYY-MM-DD');
                     const isCompleted = o.completed;
                     if (groups[date]) {
-                        groups[date]['dots'].push({ color: isCompleted ? 'yellow' : 'gray' });
+                        groups[date]['dots'].push({ color: 'yellow' });
                     } else {
-                        groups[date] = { date: new Date(date), dots: [{ color: isCompleted ? 'yellow' : 'gray' }] };
+                        groups[date] = { date: new Date(date), dots: [{ color: 'yellow' }] };
                     }
                 });
 
@@ -261,7 +256,7 @@ const Profile = ({ navigation }) => {
             {SelectedPage === 2 &&
                 <View style={[styles.iconsContainer, { paddingHorizontal: 20, paddingBottom: 100 }]}>
                     <PressableCard title="Testleri Gör" image={require('../../../assets/img/tests.jpeg')} onPress={() => navigation.navigate('TestList')} />
-                    <PressableCard title="Mezura Ölçümleri" image={require('../../../assets/img/mezura.jpeg')} onPress={() => navigation.navigate('Olcumler')} />
+                    <PressableCard title="Mezura Ölçümleri" image={require('../../../assets/img/mezura.jpeg')} onPress={() => navigation.navigate('Measurement')} />
                 </View>
             }
         </ImageLayout>
