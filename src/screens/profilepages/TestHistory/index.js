@@ -8,7 +8,7 @@ import moment from 'moment';
 import Icon2 from 'react-native-vector-icons/FontAwesome5';
 import Modal from 'react-native-modal';
 
-const TestHistory = ({ navigation }) => {
+const TestHistory = () => {
     const userData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(true);
 

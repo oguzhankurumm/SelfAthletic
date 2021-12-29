@@ -2,7 +2,6 @@ import { showMessage } from "react-native-flash-message";
 import {
     FETCH_WORKOUTS,
     FETCH_WORKOUTS_FAILED,
-    ADD_WORKOUT,
     ADD_WORKOUT_FAILED,
     ADD_WORKOUT_START,
     ADD_WORKOUT_FINISH,
@@ -28,6 +27,7 @@ export const workoutsReducer = (state = initialState, action) => {
                 weekCalories: action.weekCalories,
                 totalPoint: action.totalPoint,
                 workouts: action.workouts,
+                calendarWorkouts: action.calendarWorkouts,
                 wods: action.wods,
                 loading: action.loading
             };

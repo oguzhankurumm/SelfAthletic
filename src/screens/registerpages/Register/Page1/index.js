@@ -16,14 +16,12 @@ const Item = Picker.Item;
 
 const { width, height } = Dimensions.get('window');
 
-const Page1 = ({ submitHandler }) => {
+const Page1 = ({ submitHandler, BirthDate, setBirthDate }) => {
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-    const [BirthDate, setBirthDate] = useState(moment.now());
 
     const registerScheme = Yup.object().shape({
         firstName: Yup.string().min(3, 'Adınız en az 3 karakter olmalıdır.'),
         lastName: Yup.string().min(2, 'Soyadınız en az 2 karakter olmalıdır.'),
-        username: Yup.string().min(3, 'Kullanıcı adınız en az 3 karakter olmalıdır.'),
         height: Yup.number().min(3, 'Boyunuz doğru görünmüyor.'),
         weight: Yup.number().min(2, 'Kilonuz doğru görünmüyor.'),
         gender: Yup.string().min(2, 'Cinsiyet seçmelisiniz'),
@@ -36,7 +34,7 @@ const Page1 = ({ submitHandler }) => {
 
     return (
         <Formik
-            initialValues={{ firstName: '', lastName: '', username: '', height: 170, weight: 60, gender: 'male' }}
+            initialValues={{ firstName: '', lastName: '', height: 170, weight: 60, gender: 'male' }}
             onSubmit={submitHandler}
             validationSchema={registerScheme}
             validateOnMount={true}

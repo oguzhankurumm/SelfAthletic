@@ -1,18 +1,15 @@
 import React, { useState } from 'react'
 import { View, Text, Pressable, FlatList, TextInput, Alert } from 'react-native';
 import { firestore } from '../../../config/config';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import moment from 'moment';
 import 'moment/locale/tr';
 import WorkoutLayout from '../../../components/workout-layout';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view'
 import styles from './style';
-import * as actions from '../../../redux/actions/auth';
-import * as healthActions from '../../../redux/actions/health';
 
 const EndWorkout = (props) => {
-    const dispatch = useDispatch()
     const profileData = useSelector(state => state.authReducer.currentUser);
     const [Loading, setLoading] = useState(false);
     const [Data, setData] = useState(props.route.params.data);
@@ -49,6 +46,7 @@ const EndWorkout = (props) => {
                 point: totalPoint,
                 type: profileData.values.target,
                 workout: Workouts,
+                isWod: false
             }
             await firestore().collection('users').doc(profileData.userId).collection('workouts').doc(Data.id).update(workoutData);
             setLoading(false);

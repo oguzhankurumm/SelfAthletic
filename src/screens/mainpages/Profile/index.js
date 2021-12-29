@@ -29,7 +29,7 @@ const Profile = ({ navigation }) => {
     const [Loading, setLoading] = useState(false);
     const [AllLoading, setAllLoading] = useState(true);
     const profileData = useSelector(state => state.authReducer.currentUser);
-    const userWorkouts = useSelector(state => state.workoutsReducer.workouts);
+    const userWorkouts = useSelector(state => state.workoutsReducer.calendarWorkouts);
     const totalPoint = useSelector(state => state.workoutsReducer.totalPoint);
     const [SelectedPage, setSelectedPage] = useState(0);
     const [FoodList, setFoodList] = useState([]);
@@ -37,6 +37,7 @@ const Profile = ({ navigation }) => {
     const [CompletedWorkouts, setCompletedWorkouts] = useState(0);
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
 
+    console.log({userWorkouts})
     const onDayPressed = (day) => {
         var date = moment(day.dateString).format("YYYY-MM-DD");
         if (markedDatesArray[date]) {

@@ -80,7 +80,7 @@ const FavoritedWorkouts = ({ navigation }) => {
     }
 
     const showWorkout = item => {
-        navigation.navigate('AntrenmanList', { item: item, type: 1 })
+        navigation.navigate('WorkoutList', { item: item, type: 1 })
     }
 
     return (

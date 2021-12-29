@@ -340,7 +340,6 @@ const Steps = props => {
                                     <TouchableOpacity
                                         onPress={() => {
                                             const newValue = HealthProblems.map((checkbox, i) => {
-
                                                 if (i !== index)
                                                     return {
                                                         ...checkbox,
@@ -354,7 +353,6 @@ const Steps = props => {
                                                     }
                                                     return item
                                                 }
-
                                                 return checkbox
                                             })
 

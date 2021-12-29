@@ -7,7 +7,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Loading from '../../components/Loading';
 import Welcome from '../../screens/loginpages/Welcome';
 import ForgotPassword from '../../screens/loginpages/ForgotPassword';
-import AntrenmanList from '../../screens/profilepages/AntrenmanList';
 import FoodLib from '../../screens/mainpages/FoodLib';
 import WorkoutLib from '../../screens/mainpages/WorkoutLib';
 import AddNewPost from '../../components/newPost/AddNewPost';
@@ -40,7 +39,7 @@ import WodList from '../../screens/workoutspages/WodList';
 import StartWorkout from '../../screens/workoutspages/StartWorkout';
 import StartWod from '../../screens/workoutspages/StartWod';
 import EndWorkout from '../../screens/workoutspages/EndWorkout';
-import EndWod from '../../screens/workoutspages/EndWod';
+import WodCompleted from '../../screens/workoutspages/WodCompleted';
 import WorkoutCompleted from '../../screens/workoutspages/WorkoutCompleted';
 import HomeScreen from '../home';
 import CronicProblems from '../../screens/settings/CronicProblems';
@@ -290,7 +289,7 @@ export default function Route() {
                                 headerTintColor: '#000'
                             }}
                         />
-                        <Stack.Screen name="EndWod" component={EndWod}
+                        <Stack.Screen name="WodCompleted" component={WodCompleted}
                             options={{
                                 headerShown: false,
                                 headerBackTitleVisible: false,
@@ -335,13 +334,6 @@ export default function Route() {
                             }}
                         />
                         <Stack.Screen name="FavoritedWorkouts" component={FavoritedWorkouts}
-                            options={{
-                                headerShown: false,
-                                headerBackTitleVisible: false,
-                                headerTintColor: '#000'
-                            }}
-                        />
-                        <Stack.Screen name="AntrenmanList" component={AntrenmanList}
                             options={{
                                 headerShown: false,
                                 headerBackTitleVisible: false,

@@ -34,6 +34,13 @@ const StartWorkout = (props) => {
     const myVideo = useRef(null);
 
     useEffect(() => {
+        const currentWorkout = Workouts[0];
+        setTotalKcal(TotalKcal + parseFloat(currentWorkout.values.calorie / currentWorkout.values.set))
+        if (currentWorkout.type === "reps") {
+            setTotalPoint(TotalPoint + parseFloat(1));
+        } else {
+            setTotalPoint(TotalPoint + parseFloat(currentWorkout.values.time) / 10);
+        }
         setTimeout(() => {
             setShowFirstTimer(true);
         }, 500);
@@ -93,33 +100,43 @@ const StartWorkout = (props) => {
         );
     }
 
-    const GoBack = () => {
-        props.navigation.goBack();
+    const addPoint = () => {
+        setTotalKcal(TotalKcal + parseFloat(Workouts[SelectedIndex].values.calorie / Workouts[SelectedIndex].values.set))
+        if (Workouts[SelectedIndex].type === "reps") {
+            setTotalPoint(TotalPoint + parseFloat(1));
+        } else {
+            setTotalPoint(TotalPoint + parseFloat(Workouts[SelectedIndex].values.time) / 10);
+        }
+        setbreakDuration(Workouts[SelectedIndex].values.pause);
+        setShowMolaTimer(true);
     }
 
     const increaseMove = () => {
-        const currentWorkout = Workouts[SelectedIndex];
-
-        setbreakDuration(currentWorkout.values.pause);
-        if (CurrentSet === currentWorkout.values.set) {
-            if (currentWorkout.type === "reps") {
-                setTotalPoint(TotalPoint + parseFloat(1));
-            } else {
-                setTotalPoint(TotalPoint + parseFloat(currentWorkout.values.time) / 10);
-            }
-            setTotalKcal(TotalKcal + parseFloat(currentWorkout.values.calorie / currentWorkout.values.set))
-            updateLastIndex(SelectedIndex + 1);
-            setCurrentSet(1);
-            setShowMolaTimer(true);
-        } else {
-            setTotalKcal(TotalKcal + parseFloat(currentWorkout.values.calorie / currentWorkout.values.set))
-            if (currentWorkout.type === "reps") {
-                setTotalPoint(TotalPoint + parseFloat(1));
-            } else {
-                setTotalPoint(TotalPoint + parseFloat(currentWorkout.values.time) / 10);
-            }
+        if (SelectedIndex === Workouts.length - 1 && CurrentSet < Workouts[SelectedIndex].values.set) {
             setCurrentSet(CurrentSet + 1);
-            setShowMolaTimer(true);
+            addPoint();
+            return false;
+        }
+
+        if (SelectedIndex === Workouts.length - 1 && CurrentSet === Workouts[SelectedIndex].values.set) {
+            timerRef.current.pause();
+            props.navigation.navigate('EndWorkout', {
+                data: Data, workouts: Workouts, values: { TotalKcal, TotalPoint, initialTime }
+            })
+            return false;
+        }
+
+        if (SelectedIndex < Workouts.length - 1) {
+            if (CurrentSet < Workouts[SelectedIndex].values.set) {
+                setCurrentSet(CurrentSet + 1);
+                addPoint();
+            } else {
+                addPoint();
+                setSelectedIndex(SelectedIndex + 1);
+                _carousel.current.snapToNext();
+                setCurrentSet(1);
+            }
+
         }
     }
 
@@ -231,7 +248,7 @@ const StartWorkout = (props) => {
                         </Pressable>
                         <View style={{ alignItems: 'flex-end', justifyContent: 'center', width: '50%' }}>
                             <Text style={styles.bottomSubtitle}>Sonraki Hareket</Text>
-                            <Text numberOfLines={2} style={styles.bottomTitle}>{String(Workouts[SelectedIndex + 1].name).length > 40 ? String(Workouts[SelectedIndex + 1].name).slice(0, 40) + '...' : String(Workouts[SelectedIndex + 1].name)} • {Workouts[SelectedIndex + 1].set} Set </Text>
+                            <Text numberOfLines={2} style={styles.bottomTitle}>{String(Workouts[SelectedIndex + 1].name).length > 40 ? String(Workouts[SelectedIndex + 1].name).slice(0, 40) + '...' : String(Workouts[SelectedIndex + 1].name)} • {Workouts[SelectedIndex + 1].values.set} Set </Text>
                         </View>
                     </View>
                 </>

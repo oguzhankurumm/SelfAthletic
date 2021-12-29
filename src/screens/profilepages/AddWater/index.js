@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput } from 'react-native';
+import styles from './style';
 import moment from 'moment';
 import 'moment/locale/tr';
 import { useSelector } from 'react-redux';
-import { firestore } from '../../config/config';
+import { firestore } from '../../../config/config';
 import { showMessage } from 'react-native-flash-message';
-import ImageLayout from '../../components/image-layout';
+import ImageLayout from '../../../components/image-layout';
+import BottomButton from '../../../components/bottom-button';
 
-const AddWater = props => {
+const AddWater = ({ navigation }) => {
     const [Loading, setLoading] = useState(false);
     const profileData = useSelector(state => state.authReducer.currentUser);
     const [WaterType, setWaterType] = useState(0);
@@ -62,49 +64,38 @@ const AddWater = props => {
         <ImageLayout
             title="Su Ekle"
             showBack
-            isScrollable={true}
+            isScrollable={false}
             Loading={Loading}
         >
-
             <View style={{ flex: 1, paddingHorizontal: 20 }}>
-
                 <View style={{ width: '100%', marginTop: 30 }}>
-                    <Text style={[styles.headerText, { fontSize: 16 }]}>İçmeniz gereken su, Dünya Sağlık Örgütü'nün önerisi doğrultusunda {parseFloat(parseFloat(profileData.weight) * parseFloat(0.0350)).toFixed(2)} litre olarak hesaplanmıştır.</Text>
+                    <Text style={[styles.headerText, { fontSize: 16 }]}>İçmeniz gereken su, Dünya Sağlık Örgütü'nün önerisi doğrultusunda {parseFloat(parseFloat(profileData.values.weight) * parseFloat(0.0350)).toFixed(2)} litre olarak hesaplanmıştır.</Text>
                 </View>
 
                 <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 30 }}>
                     <TouchableOpacity
                         onPress={() => setWaterType(0)}
-                        style={WaterType !== 0 ? styles.touchableStyle : [styles.touchableStyle, { backgroundColor: 'rgba(4, 53, 115, 0.6)' }]}>
-                        <Text style={styles.touchableText}>Bardak (0.2L)</Text>
+                        style={WaterType !== 0 ? styles.touchableStyle : styles.touchableStyleSelected}>
+                        <Text style={WaterType !== 0 ? styles.touchableText : styles.touchableTextSelected}>Bardak (0.2L)</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={() => setWaterType(1)}
-                        style={WaterType !== 1 ? styles.touchableStyle : [styles.touchableStyle, { backgroundColor: 'rgba(4, 53, 115, 0.6)' }]}>
-                        <Text style={styles.touchableText}>Litre</Text>
+                        style={WaterType !== 1 ? styles.touchableStyle : styles.touchableStyleSelected}>
+                        <Text style={WaterType !== 1 ? styles.touchableText : styles.touchableTextSelected}>Litre</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={() => setWaterType(2)}
-                        style={WaterType !== 2 ? styles.touchableStyle : [styles.touchableStyle, { backgroundColor: 'rgba(4, 53, 115, 0.6)' }]}>
-                        <Text style={styles.touchableText}>Şişe (0.5L)</Text>
+                        style={WaterType !== 2 ? styles.touchableStyle : styles.touchableStyleSelected}>
+                        <Text style={WaterType !== 2 ? styles.touchableText : styles.touchableTextSelected}>Şişe (0.5L)</Text>
                     </TouchableOpacity>
                 </View>
 
                 <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 30 }}>
-                    <Text style={[styles.touchableText, { marginBottom: 15, textAlign: 'left', width: '100%', fontWeight: '700', fontSize: 17, color: 'rgba(4, 53, 115, 0.6)' }]}>Ne kadar su içtin?</Text>
+                    <Text style={styles.inputTitle}>Ne kadar su içtin?</Text>
                     <TextInput
-                        style={{
-                            backgroundColor: 'rgba(4, 53, 115, 0.6)',
-                            padding: 10,
-                            color: "#FFF",
-                            borderRadius: 12,
-                            fontFamily: 'SFProDisplay-Medium',
-                            fontSize: 16,
-                            height: 70,
-                            width: '100%'
-                        }}
+                        style={styles.input}
                         textAlign="left"
                         placeholderTextColor="#FFF"
                         allowFontScaling={false}
@@ -119,58 +110,12 @@ const AddWater = props => {
 
             </View>
 
-            <TouchableOpacity
-                onPress={() => AddWater()}
-                style={{
-                    width: '100%',
-                    height: 60,
-                    backgroundColor: 'rgba(4, 53, 115, 0.6)',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                <Text style={{
-                    fontFamily: 'SFProDisplay-Bold',
-                    justifyContent: 'flex-start',
-                    fontSize: 16,
-                    color: '#FFF',
-                    marginRight: 5
-                }}>Su Ekle</Text>
-            </TouchableOpacity>
-
+            <BottomButton
+                onPress={AddWater}
+                title="Su Ekle"
+            />
         </ImageLayout >
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center'
-    },
-    header: {
-        width: '100%',
-        height: 60,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20
-    },
-    headerText: {
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 18,
-        color: 'rgba(4, 53, 115, 0.6)'
-    },
-    touchableText: {
-        textAlign: 'center',
-        fontFamily: 'SFProDisplay-Medium',
-        fontSize: 14,
-        color: '#FFF'
-    },
-    touchableStyle: {
-        width: '33%',
-        marginHorizontal: 1,
-        paddingVertical: 10,
-        paddingHorizontal: 5,
-        borderRadius: 12
-    }
-})
 export default AddWater;

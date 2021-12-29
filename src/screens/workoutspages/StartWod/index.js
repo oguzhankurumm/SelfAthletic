@@ -13,7 +13,7 @@ import themeColors from '../../../styles/colors';
 
 const { width, height } = Dimensions.get("window");
 
-const StartWod = (props) => {
+const StartWod = props => {
     moment.locale('tr');
     const [Loading, setLoading] = useState(false);
     const Data = props.route.params.Workout;
@@ -32,6 +32,13 @@ const StartWod = (props) => {
     const myVideo = useRef(null);
 
     useEffect(() => {
+        const currentWorkout = Workouts[0];
+        setTotalKcal(TotalKcal + parseFloat(currentWorkout.calorie / currentWorkout.set))
+        if (currentWorkout.type === "reps") {
+            setTotalPoint(TotalPoint + parseFloat(1));
+        } else {
+            setTotalPoint(TotalPoint + parseFloat(currentWorkout.time) / 10);
+        }
         setTimeout(() => {
             setShowFirstTimer(true);
         }, 500);
@@ -45,7 +52,7 @@ const StartWod = (props) => {
 
     const updateLastIndex = async (e) => {
         setSelectedIndex(e);
-        _carousel.current.snapToItem(parseFloat(e));
+        _carousel.current.snapToNext();
     }
 
     const _renderItem = ({ item, index }) => {
@@ -92,34 +99,42 @@ const StartWod = (props) => {
         );
     }
 
-    const increaseMove = () => {
-        const currentWorkout = Workouts[SelectedIndex];
-        console.log('fsdfsd', currentWorkout);
-        if (currentWorkout !== undefined && CurrentSet === currentWorkout.set) {
-            if (currentWorkout.type === "reps") {
-                setTotalPoint(TotalPoint + parseFloat(1));
-            } else {
-                setTotalPoint(TotalPoint + parseFloat(currentWorkout.time) / 10);
-            }
-            setTotalKcal(TotalKcal + parseFloat(currentWorkout.calorie / currentWorkout.set))
-            setbreakDuration(currentWorkout.pause);
-            updateLastIndex(SelectedIndex + 1);
-            setCurrentSet(1);
-            setShowMolaTimer(true);
-        } else if (currentWorkout === undefined) {
-            console.log({ CurrentSet, currentWorkout })
-            timerRef.current.pause();
-            alert('antrenman bitti');
+    const addPoint = () => {
+        setTotalKcal(TotalKcal + parseFloat(Workouts[SelectedIndex].calorie / Workouts[SelectedIndex].set))
+        if (Workouts[SelectedIndex].type === "reps") {
+            setTotalPoint(TotalPoint + parseFloat(1));
         } else {
-            setTotalKcal(TotalKcal + parseFloat(currentWorkout.calorie / currentWorkout.set))
-            if (currentWorkout.type === "reps") {
-                setTotalPoint(TotalPoint + parseFloat(1));
-            } else {
-                setTotalPoint(TotalPoint + parseFloat(currentWorkout.time) / 10);
-            }
-            setbreakDuration(currentWorkout.pause);
+            setTotalPoint(TotalPoint + parseFloat(Workouts[SelectedIndex].time) / 10);
+        }
+        setbreakDuration(Workouts[SelectedIndex].pause);
+        setShowMolaTimer(true);
+    }
+
+    const increaseMove = () => {
+
+        if (SelectedIndex === Workouts.length - 1 && CurrentSet < Workouts[SelectedIndex].set) {
             setCurrentSet(CurrentSet + 1);
-            setShowMolaTimer(true);
+            addPoint();
+            return false;
+        }
+
+        if (SelectedIndex === Workouts.length - 1 && CurrentSet === Workouts[SelectedIndex].set) {
+            timerRef.current.pause();
+            props.navigation.navigate('WodCompleted', { data: Data, workouts: Workouts, values: { TotalKcal, TotalPoint, initialTime } })
+            return false;
+        }
+
+        if (SelectedIndex < Workouts.length - 1) {
+            if (CurrentSet < Workouts[SelectedIndex].set) {
+                setCurrentSet(CurrentSet + 1);
+                addPoint();
+            } else {
+                addPoint();
+                setSelectedIndex(SelectedIndex + 1);
+                _carousel.current.snapToNext();
+                setCurrentSet(1);
+            }
+
         }
     }
 
@@ -177,7 +192,7 @@ const StartWod = (props) => {
                                 </View>
                             </View>
                             <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={styles.headerText}>Egzersiz {SelectedIndex + 1} / {Workouts.length + 1}</Text>
+                                <Text style={styles.headerText}>Egzersiz {SelectedIndex + 1} / {Workouts.length}</Text>
                                 <Timer
                                     ref={timerRef}
                                     textStyle={styles.countdownText}
@@ -190,7 +205,6 @@ const StartWod = (props) => {
 
                     <Carousel
                         ref={_carousel}
-                        onSnapToItem={(e) => updateLastIndex(e)}
                         data={Workouts}
                         renderItem={_renderItem}
                         sliderWidth={width}
@@ -223,7 +237,7 @@ const StartWod = (props) => {
                             style={styles.bottomButton}
                             onPress={() => {
                                 timerRef.current.pause();
-                                props.navigation.navigate('EndWorkout', {
+                                props.navigation.navigate('WodCompleted', {
                                     data: Data, workouts: Workouts, values: { TotalKcal, TotalPoint, initialTime }
                                 })
                             }}>

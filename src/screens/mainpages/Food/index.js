@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import moment from 'moment';
 import 'moment/locale/tr';
 import CalendarStrip from 'react-native-calendar-strip';
-import ImageLayout from '../../../components/image-layout';
 import WorkoutCard from '../../../components/workouts/workout-card';
 import { increaseMuscle10kVariables, increaseMuscle15kVariables, increaseMuscle20kVariables, fatReduction10kVariables, fatReduction15kVariables, fatReduction20kVariables, keepingFit10kVariables, keepingFit15kVariables, keepingFit20kVariables } from '../../../data/workout-variables';
 import { increaseMuscle10k, increaseMuscle15k, increaseMuscle20k, fatReduction10k, fatReduction15k, fatReduction20k, keepingFit10k, keepingFit15k, keepingFit20k } from '../../../data/workout-types';
@@ -16,6 +15,7 @@ import { showMessage } from 'react-native-flash-message';
 import themeColors from '../../../styles/colors';
 import FoodListCard from '../../../components/food/food-list';
 import FoodCharts from '../../../components/food/food-chart';
+import FoodLayout from '../../../components/food-layout';
 
 const Food = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -72,7 +72,7 @@ const Food = ({ navigation }) => {
 
 
     return (
-        <ImageLayout
+        <FoodLayout
             title="Beslenme"
             Loading={Loading}
             isScrollable={true}
@@ -149,7 +149,7 @@ const Food = ({ navigation }) => {
                     }}
                 />
             } */}
-        </ImageLayout>
+        </FoodLayout>
     )
 }
 

@@ -33,7 +33,9 @@ export const getWorkouts = () => dispatch => {
                     type: FETCH_WORKOUTS,
                     todayCalories,
                     weekCalories,
-                    workouts: workouts,
+                    calendarWorkouts: workouts,
+                    workouts: workouts.filter(q => q.isWod === undefined || q.isWod === false),
+                    wods: workouts.filter(q => q.isWod === true),
                     totalPoint,
                     loading: false
                 })
@@ -62,7 +64,7 @@ export const addWod = data => {
     return async dispatch => {
         try {
             dispatch({ type: ADD_WOD_START })
-            await firestore().collection('users').doc(auth().currentUser.email).collection('wods').add(data[0]);
+            await firestore().collection('users').doc(auth().currentUser.email).collection('workouts').add(data);
             dispatch({ type: ADD_WOD_FINISH })
         } catch (error) {
             dispatch({

@@ -22,10 +22,12 @@ const Workout = ({ navigation }) => {
     const profileData = useSelector(state => state.authReducer.currentUser);
     const fitnessData = useSelector(state => state.healthReducer);
     const userWorkouts = useSelector(state => state.workoutsReducer.workouts);
+    const userWods = useSelector(state => state.workoutsReducer.wods);
     const todayCalories = useSelector(state => state.workoutsReducer.todayCalories);
     const totalPoint = useSelector(state => state.workoutsReducer.totalPoint);
     const Loading = useSelector(state => state.workoutsReducer.loading);
 
+    console.log({userWods})
     const [markedDatesArray, setmarkedDatesArray] = useState([]);
     const [SelectedDate, setSelectedDate] = useState(moment());
 
@@ -173,7 +175,8 @@ const Workout = ({ navigation }) => {
                     kcal,
                     point,
                     type: profileData.values.target,
-                    workout: newMoves
+                    workout: newMoves,
+                    isWod: false
                 }];
 
                 dispatch(addWorkout(workoutData));
