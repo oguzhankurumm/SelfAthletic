@@ -28,7 +28,7 @@ const Page7 = ({ submitHandler, handleGoBack }) => {
                 style={{ flex: 1 }}
             >
                 <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
-                    <Text style={[styles.headerText, { fontSize: 20, fontWeight: 'bold' }]}>Günlük yaşamınızda fiziksel olarak ne kadar aktifsiniz?</Text>
+                    <Text style={[styles.headerText, { fontSize: 20, fontWeight: 'bold', paddingHorizontal: 15 }]}>Günlük yaşamınızda fiziksel olarak ne kadar aktifsiniz?</Text>
                     {Aktiflik.map((item, index) => (
                         <TouchableOpacity
                             onPress={() => {

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { View, Text, Pressable, ScrollView, SafeAreaView, Animated, Dimensions } from 'react-native'
+import { ScrollView, Animated, Dimensions } from 'react-native'
 import RegisterLayout from '../../../components/register-layout';
 import { auth, firestore } from '../../../config/config';
 import moment from 'moment';
@@ -12,6 +12,7 @@ import Page4 from './Page4';
 import Page5 from './Page5';
 import Page6 from './Page6';
 import Page7 from './Page7';
+import Page8 from './Page8';
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,6 +26,7 @@ const Register = () => {
     const [CronicProblem, setCronicProblem] = useState(null);
     const [Nutrition, setNutrition] = useState(null);
     const [Aktiflik, setAktiflik] = useState(null);
+    const [Days, setDays] = useState(null);
     const scrollRef = useRef(null);
 
     const moveNext = index => {
@@ -72,7 +74,7 @@ const Register = () => {
                 lastName: fields.lastName,
                 cronicProblems: [CronicProblem],
                 healthProblems: [HealthProblem],
-                days: [0, 1, 2, 3, 4],
+                days: Days,
                 email: values.email,
                 birthDate: moment(fields.birthDate).unix(),
                 gender: fields.gender,
@@ -130,8 +132,7 @@ const Register = () => {
                 <Page3 submitHandler={e => {
                     setTarget(e[0].value);
                     moveNext(2)
-                }}
-                    setLoading={setLoading} Loading={Loading} handleGoBack={() => moveBack(0)} />
+                }} setLoading={setLoading} Loading={Loading} handleGoBack={() => moveBack(0)} />
                 <Page4 submitHandler={e => {
                     setHealthProblem(e[0].value);
                     moveNext(3)
@@ -148,7 +149,11 @@ const Register = () => {
                     setAktiflik(e[0].deger);
                     moveNext(6);
                 }} setLoading={setLoading} Loading={Loading} handleGoBack={() => moveBack(4)} />
-                <Page2 submitHandler={(e) => registerUser(e)} setLoading={setLoading} Loading={Loading} handleGoBack={() => moveBack(5)} />
+                <Page8 submitHandler={e => {
+                    setDays(e[0]);
+                    moveNext(7);
+                }} setLoading={setLoading} Loading={Loading} handleGoBack={() => moveBack(5)} />
+                <Page2 submitHandler={(e) => registerUser(e)} setLoading={setLoading} Loading={Loading} handleGoBack={() => moveBack(6)} />
             </ScrollView>
         </RegisterLayout>
     )
